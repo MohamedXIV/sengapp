@@ -28,4 +28,4 @@ Do not add a second database until there is an established need. Avoid a monolit
 
 Identity & Invitations · Conversations & Members · Messages & Reactions · Attachments · Presence & Read Positions · User Preferences · Companions & Permissions · AI Usage Budgets.
 
-See [ADR 0001](adr/0001-convex-first.md) for the backend decision and the [v0.1 design draft](../specs/sengapp-v0.1-design.md) for proposed entities and acceptance criteria.
+See [ADR 0001](adr/0001-convex-first.md) for the backend decision and the [approved v0.1 design](../specs/sengapp-v0.1-design.md) for proposed entities and acceptance criteria.

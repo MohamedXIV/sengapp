@@ -50,12 +50,12 @@ Convex-first is the agreed backend direction. We are not adding Supabase or Spac
 | Area | Status |
 | --- | --- |
 | Product direction and Convex-first choice | ✅ Agreed |
-| v0.1 design specification | 📝 Draft, awaiting final sign-off |
+| v0.1 design specification | ✅ Approved (2026-10-26) |
 | Repository foundations | 🚧 In progress |
 | App code and deployment | ⏳ Not started |
 | Private family/friends alpha | ⏳ Planned |
 
-Start with the [product vision](docs/product/vision.md), [phased roadmap](docs/product/roadmap.md), [architecture overview](docs/architecture/overview.md), and [v0.1 design draft](docs/specs/sengapp-v0.1-design.md).
+Start with the [product vision](docs/product/vision.md), [phased roadmap](docs/product/roadmap.md), [architecture overview](docs/architecture/overview.md), and [approved v0.1 design](docs/specs/sengapp-v0.1-design.md).
 
 ## Get involved
 

@@ -1,12 +1,12 @@
 # Sengapp — Roadmap
 
-> **Sequence, not dates.** These are product stages, not promises or deadlines. The v0.1 specification is pending owner sign-off.
+> **Sequence, not dates.** These are product stages, not promises or deadlines. The v0.1 specification was approved on 2026-10-26.
 
 ## v0.1 — Build a messenger people trust
 
 ### 0. Foundations
 
-- Confirm the design draft's remaining privacy defaults and select a license.
+- Implement the approved privacy defaults; select a license before accepting external contributions.
 - Bootstrap Next.js, TypeScript, shadcn/ui, Tailwind and Convex.
 - Authentication, invitation flow, server-side membership guards and responsive app shell.
 - Basic testing and documented environments.

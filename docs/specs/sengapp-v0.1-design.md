@@ -1,6 +1,6 @@
 # Sengapp — v0.1 Product & Technical Design
 
-**Status:** Proposed for owner approval  
+**Status:** Approved by the project owner on 2026-10-26  
 **Date:** 2026-10-26  
 **Project:** Sengapp (working name; trademark/domain availability not verified)
 
@@ -69,9 +69,9 @@ An invited friend can register, accept another person's chat/group invitation, e
 - User can manage contacts, accept/reject chat/group invitations, leave groups and block unwanted contacts.
 - No address book upload by default; no discoverability outside shared invitations/relationships.
 
-### 4.1a Proposed privacy defaults for owner confirmation
+### 4.1a Approved v0.1 privacy rules
 
-The following four details were not explicitly decided in conversation. They are intentionally conservative **proposals**, not previously agreed product facts:
+The project owner explicitly approved these four rules on 2026-10-26:
 
 1. **Group history:** a joining member receives messages from their join point onward (no automatic historic disclosure). Removal/leave immediately revokes future server reads, file access and notifications; previously downloaded content cannot be retroactively erased from another person's device.
 2. **Invitations and authority:** an initial operator/admin issues signup invites; later existing members may receive a small, revocable invite allowance. Group creator is admin and can designate other admins; admins manage group membership, group invitations and companion approvals. Server enforces all roles.
@@ -175,4 +175,4 @@ These are design or operational details to resolve during the implementation pla
 
 ## 9. Approval Boundary
 
-This document requests approval of **product shape, v0.1 scope, architecture direction and guardrails** only. It does not authorize provisioning services, publishing a repository, committing code, using provider credentials or inviting real users. Once approved, prepare a dependency-ordered implementation plan and individual executable tasks.
+The owner approved the **product shape, v0.1 scope, architecture direction and guardrails** on 2026-10-26. This approval does not itself authorize provisioning paid services, deploying the product, using provider credentials or inviting real users. The first dependency-ordered implementation plan is in `docs/superpowers/plans/2026-10-26-sengapp-phase0-foundation.md`.

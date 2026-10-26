@@ -1,6 +1,6 @@
 # Sengapp — Product Vision
 
-**Status:** Product direction agreed; details of the v0.1 design await final approval.
+**Status:** Product direction and v0.1 design approved by the owner on 2026-10-26.
 
 ## One sentence
 
@@ -34,4 +34,4 @@ The first users are friends and family who dislike the crowding, group noise and
 
 First a private family-and-friends alpha, then potentially a wider **invite-only** public alpha after security, privacy, reliability and operating costs have been tested with real use.
 
-For scope and specific constraints, see the [v0.1 design draft](../specs/sengapp-v0.1-design.md).
+For scope and specific constraints, see the [approved v0.1 design](../specs/sengapp-v0.1-design.md).
