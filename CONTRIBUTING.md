@@ -6,7 +6,7 @@ Thanks for being interested in Sengapp. 🐿️
 
 ## Where to start
 
-1. Read the [vision](docs/product/vision.md), [roadmap](docs/product/roadmap.md) and [design draft](docs/specs/sengapp-v0.1-design.md).
+1. Read the [vision](docs/product/vision.md), [roadmap](docs/product/roadmap.md) and [approved design](docs/specs/sengapp-v0.1-design.md).
 2. Check existing issues and PRs before opening a duplicate.
 3. For significant ideas, open a proposal issue and discuss scope **before** implementing. The v0.1 feature set is frozen.
 4. For a contained documentation correction, a focused PR is welcome.
