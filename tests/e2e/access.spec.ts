@@ -11,11 +11,11 @@ test("landing page introduces Sengapp without public chat", async ({ page }) => 
 
 test("unauthenticated visitor never sees a member workspace", async ({ page }) => {
   await page.goto("/home");
-  await expect(page.getByText(/Your space is private|Sengapp needs its Convex connection/)).toBeVisible();
+  await expect(page.getByText(/Your space is private|Sengapp needs its Clerk and Convex connection/)).toBeVisible();
   await expect(page.getByText(/Good to see you/)).toHaveCount(0);
 });
 
 test("invite page is recoverable without a token", async ({ page }) => {
   await page.goto("/invite");
-  await expect(page.getByText(/Redeem your invitation|Sengapp needs its Convex connection/)).toBeVisible();
+  await expect(page.getByText(/Redeem your invitation|Sengapp needs its Clerk and Convex connection/)).toBeVisible();
 });

@@ -1,53 +1,63 @@
 # Sengapp Phase 0 — Development
 
-**Status:** Local development foundation. **Not deployed; no live OAuth session verified.**
+**Status:** Local invite-only foundation. **Not deployed; no live Clerk sign-in has been verified.**
 
 ## Requirements
 
-- Node.js 24.x, npm, Git, and a personal Convex development deployment.
-- A Google OAuth Web Client with the callback `http://localhost:3000/api/auth/callback/google`.
-- A server-only operator email allowlist for the initial bootstrap.
+- Node.js 24.x, npm and access to Sengapp's **own** Convex development project (not RepoPilot's).
+- A Clerk development application with the **Convex integration** enabled.
+- A verified email address for the initial operator and a server-side operator email allowlist.
 
 ## Setup
 
-1. Run `npm install`.
-2. Copy `.env.example` to `.env.local` and fill in the Convex URL/site URL obtained from `npx convex dev`.
-3. Run `npx convex dev` with your **own** development project. It regenerates `convex/_generated`, including the Better Auth component references; the bootstrap types committed before a deployment exists are not a substitute for real codegen.
-4. In that Convex development deployment, configure server-side secrets:
-   - `npx convex env set BETTER_AUTH_SECRET <32-byte-random-secret>`
-   - `npx convex env set SITE_URL http://localhost:3000`
-   - `npx convex env set GOOGLE_CLIENT_ID <client-id>`
-   - `npx convex env set GOOGLE_CLIENT_SECRET <client-secret>`
-   - `npx convex env set SENGAPP_OPERATOR_EMAILS <verified-owner@example.com>`
-5. Run `npm run dev`, open `http://localhost:3000`, and log in with Google.
+1. Run `npm ci --legacy-peer-deps` and copy `.env.example` to `.env.local`.
+2. In Clerk Dashboard, create/select the Sengapp application. Enable the Convex integration. Copy the **publishable** and **secret** API keys to `.env.local`. Configure the custom sign-in page `/login`.
+3. In Clerk's `convex` JWT template, preserve its Convex audience (`aud: "convex"`) and provide signed user claims:
 
-**Security:** The operator bootstrap checks the server-side allowlist **and** Better Auth's `emailVerified` flag. It takes no user-selected role or email. Anyone may start a Google session, but no application data or member workspace is accessible without operator bootstrap or a redeemed invite.
+   ```json
+   {
+     "aud": "convex",
+     "email": "{{user.primary_email_address}}",
+     "email_verified": "{{user.email_verified}}",
+     "name": "{{user.full_name}}"
+   }
+   ```
 
-Google OAuth and the Convex deployment need real owner-controlled credentials. Never place them in Git, web responses, screenshots, tests, or `NEXT_PUBLIC_*` variables. Do not publish the application until live authorization flows have passed.
+   The template name must be **`convex`**. Do **not** hard-code `email_verified: true` or use client-editable metadata. `email_verified` must resolve to a **boolean** from Clerk. If that claim is absent/false, Sengapp refuses operator bootstrap and invite redemption.
+4. Configure **Sengapp's Convex development deployment**, not another project's:
+   - `npx convex env set CLERK_JWT_ISSUER_DOMAIN https://YOUR-CLERK-FRONTEND-API` (the exact Clerk Frontend API issuer URL, including `https://`).
+   - `npx convex env set SENGAPP_OPERATOR_EMAILS verified-owner@example.com` (server-only comma-separated allowlist).
+5. Run `npx convex dev` to link the Sengapp project, sync `convex/auth.config.ts`, and regenerate the deployment-aware files under `convex/_generated`. This project has a **bootstrap-only** generated API for offline checks; live codegen is mandatory before testing real sign-in.
+6. Copy the generated `NEXT_PUBLIC_CONVEX_URL` / `CONVEX_DEPLOYMENT` into `.env.local`, start `npm run dev`, and open `http://localhost:3000`.
+7. Log in with Clerk, click **Initialize operator** on `/home`, then issue a one-use invite from `/admin/invitations`. Test a second verified Clerk account redeeming it on `/invite`.
+
+> Auth integration is **not** an invitation policy: Clerk signs users in, Convex checks their signed identity and Sengapp profile for **every** member operation. Uninvited Clerk users cannot read or mutate member data. The operator bootstrap accepts only a verified Clerk email in the server allowlist and is idempotent.
+
+**Credentials:** Never place Clerk secrets in Git, responses, screenshots, tests, or `NEXT_PUBLIC_*` variables. The issuer URL and operator allowlist belong to **Convex server environment**. Convex production is not configured by this change.
 
 ## Commands
 
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Next.js development server |
-| `npx convex dev` | Development backend and deployment-aware codegen |
-| `npm run typecheck` | TypeScript check |
-| `npm run lint` | ESLint |
+| `npx convex dev` | Development backend sync and real codegen |
+| `npm run typecheck` | TypeScript validation |
+| `npm run lint` | ESLint validation |
 | `npm test` | Vitest domain and security suites |
-| `npm run test:e2e` | Playwright desktop/mobile browser smokes |
+| `npm run test:e2e` | Playwright desktop/mobile browser checks |
 | `npm run build` | Production build |
 
 ## Invitation lifecycle
 
-- A verified operator calls the server-side action `invites.issue`. Its securely generated 32-byte code is shown once; only its SHA-256 hash is persisted.
-- Invite links use `/invite#code=...` so a token does not reach access logs or referrer headers. The client removes the fragment promptly and keeps a temporary value in session storage across Google OAuth.
-- A verified, nonmember identity submits `invites.redeem`. The Convex mutation validates expiry, identity restriction, uniqueness, handle and one-time state, then creates membership and consumes the code atomically.
-- Operators can revoke unredeemed codes. Up to 20 unexpired, pending invites per issuer; bounded TTL of 1–720 hours.
+- A verified operator calls `invites.issue`. Secure server-side randomness produces a 32-byte code shown once; only its SHA-256 hash is persisted.
+- Invite links use `/invite#code=...`, keeping the token out of HTTP access logs and referrer headers. The browser removes the fragment and stores the pending token temporarily in session storage across Clerk sign-in.
+- A verified identity with no member profile calls `invites.redeem`. The atomic Convex mutation checks expiry, identity/email restriction, handle uniqueness, one-time use, then creates membership and marks the invitation redeemed.
+- Operators can revoke unused codes; up to 20 unexpired pending invites per issuer; TTL 1–720 hours.
 
 ## Explicit limitations
 
-- This is an invitation and profile foundation, **not** a working chat or a ready public alpha.
-- The Google provider and two-account concurrency/replay smoke cannot be validated without a configured Convex development project and OAuth credentials.
-- The temporary `convex/_generated` bootstrap files are replaced by real `npx convex dev` output. The Better Auth component reference **must** be regenerated for the backend to work.
-- No production emails, third-party AI calls, media storage, or deployment are configured.
-- There is no E2EE in v0.1; authenticated backend processing is not end-to-end encrypted.
+- This is invite-only identity/profile infrastructure, **not yet the messaging app**.
+- The Clerk integration, Convex link and two-account live smoke must be completed with owner-controlled credentials before the PR can be marked production-ready.
+- JWT claim freshness follows Clerk's token lifecycle. Live checks must include signed-out/revoked sessions and an unverified-address attempt.
+- No email sending, third-party AI calls, media storage or production deployment is configured.
+- There is no E2EE in v0.1.

@@ -3,8 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { useClerk } from "@clerk/nextjs";
 import { Shield, Settings, MessageSquareHeart, Sun, Moon } from "lucide-react";
 
 interface AppShellProps {
@@ -25,7 +24,7 @@ export function AppShell({
   textDirection = "auto",
 }: AppShellProps) {
   const { theme, setTheme } = useTheme();
-  const router = useRouter();
+  const { signOut } = useClerk();
   const resolvedDir =
     textDirection === "auto" ? (locale === "ar" ? "rtl" : "ltr") : textDirection;
 
@@ -119,8 +118,7 @@ export function AppShell({
             {userRole}
           </span>
           <button className="text-xs underline" type="button" onClick={async () => {
-            await authClient.signOut();
-            router.replace("/login");
+            await signOut({ redirectUrl: "/login" });
           }}>Sign out</button>
         </div>
       </aside>

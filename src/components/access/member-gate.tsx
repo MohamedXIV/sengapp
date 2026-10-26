@@ -10,10 +10,10 @@ import { AppShell } from "@/components/layout/app-shell";
 type Profile = Doc<"profiles">;
 
 export function BackendRequired({ children }: { children: ReactNode }) {
-  if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+  if (!process.env.NEXT_PUBLIC_CONVEX_URL || !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
     return (
       <div role="status" className="mx-auto max-w-lg rounded-2xl border bg-card p-6 text-center">
-        <h1 className="text-xl font-semibold">Sengapp needs its Convex connection</h1>
+        <h1 className="text-xl font-semibold">Sengapp needs its Clerk and Convex connection</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Set up the development environment in docs/development.md to unlock sign-in and invitations.
         </p>
@@ -74,7 +74,7 @@ function ResolvedMembership({
       <div className="mx-auto max-w-md space-y-4 p-8 text-center">
         <h1 className="text-2xl font-semibold">An invitation opens the door</h1>
         <p className="text-sm text-muted-foreground">
-          Your Google session is active, but you are not yet a Sengapp member.
+          You are signed in, but you are not yet a Sengapp member.
         </p>
         <Link href="/invite" className="inline-flex rounded-lg bg-primary px-5 py-3 text-primary-foreground">
           Redeem invitation

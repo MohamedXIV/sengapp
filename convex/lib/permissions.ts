@@ -1,7 +1,8 @@
 import { ConvexError } from "convex/values";
 import type { Doc } from "../_generated/dataModel";
 import type { QueryCtx, MutationCtx } from "../_generated/server";
-import { authComponent } from "../auth";
+
+type AuthContext = Pick<QueryCtx | MutationCtx, "auth">;
 
 export type AuthorizedProfile = Doc<"profiles">;
 export interface AuthenticatedActor {
@@ -32,18 +33,32 @@ export function isAllowedVerifiedOperator(
   return configuredEmails.split(",").some((value) => value.trim().toLowerCase() === normalized);
 }
 
-export async function getVerifiedAuthUser(ctx: QueryCtx | MutationCtx) {
-  const authUser = await authComponent.safeGetAuthUser(ctx);
-  if (!authUser || !authUser.emailVerified || !authUser.email) {
+// A signed Clerk identity needs the explicit verification claim from
+// Clerk's Convex JWT template; email alone is insufficient.
+export async function readVerifiedIdentity(ctx: AuthContext) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity || identity.email_verified !== true
+    || typeof identity.email !== "string" || !identity.email.trim()
+    || !identity.subject) return null;
+  return {
+    userId: identity.subject,
+    email: identity.email.trim().toLowerCase(),
+    name: typeof identity.name === "string" ? identity.name : undefined,
+  };
+}
+
+export async function getVerifiedAuthUser(ctx: AuthContext) {
+  const user = await readVerifiedIdentity(ctx);
+  if (!user) {
     throw new ConvexError({ code: "VERIFIED_SIGN_IN_REQUIRED" });
   }
-  return authUser;
+  return user;
 }
 
 export async function requireAuthorizedProfile(ctx: QueryCtx | MutationCtx) {
   const authUser = await getVerifiedAuthUser(ctx);
   const profile = await ctx.db.query("profiles")
-    .withIndex("by_auth_user_id", (q) => q.eq("authUserId", String(authUser._id))).unique();
+    .withIndex("by_auth_user_id", (q) => q.eq("authUserId", authUser.userId)).unique();
   if (!profile) throw new ConvexError({ code: "INVITATION_REQUIRED" });
   return assertActiveMemberActor(profile);
 }

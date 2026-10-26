@@ -1,7 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { action, internalMutation, mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { authComponent } from "./auth";
 import { assertOperatorActor, getVerifiedAuthUser, requireOperator } from "./lib/permissions";
 import { generateSecureInvitationToken, hashInvitationToken, createTokenHint } from "./lib/crypto";
 import { evaluateInvitationRedemption } from "./lib/invitationDomain";
@@ -18,14 +17,11 @@ export const issue = action({
     note: v.optional(v.string()),
   },
   handler: async (ctx, args): Promise<{ code: string; expiresAt: number }> => {
-    const authUser = await authComponent.safeGetAuthUser(ctx);
-    if (!authUser?.emailVerified || !authUser.email) {
-      throw new ConvexError({ code: "VERIFIED_SIGN_IN_REQUIRED" });
-    }
+    const authUser = await getVerifiedAuthUser(ctx);
     assertInviteIssueAllowed(args.ttlHours, 0);
     const code = generateSecureInvitationToken();
     const issued: { expiresAt: number } = await ctx.runMutation(internal.invites.insertIssuedCode, {
-      issuerAuthUserId: String(authUser._id),
+      issuerAuthUserId: authUser.userId,
       codeHash: await hashInvitationToken(code),
       codeHint: createTokenHint(code),
       ttlHours: args.ttlHours,
@@ -93,7 +89,7 @@ export const redeem = mutation({
   },
   handler: async (ctx, args) => {
     const authUser = await getVerifiedAuthUser(ctx);
-    const authUserId = String(authUser._id);
+    const authUserId = authUser.userId;
     const existing = await ctx.db.query("profiles")
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", authUserId)).unique();
     if (existing) throw new ConvexError({ code: "ALREADY_MEMBER" });

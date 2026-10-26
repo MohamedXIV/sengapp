@@ -1,17 +1,16 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { authComponent } from "./auth";
 import {
-  getVerifiedAuthUser, isAllowedVerifiedOperator, requireAuthorizedProfile,
+  getVerifiedAuthUser, isAllowedVerifiedOperator, readVerifiedIdentity, requireAuthorizedProfile,
 } from "./lib/permissions";
 
 export const getMine = query({
   args: {},
   handler: async (ctx) => {
-    const user = await authComponent.safeGetAuthUser(ctx);
-    if (!user?.emailVerified) return null;
+    const user = await readVerifiedIdentity(ctx);
+    if (!user) return null;
     const profile = await ctx.db.query("profiles")
-      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", String(user._id))).unique();
+      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", user.userId)).unique();
     return profile?.status === "active" ? profile : null;
   },
 });
@@ -21,11 +20,11 @@ export const bootstrapOperator = mutation({
   handler: async (ctx) => {
     const user = await getVerifiedAuthUser(ctx);
     if (!isAllowedVerifiedOperator(
-      user.email, user.emailVerified, process.env.SENGAPP_OPERATOR_EMAILS,
+      user.email, true, process.env.SENGAPP_OPERATOR_EMAILS,
     )) {
       throw new ConvexError({ code: "FORBIDDEN" });
     }
-    const authUserId = String(user._id);
+    const authUserId = user.userId;
     const existing = await ctx.db.query("profiles")
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", authUserId)).unique();
     if (existing) {

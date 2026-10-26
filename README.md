@@ -14,7 +14,7 @@
   <img alt="Access: invite only" src="https://img.shields.io/badge/access-invite--only-10B981?style=flat-square">
 </p>
 
-> **Pre-alpha · Phase 0 foundation.** A Next.js app shell and invite-only identity workflow are under review. This is **not** a working messenger or a hosted alpha; local access requires your own development Convex deployment and Google OAuth credentials.
+> **Pre-alpha · Phase 0 foundation.** A Next.js app shell and invite-only identity workflow are under review. This is **not** a working messenger or a hosted alpha; live sign-in requires Sengapp's Convex development deployment and owner-configured Clerk credentials.
 
 ## Why Sengapp?
 

@@ -1,7 +1,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-// Better Auth owns authentication users and sessions in its component.
+// Clerk owns authentication users and sessions outside Convex.
 // These tables contain Sengapp membership data only.
 export default defineSchema({
   profiles: defineTable({

@@ -46,7 +46,7 @@ function RedeemWhenAuthenticated({ code }: { code: string }) {
   if (!isAuthenticated) return (
     <div className="space-y-4 rounded-xl border bg-card p-6 text-center">
       <h1 className="text-2xl font-semibold">Almost home!</h1>
-      <p className="text-sm text-muted-foreground">Sign in with a verified Google account to use this invitation.</p>
+      <p className="text-sm text-muted-foreground">Sign in with a verified email address to use this invitation.</p>
       <Link href="/login" className="inline-flex rounded-lg bg-primary px-5 py-3 text-primary-foreground">
         Sign in to redeem
       </Link>
