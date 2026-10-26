@@ -1,42 +1,30 @@
-# dependencies and package tooling
-/node_modules/
+# Dependencies
+/node_modules
 /.pnp
-.pnp.js
-.yarn/cache/
 
-# next.js and builds
+# Next.js build output
 /.next/
 /out/
-/build/
-/dist/
-/.turbo/
+/build
 
-# tests
-/coverage/
-/test-results/
+# Testing & coverage
+/coverage
 /playwright-report/
-/blob-report/
+/test-results/
 
-# local secrets / provider configuration
-.env*
-!.env.example
-*.pem
-*.key
-*.p12
-*.pfx
+# Convex local state
+/.convex/
 
-# hosted/developer output
-/.vercel/
-/.cache/
+# Environment variables (never commit secrets)
+.env
+.env*.local
 
-# logs and OS noise
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-.DS_Store
-Thumbs.db
 
-# generated TypeScript
+# TypeScript & IDE
 *.tsbuildinfo
 next-env.d.ts
+.DS_Store

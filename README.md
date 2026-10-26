@@ -8,13 +8,13 @@
 <p align="center">A cozy, invite-only messenger with personal expression, shared interests, and playful AI companions.</p>
 
 <p align="center">
-  <img alt="Project stage: planning" src="https://img.shields.io/badge/stage-planning-F59E0B?style=flat-square">
+  <img alt="Project stage: planning" src="https://img.shields.io/badge/stage-foundation--in--review-F59E0B?style=flat-square">
   <img alt="Platform: Progressive Web App" src="https://img.shields.io/badge/platform-PWA-2563EB?style=flat-square">
   <img alt="Stack: TypeScript" src="https://img.shields.io/badge/language-TypeScript-3178C6?style=flat-square">
   <img alt="Access: invite only" src="https://img.shields.io/badge/access-invite--only-10B981?style=flat-square">
 </p>
 
-> **Pre-alpha · No application build yet.** This repository currently contains product planning and project foundations. There is nothing to install or self-host.
+> **Pre-alpha · Phase 0 foundation.** A Next.js app shell and invite-only identity workflow are under review. This is **not** a working messenger or a hosted alpha; local access requires your own development Convex deployment and Google OAuth credentials.
 
 ## Why Sengapp?
 
@@ -39,7 +39,7 @@ Mainstream messengers already do almost everything. Sengapp isn't trying to out-
 - **Lightweight on mobile.** Chat text stays accessible HTML; animation is optional and respects reduced motion/data considerations.
 - **Security is foundational.** Server-side membership checks, careful attachment access and transparent AI data processing are non-negotiable.
 
-## Planned stack
+## Stack direction
 
 **Next.js · TypeScript · Tailwind CSS · shadcn/ui · Convex · PixiJS · Zod · Zustand · AI SDK · Vitest · Playwright**
 
@@ -51,11 +51,11 @@ Convex-first is the agreed backend direction. We are not adding Supabase or Spac
 | --- | --- |
 | Product direction and Convex-first choice | ✅ Agreed |
 | v0.1 design specification | ✅ Approved (2026-10-26) |
-| Repository foundations | 🚧 In progress |
-| App code and deployment | ⏳ Not started |
+| Repository foundations | ✅ Established |
+| Phase 0 app shell, sign-in and invitations | 🚧 Under review |\n| Live OAuth smoke and deployment | ⏳ Not started |
 | Private family/friends alpha | ⏳ Planned |
 
-Start with the [product vision](docs/product/vision.md), [phased roadmap](docs/product/roadmap.md), [architecture overview](docs/architecture/overview.md), and [approved v0.1 design](docs/specs/sengapp-v0.1-design.md).
+To set up or test the code, read [local development](docs/development.md) and the [Phase 0 acceptance ledger](docs/testing/phase0-acceptance.md). No production credentials or real users are included.\n\nStart with the [product vision](docs/product/vision.md), [phased roadmap](docs/product/roadmap.md), [architecture overview](docs/architecture/overview.md), and [approved v0.1 design](docs/specs/sengapp-v0.1-design.md).
 
 ## Get involved
 
