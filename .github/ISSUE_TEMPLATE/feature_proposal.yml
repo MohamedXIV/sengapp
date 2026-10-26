@@ -1,0 +1,33 @@
+name: Feature proposal
+description: Discuss a product idea without silently expanding the frozen v0.1 scope.
+title: "[Idea]: "
+labels: []
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What user problem does this solve?
+      description: Explain the situation rather than only proposing a component.
+    validations:
+      required: true
+  - type: textarea
+    id: experience
+    attributes:
+      label: What should the experience feel like?
+      description: Walk through the user journey.
+    validations:
+      required: true
+  - type: dropdown
+    id: timing
+    attributes:
+      label: Timing
+      options:
+        - "After v0.1 / future roadmap"
+        - "Essential correction to existing v0.1 scope"
+    validations:
+      required: true
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: Risks or trade-offs
+      description: Consider privacy, accessibility, complexity, cost and what would be deferred.
