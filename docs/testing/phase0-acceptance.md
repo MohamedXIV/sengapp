@@ -4,10 +4,10 @@ This checklist is a verification gate, not a claim that Sengapp is production re
 
 ## Automated
 
-- [x] Typecheck passes locally.
-- [x] ESLint passes locally.
-- [x] Domain and security unit tests pass locally, including Convex-test integration with a simulated verified identity.
-- [ ] Desktop and Android-size unauthenticated Playwright smokes pass. **Blocked:** Chrome headless binary absent; browser download returned a truncated/non-ZIP artifact from the CDN. App dev server was verified to start when local listen permissions were granted.
+- [x] Typecheck passes locally and on GitHub Actions.
+- [x] ESLint passes locally and on GitHub Actions.
+- [x] Domain and security unit tests pass locally and on GitHub Actions (**22/22**), including Convex-test integration with a simulated verified identity.
+- [x] Desktop and Android-size unauthenticated Playwright smokes pass in GitHub Actions: **6/6** on Chromium (run [40363886358](https://github.com/MohamedXIV/sengapp/actions/runs/40363886358)). The local browser run was blocked by an unavailable Chromium binary/CDN download; this is an environment limitation, not an outstanding CI failure.
 - [x] Production Next.js build passes without real credentials; auth API fails closed while unconfigured.
 
 ## Live two-account smoke — requires owner-controlled Convex/Google credentials
