@@ -19,7 +19,7 @@ function ConnectionsSpace() {
     <div className="space-y-2">
       <h1 className="text-3xl font-semibold">Connections</h1>
       <p className="max-w-xl text-muted-foreground">
-        Your social circle is private. Invite someone to connect whenever you're ready.
+        Your social circle is private. Invite someone to connect whenever you&apos;re ready.
         There is no public people directory.
       </p>
     </div>
