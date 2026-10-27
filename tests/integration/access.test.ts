@@ -14,6 +14,17 @@ afterEach(() => {
 });
 
 describe("Convex invite-only membership boundary", () => {
+  it("accepts the Convex-normalized emailVerified claim from a verified Clerk JWT", async () => {
+    vi.stubEnv("SENGAPP_OPERATOR_EMAILS", "verified@example.com");
+    const t = convexTest(schema, modules);
+    const verified = t.withIdentity({
+      subject: "oidc-clerk-verified", email: "verified@example.com", emailVerified: true,
+    });
+    const profileId = await verified.mutation(api.profiles.bootstrapOperator, {});
+    expect(profileId).toBeTruthy();
+    expect((await verified.query(api.profiles.getMine, {}))?.role).toBe("operator");
+  });
+
   it("denies a signed-in outsider access to profiles and issuing invites", async () => {
     const t = convexTest(schema, modules);
     const outsider = t.withIdentity({
