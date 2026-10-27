@@ -55,6 +55,25 @@ describe("Private one-use connection invitations", () => {
     expect(await wrong.query(api.connections.listMine, {})).toHaveLength(0);
   });
 
+  it("binds recipient email to the current verified Clerk claim, not an old profile snapshot", async () => {
+    const t = convexTest(schema, modules);
+    const alice = newMember(t, "alice", "alice@example.com");
+    const bobOld = newMember(t, "bob", "old@example.com");
+    await alice.mutation(api.profiles.ensureMine, {});
+    await bobOld.mutation(api.profiles.ensureMine, {});
+    const bobCurrent = newMember(t, "bob", "new@example.com");
+    const oldAddress = await alice.action(api.connectionInvites.issue, {
+      ttlHours: 24, recipientEmail: "old@example.com",
+    });
+    await expect(bobCurrent.mutation(api.connectionInvites.accept, { code: oldAddress.code })).rejects.toThrow();
+    const newAddress = await alice.action(api.connectionInvites.issue, {
+      ttlHours: 24, recipientEmail: "new@example.com",
+    });
+    expect(await bobCurrent.query(api.connectionInvites.preview, { code: newAddress.code })).toMatchObject({ valid: true });
+    await bobCurrent.mutation(api.connectionInvites.accept, { code: newAddress.code });
+    expect(await bobCurrent.query(api.connections.listMine, {})).toHaveLength(1);
+  });
+
   it("atomically accepts at most once across races and never exposes other members' invitations", async () => {
     const t = convexTest(schema, modules);
     const alice = newMember(t, "alice", "alice@example.com");
