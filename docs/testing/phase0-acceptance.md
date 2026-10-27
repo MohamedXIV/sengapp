@@ -20,7 +20,8 @@ This is an evidence checklist, **not** a Production or hosted alpha approval.
 - [ ] A issues link; B sees preview, chooses Accept; each sees exactly one connection. Opening the link alone does nothing.
 - [ ] A second link is declined, revoked, wrong-email, replayed, expired and self-accepted unsuccessfully with no unauthorized connection.
 - [ ] Sender/receiver blocked relation denies acceptance; private profile/settings/companion data stay inaccessible to others.
-- [ ] Native share (where supported) and clipboard denied fallback, keyboard, light/dark, reduced motion.\n- [x] Authenticated Connections viewport at 390×844: navigation and invite form present; page scroll width 375px within 390px viewport. Automated share/clipboard denial cases pass, but native-device share delivery remains untested.
+- [ ] Native share (where supported) and clipboard denied fallback, keyboard, light/dark, reduced motion.
+- [x] Authenticated Connections viewport at 390×844: navigation and invite form present; page scroll width 375px within 390px viewport. Automated share/clipboard denial cases pass, but native-device share delivery remains untested.
 - [ ] Sign-out and Clerk revoked sessions lose protected Convex access; inspect Preview logs without logging raw invitation codes.
 
 ## Scope boundary
