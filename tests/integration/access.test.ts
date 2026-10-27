@@ -13,7 +13,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("Convex invite-only membership boundary", () => {
+describe("Convex verified signup and membership boundary", () => {
   it("accepts the Convex-normalized emailVerified claim from a verified Clerk JWT", async () => {
     vi.stubEnv("SENGAPP_OPERATOR_EMAILS", "verified@example.com");
     const t = convexTest(schema, modules);
@@ -70,6 +70,66 @@ describe("Convex invite-only membership boundary", () => {
     });
     await expect(claimMissing.mutation(api.profiles.bootstrapOperator, {})).rejects.toThrow();
     expect(await claimMissing.query(api.profiles.getMine, {})).toBeNull();
+  });
+
+  it("creates active member profiles for unrelated verified signups without invitations", async () => {
+    const t = convexTest(schema, modules);
+    const alice = t.withIdentity({ subject: "alice-auth", email: "alice@example.com", emailVerified: true, name: "Alice" });
+    const bob = t.withIdentity({ subject: "bob-auth", email: "bob@example.com", emailVerified: true, name: "Bob" });
+    const aliceId = await alice.mutation(api.profiles.ensureMine, {});
+    const bobId = await bob.mutation(api.profiles.ensureMine, {});
+    expect(aliceId).not.toBe(bobId);
+    expect(await alice.query(api.profiles.getMine, {})).toMatchObject({ role: "member", status: "active", displayName: "Alice" });
+    expect(await bob.query(api.profiles.getMine, {})).toMatchObject({ role: "member", status: "active", displayName: "Bob" });
+    expect((await t.run((ctx) => ctx.db.query("profiles").collect()))).toHaveLength(2);
+    await expect(alice.mutation(api.profiles.updatePresencePreferences, {
+      onlineStatus: false, lastSeen: false, readReceipts: false, typingIndicators: false,
+    })).resolves.toBeUndefined();
+    await expect(alice.query(api.invites.list, {})).rejects.toThrow();
+  });
+
+  it("handles concurrent onboarding calls idempotently, including repeated sign-ins", async () => {
+    const t = convexTest(schema, modules);
+    const alice = t.withIdentity({ subject: "same-auth", email: "one@example.com", emailVerified: true });
+    const [a, b, c] = await Promise.all([
+      alice.mutation(api.profiles.ensureMine, {}),
+      alice.mutation(api.profiles.ensureMine, {}),
+      alice.mutation(api.profiles.ensureMine, {}),
+    ]);
+    expect(a).toBe(b);
+    expect(a).toBe(c);
+    expect(await alice.mutation(api.profiles.ensureMine, {})).toBe(a);
+    expect((await t.run((ctx) => ctx.db.query("profiles").collect()))).toHaveLength(1);
+  });
+
+  it("refuses unverified onboarding and cannot reactivate a suspended member", async () => {
+    const t = convexTest(schema, modules);
+    await expect(t.mutation(api.profiles.ensureMine, {})).rejects.toThrow();
+    const unverified = t.withIdentity({ subject: "claimed", email: "claimed@example.com", emailVerified: false });
+    await expect(unverified.mutation(api.profiles.ensureMine, {})).rejects.toThrow();
+    const verified = t.withIdentity({ subject: "member", email: "member@example.com", emailVerified: true });
+    const id = await verified.mutation(api.profiles.ensureMine, {});
+    await t.run((ctx) => ctx.db.patch(id, { status: "suspended" }));
+    await expect(verified.mutation(api.profiles.ensureMine, {})).rejects.toThrow();
+    expect(await verified.query(api.profiles.getMine, {})).toBeNull();
+  });
+
+  it("requires explicit elevation of an existing allowlisted member and refuses other accounts", async () => {
+    vi.stubEnv("SENGAPP_OPERATOR_EMAILS", "owner@example.com");
+    const t = convexTest(schema, modules);
+    const owner = t.withIdentity({ subject: "owner", email: "owner@example.com", emailVerified: true });
+    const memberId = await owner.mutation(api.profiles.ensureMine, {});
+    expect((await owner.query(api.profiles.getMine, {}))?.role).toBe("member");
+    expect(await owner.mutation(api.profiles.bootstrapOperator, {})).toBe(memberId);
+    expect(await owner.mutation(api.profiles.bootstrapOperator, {})).toBe(memberId);
+    expect((await owner.query(api.profiles.getMine, {}))?.role).toBe("operator");
+    const ordinary = t.withIdentity({ subject: "ordinary", email: "ordinary@example.com", emailVerified: true });
+    await ordinary.mutation(api.profiles.ensureMine, {});
+    await expect(ordinary.mutation(api.profiles.bootstrapOperator, {})).rejects.toThrow();
+    const suspended = t.withIdentity({ subject: "suspended", email: "owner@example.com", emailVerified: true });
+    const suspendedId = await suspended.mutation(api.profiles.ensureMine, {});
+    await t.run((ctx) => ctx.db.patch(suspendedId, { status: "suspended" }));
+    await expect(suspended.mutation(api.profiles.bootstrapOperator, {})).rejects.toThrow();
   });
 
   it("consumes an invite only once, with membership created atomically", async () => {
