@@ -5,7 +5,7 @@ import { CreateConnectionInvite } from "../../src/features/connections/create-co
 import type { Id } from "../../convex/_generated/dataModel";
 
 const code = "A".repeat(43);
-const issue = vi.fn(async () => ({ code, expiresAt: Date.now() + 86_400_000 }));
+const issue = vi.fn(async () => ({ code, invitationId: "test-invite" as Id<"connectionInvites">, expiresAt: Date.now() + 86_400_000 }));
 const props = { invitations: [], onIssue: issue, onRevoke: vi.fn(async () => {}) };
 const unmounts: Array<() => void> = [];
 function renderFixture() {
@@ -75,6 +75,7 @@ describe("Connection invite copy and native sharing", () => {
     expect(issue).toHaveBeenCalledTimes(1);
   });
   it("removes the issued link and consumed invite from the sender view after acceptance", async () => {
+    vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
     const invitationId = "connection-test-invite" as Id<"connectionInvites">;
     const expiresAt = Date.now() + 86_400_000;
     const issueWithId = vi.fn(async () => ({ code, invitationId, expiresAt }));
