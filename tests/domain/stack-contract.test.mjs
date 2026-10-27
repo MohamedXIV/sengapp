@@ -35,3 +35,9 @@ test("production TypeScript config excludes Vite test-only type dependencies", (
   assert.ok(testConfig.compilerOptions.types.includes("vite/client"));
   assert.match(packageJson.scripts.typecheck, /tsconfig\.test\.json/);
 });
+
+test("Convex deployment has explicit Node types and a dedicated compiler gate", () => {
+  const convexConfig = JSON.parse(readFileSync(new URL("../../convex/tsconfig.json", import.meta.url), "utf8"));
+  assert.ok(convexConfig.compilerOptions.types.includes("node"));
+  assert.match(packageJson.scripts.typecheck, /convex\/tsconfig\.json/);
+});
