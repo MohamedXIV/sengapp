@@ -62,6 +62,7 @@ export const issue = action({
     recipientEmail: v.optional(v.string()),
     note: v.optional(v.string()),
   },
+  returns: v.object({ code: v.string(), expiresAt: v.number(), invitationId: v.id("connectionInvites") }),
   handler: async (ctx, args): Promise<{ code: string; expiresAt: number; invitationId: Id<"connectionInvites"> }> => {
     const user = await getVerifiedAuthUser(ctx);
     assertConnectionIssueAllowed(args.ttlHours, 0, 0);
@@ -83,6 +84,7 @@ export const insertIssuedCode = internalMutation({
     issuerAuthUserId: v.string(), ttlHours: v.number(), codeHash: v.string(),
     codeHint: v.string(), recipientEmail: v.optional(v.string()), note: v.optional(v.string()),
   },
+  returns: v.object({ expiresAt: v.number(), invitationId: v.id("connectionInvites") }),
   handler: async (ctx, args) => {
     const issuer = await ctx.db.query("profiles")
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", args.issuerAuthUserId)).unique();
