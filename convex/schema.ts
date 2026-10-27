@@ -27,27 +27,9 @@ export default defineSchema({
       readReceipts: v.boolean(),
       typingIndicators: v.boolean(),
     }),
-    redeemedInvitationId: v.optional(v.id("invitations")),
   })
     .index("by_auth_user_id", ["authUserId"])
     .index("by_handle", ["handle"]),
-
-  invitations: defineTable({
-    codeHash: v.string(),
-    codeHint: v.string(),
-    issuedBy: v.id("profiles"),
-    recipientEmail: v.optional(v.string()),
-    note: v.optional(v.string()),
-    status: v.union(v.literal("pending"), v.literal("redeemed"), v.literal("revoked")),
-    createdAt: v.number(),
-    expiresAt: v.number(),
-    redeemedAt: v.optional(v.number()),
-    redeemedBy: v.optional(v.id("profiles")),
-    revokedAt: v.optional(v.number()),
-  })
-    .index("by_code_hash", ["codeHash"])
-    .index("by_issued_by", ["issuedBy"])
-    .index("by_issuer_status_expiry", ["issuedBy", "status", "expiresAt"]),
 
   connectionInvites: defineTable({
     codeHash: v.string(),

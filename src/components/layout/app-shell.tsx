@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useClerk } from "@clerk/nextjs";
-import { Shield, Settings, MessageSquareHeart, Sun, Moon } from "lucide-react";
+import { Shield, Settings, MessageSquareHeart, UsersRound, Sun, Moon } from "lucide-react";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -81,6 +81,12 @@ export function AppShell({
               <span>{locale === "ar" ? "الردهة الخاصة" : "Cozy Lounge"}</span>
             </Link>
 
+            <Link href="/connections"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary transition-colors">
+              <UsersRound className="h-4 w-4 text-primary" />
+              <span>{locale === "ar" ? "جهات الاتصال" : "Connections"}</span>
+            </Link>
+
             <Link
               href="/settings/profile"
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
@@ -100,7 +106,7 @@ export function AppShell({
               >
                 <Shield className="h-4 w-4 text-primary" />
                 <span>
-                  {locale === "ar" ? "إدارة الدعوات" : "Operator Invitations"}
+                  {locale === "ar" ? "أدوات الإدارة" : "Operator Tools"}
                 </span>
               </Link>
             )}

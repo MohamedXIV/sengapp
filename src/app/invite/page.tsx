@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useConvexAuth, useMutation } from "convex/react";
-import { useRouter } from "next/navigation";
-import { api } from "../../../convex/_generated/api";
-import { BackendRequired } from "@/components/access/member-gate";
-import { InviteRedemptionCard } from "@/features/invitations/invite-redemption-card";
+import { useConvexAuth } from "convex/react";
+import { BackendRequired, MemberGate } from "@/components/access/member-gate";
+import { AcceptConnectionInvite } from "@/features/connections/accept-connection-invite";
 
 const INVITE_STORAGE_KEY = "sengapp:pending-invite";
 
@@ -29,41 +27,37 @@ function InviteEntry() {
     setCode(fromLink ?? sessionStorage.getItem(INVITE_STORAGE_KEY));
     setReady(true);
   }, []);
-  if (!ready) return <p role="status">Opening invitation…</p>;
+  if (!ready) return <p role="status">Opening connection invitation…</p>;
   if (!code) return (
     <div className="space-y-4 rounded-xl border bg-card p-6">
-      <h1 className="text-2xl font-semibold">Redeem your invitation</h1>
-      <p className="text-muted-foreground">Open the invitation link sent by your Sengapp operator.</p>
-      <Link href="/" className="text-primary underline">Return home</Link>
+      <h1 className="text-2xl font-semibold">No invitation link</h1>
+      <p className="text-sm text-muted-foreground">
+        Ask a friend to share a connection invitation link with you.
+        You can create your own Sengapp account without one.
+      </p>
+      <Link href="/login" className="text-primary underline">Sign in or join</Link>
     </div>
   );
-  return <RedeemWhenAuthenticated code={code} />;
+  return <ConnectionEntry code={code} />;
 }
 
-function RedeemWhenAuthenticated({ code }: { code: string }) {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+function ConnectionEntry({ code }: { code: string }) {
+  const { isLoading, isAuthenticated } = useConvexAuth();
   if (isLoading) return <p role="status">Checking your sign-in…</p>;
   if (!isAuthenticated) return (
-    <div className="space-y-4 rounded-xl border bg-card p-6 text-center">
-      <h1 className="text-2xl font-semibold">Almost home!</h1>
-      <p className="text-sm text-muted-foreground">Sign in with a verified email address to use this invitation.</p>
+    <div className="space-y-4 rounded-xl border bg-card p-6">
+      <h1 className="text-2xl font-semibold">Someone wants to connect</h1>
+      <p className="text-sm text-muted-foreground">
+        Sign in or create a verified account first. The invitation will wait;
+        opening it never automatically accepts it.
+      </p>
       <Link href="/login" className="inline-flex rounded-lg bg-primary px-5 py-3 text-primary-foreground">
-        Sign in to redeem
+        Sign in to decide
       </Link>
     </div>
   );
-  return <RedeemForm code={code} />;
-}
-
-function RedeemForm({ code }: { code: string }) {
-  const router = useRouter();
-  const redeem = useMutation(api.invites.redeem);
-  return <InviteRedemptionCard rawToken={code} onRedeem={async (input) => {
-    await redeem({
-      code: input.rawToken, displayName: input.displayName,
-      handle: input.handle, locale: input.locale,
-    });
-    sessionStorage.removeItem(INVITE_STORAGE_KEY);
-    router.replace("/home");
-  }} />;
+  return (
+    <MemberGate>{() => <AcceptConnectionInvite code={code}
+      onFinish={() => sessionStorage.removeItem(INVITE_STORAGE_KEY)} />}</MemberGate>
+  );
 }

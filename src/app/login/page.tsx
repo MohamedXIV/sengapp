@@ -19,7 +19,7 @@ export default function LoginPage() {
       <Link href="/" className="text-4xl" aria-label="Sengapp home">🐿️</Link>
       <h1 className="text-3xl font-semibold">Welcome to Sengapp</h1>
       <p className="text-sm text-muted-foreground">
-        Sign in or create an account with Clerk. Joining the Sengapp lounge still requires an invitation.
+        Sign in or create an account with your verified email. You can join without any invitation.
       </p>
       {configured
         ? <SignIn
@@ -31,7 +31,7 @@ export default function LoginPage() {
         : <p role="status" className="text-sm text-muted-foreground">
             Sign-in will be available once Clerk and Convex are configured.
           </p>}
-      <Link href="/invite" className="text-sm text-primary underline">Already have an invitation?</Link>
+      <Link href="/invite" className="text-sm text-primary underline">Have a connection invitation?</Link>
     </main>
   );
 }
