@@ -38,6 +38,7 @@ async function readCode(ctx: DatabaseContext, code: string) {
 
 async function invitationOutcome(ctx: DatabaseContext, code: string) {
   const me = await requireAuthorizedProfile(ctx);
+  const verifiedEmail = (await getVerifiedAuthUser(ctx)).email;
   const invite = await readCode(ctx, code);
   const sender = invite ? await ctx.db.get(invite.issuedBy) : null;
   if (!invite || !sender || sender.status !== "active") {
@@ -50,7 +51,7 @@ async function invitationOutcome(ctx: DatabaseContext, code: string) {
   const outcome = evaluateConnectionAcceptance({
     status: invite.status, expiresAt: invite.expiresAt,
     issuerProfileId: invite.issuedBy, recipientEmail: invite.recipientEmail,
-  }, me._id, me.email, Date.now(), hasBlock, hasConnection);
+  }, me._id, verifiedEmail, Date.now(), hasBlock, hasConnection);
   return { me, invite, sender, outcome };
 }
 
