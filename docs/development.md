@@ -1,74 +1,75 @@
-# Sengapp Phase 0 — Development
+# Sengapp Phase 0 — Development and Preview
 
-**Status:** Local invite-only foundation. **Not deployed; no live Clerk sign-in has been verified.**
+**Status (2026-10-27):** Open verified signup and private connection-invitation implementation in draft PR #10. Vercel/Convex **Preview** is deployed; this is not Production and not yet a working messenger or AI companion.
 
-## Requirements
+## Prerequisites
 
-- Node.js 24.x, npm and access to Sengapp's **own** Convex development project (not RepoPilot's).
-- A Clerk development application with the **Convex integration** enabled.
-- A verified email address for the initial operator and a server-side operator email allowlist.
+- Node.js 24.x, npm; Sengapp's own Convex project and Clerk **Development** application.
+- An owner-controlled verified Clerk email, optionally present in Convex's private operator allowlist.
+- No Resend, WhatsApp integration, third-party model API keys, or companion BYOK configuration is needed in Phase 0.
 
-## Setup
+## Clerk → Convex verified identity
 
-1. Run `npm ci --legacy-peer-deps` and copy `.env.example` to `.env.local`.
-2. In Clerk Dashboard, create/select the Sengapp application. Enable the Convex integration. Copy the **publishable** and **secret** API keys to `.env.local`. Configure the custom sign-in page `/login`.
-3. In Clerk's `convex` JWT template, preserve its Convex audience (`aud: "convex"`) and provide signed user claims:
+1. Install with `npm ci --legacy-peer-deps`, copy `.env.example` to `.env.local`.
+2. Configure Clerk application keys, authentication on `/login`, and native `ConvexProviderWithClerk`.
+3. In Clerk Development Dashboard → Sessions → **Customize session token**, save signed claims (the provider uses the Clerk `__session` token):
 
    ```json
    {
      "aud": "convex",
      "email": "{{user.primary_email_address}}",
-     "email_verified": "{{user.email_verified}}",
-     "name": "{{user.full_name}}"
+     "email_verified": "{{user.email_verified}}"
    }
    ```
 
-   The template name must be **`convex`**. Do **not** hard-code `email_verified: true` or use client-editable metadata. `email_verified` must resolve to a **boolean** from Clerk. If that claim is absent/false, Sengapp refuses operator bootstrap and invite redemption.
-4. Configure **Sengapp's Convex development deployment**, not another project's:
-   - `npx convex env set CLERK_JWT_ISSUER_DOMAIN https://YOUR-CLERK-FRONTEND-API` (the exact Clerk Frontend API issuer URL, including `https://`).
-   - `npx convex env set SENGAPP_OPERATOR_EMAILS verified-owner@example.com` (server-only comma-separated allowlist).
-5. Run `npx convex dev` to link the Sengapp project, sync `convex/auth.config.ts`, and regenerate the deployment-aware files under `convex/_generated`. This project has a **bootstrap-only** generated API for offline checks; live codegen is mandatory before testing real sign-in.
-6. Copy the generated `NEXT_PUBLIC_CONVEX_URL` / `CONVEX_DEPLOYMENT` into `.env.local`, start `npm run dev`, and open `http://localhost:3000`.
-7. Log in with Clerk, click **Initialize operator** on `/home`, then issue a one-use invite from `/admin/invitations`. Test a second verified Clerk account redeeming it on `/invite`.
+   `email_verified` must be a boolean derived from Clerk, never hard-coded or supplied by client-editable metadata. Convex normalizes this signed OIDC claim to `identity.emailVerified`; server functions require `=== true`. Missing/false/malformed verification or missing email fails closed with `VERIFIED_SIGN_IN_REQUIRED`.
 
-> Auth integration is **not** an invitation policy: Clerk signs users in, Convex checks their signed identity and Sengapp profile for **every** member operation. Uninvited Clerk users cannot read or mutate member data. The operator bootstrap accepts only a verified Clerk email in the server allowlist and is idempotent.
+4. Configure the **Sengapp** Convex deployment:
+   - `CLERK_JWT_ISSUER_DOMAIN`: exact Clerk frontend API issuer URL, including `https://`.
+   - `SENGAPP_OPERATOR_EMAILS`: optional comma-separated verified operator addresses, **server-side only**.
+   - `convex/auth.config.ts` expects application audience `convex`.
+5. Run `npx convex dev` on the intended Development deployment to sync functions and regenerate `convex/_generated`. Use the correct `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOYMENT`; run `npm run dev`.
 
-**Credentials:** Never place Clerk secrets in Git, responses, screenshots, tests, or `NEXT_PUBLIC_*` variables. The issuer URL and operator allowlist belong to **Convex server environment**. Convex production is not configured by this change.
+## Open signup and explicit operator activation
 
-## Hosted PR previews (Vercel + Convex)
+- Any verified Clerk signup opening `/home` invokes `profiles.ensureMine({})` if needed, transactionally creating one **active member** profile. No invite code or contact is required.
+- Calling `ensureMine` again returns the existing ID; it never restores a suspended account and never elevates roles.
+- To activate the vetted owner only, visit `/admin/invitations` and use the explicit **Initialize operator** action. `profiles.bootstrapOperator` checks the verified email against the server allowlist and promotes an existing active member. Ordinary users cannot promote themselves.
+- Signed-out visitors and identities missing valid verification claims have no member access. The profile gate exposes a retry or verification error rather than granting a fallback role.
 
-Sengapp's first hosted preview is intentionally **not a production release**. Vercel is linked to the GitHub repository, but only commits on a non-production feature branch should be used for Phase 0 acceptance; keep this PR draft until live authentication tests pass.
+## Private connections
 
-- Vercel Preview: set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, and `CONVEX_DEPLOY_KEY` for the intended feature branch. Keep the two secret keys sensitive/server-side; do not commit them or set them as `NEXT_PUBLIC_*`.
-- Use a **Convex Preview deploy key**, not a Production or Development key. Each preview branch gets an isolated Convex backend; no existing Development or Production data is copied into it.
-- Build command: `npx convex deploy --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL --cmd 'npm run build'`. This deploys the matching Convex functions and supplies the preview backend URL to Next.js at build time. Do not rely on a hard-coded Development URL in Preview.
-- Under Convex **Project Settings → Default Environment Variables**, scope `CLERK_JWT_ISSUER_DOMAIN` and `SENGAPP_OPERATOR_EMAILS` to **Preview only** so new preview deployments receive the verified Clerk issuer and restricted operator allowlist.
-- Use Node.js 24, `npm ci --legacy-peer-deps`, and Clerk's existing Development instance for test authentication. A Clerk dashboard administrator is **not automatically** a registered Clerk app user; the approved operator must sign up with and verify the allowlisted email before initializing an operator profile.
-- Do not merge to `main` or enable Production keys until the live two-account acceptance ledger is complete. Preview deployments are protected by the hosting team's access policy.
+1. Any active member visits `/connections` and chooses **Create invitation link**. Optional recipient email binding and note, TTL 24/72/168 hours.
+2. A 32-byte random Base64URL code is returned once to the sender; only its SHA-256 hash and a short hint are stored in Convex. The link is `/invite#code=...`. The fragment is immediately removed from the recipient's address bar and stored temporarily in same-origin `sessionStorage` across sign-in.
+3. The signed-in recipient reviews the sender's display name/note and explicitly **Accepts** or **Declines**. Merely opening a URL or registering never creates a relationship. `connections` uses one canonical unordered pair; approval and code consumption are atomic.
+4. Blocks, expired/revoked/used codes, wrong verified recipient email, self-acceptance and existing connections prevent acceptance. The code remains unconsumed after rejected attempts.
+5. At most 10 unexpired pending invites and 20 created in a rolling 24-hour window per member. Sender can revoke their own pending invite.
+6. **Copy link** works on supported browsers. If clipboard permission is denied, the visible input remains selectable. Native **Share** appears only where supported and opens the device's share sheet: the app never automatically sends WhatsApp or email, and cannot attest that a message was delivered.
 
-## Commands
+No public directory, automatic DM, companion access, or access to historic conversations is granted by a connection. No email addresses are made discoverable in public lists.
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Next.js development server |
-| `npx convex dev` | Development backend sync and real codegen |
-| `npm run typecheck` | TypeScript validation |
-| `npm run lint` | ESLint validation |
-| `npm test` | Vitest domain and security suites |
-| `npm run test:e2e` | Playwright desktop/mobile browser checks |
-| `npm run build` | Production build |
+## Preview deployment boundaries
 
-## Invitation lifecycle
+- Vercel Preview branch: `feat/phase0-invite-foundation`; canonical draft [PR #10](https://github.com/MohamedXIV/sengapp/pull/10).
+- Build command: `npx convex deploy --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL --cmd 'npm run build'`.
+- Use the **Convex Preview deploy key**, not a Production/Development deploy key, so the backend is isolated. Scope `CLERK_JWT_ISSUER_DOMAIN` and `SENGAPP_OPERATOR_EMAILS` as necessary for Preview deployment.
+- Clerk Development sessions are **origin-bound**; a new Vercel Preview URL may require signing in again. Never paste tokens or secrets into the repository.
+- Do not merge, promote, or set Production keys without the human two-account acceptance checklist in `docs/testing/phase0-acceptance.md` and security review.
 
-- A verified operator calls `invites.issue`. Secure server-side randomness produces a 32-byte code shown once; only its SHA-256 hash is persisted.
-- Invite links use `/invite#code=...`, keeping the token out of HTTP access logs and referrer headers. The browser removes the fragment and stores the pending token temporarily in session storage across Clerk sign-in.
-- A verified identity with no member profile calls `invites.redeem`. The atomic Convex mutation checks expiry, identity/email restriction, handle uniqueness, one-time use, then creates membership and marks the invitation redeemed.
-- Operators can revoke unused codes; up to 20 unexpired pending invites per issuer; TTL 1–720 hours.
+## Verification
 
-## Explicit limitations
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run test:e2e
+```
 
-- This is invite-only identity/profile infrastructure, **not yet the messaging app**.
-- The Clerk integration, Convex link and two-account live smoke must be completed with owner-controlled credentials before the PR can be marked production-ready.
-- JWT claim freshness follows Clerk's token lifecycle. Live checks must include signed-out/revoked sessions and an unverified-address attempt.
-- No email sending, third-party AI calls, media storage or production deployment is configured.
-- There is no E2EE in v0.1.
+CI executes the same gates on the draft PR and uses a no-credentials Next.js build for unauthenticated smoke. To test *live* authentication/connection functionality, use owner-controlled accounts on the isolated Preview backend.
+
+## Deferred
+
+- Resend-managed transactional email is a later delivery option.
+- The AI companion is a later vertical slice. Sengapp-funded inference needs per-user quotas and global budgets; BYOK needs encrypted server-side key storage, replacement/removal, owner isolation and clear billing. None of this is implemented or billed in Phase 0.
+- No E2EE promise or public alpha claim. Existing npm advisories require separate triage before Production.

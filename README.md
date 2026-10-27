@@ -5,16 +5,16 @@
 <h1 align="center">Sengapp 🐿️</h1>
 
 <p align="center"><strong>A little place for big conversations.</strong></p>
-<p align="center">A cozy, invite-only messenger with personal expression, shared interests, and playful AI companions.</p>
+<p align="center">A cozy private-circle messenger in development: open accounts, connections by consent, and playful AI companions planned for later.</p>
 
 <p align="center">
   <img alt="Project stage: planning" src="https://img.shields.io/badge/stage-foundation--in--review-F59E0B?style=flat-square">
   <img alt="Platform: Progressive Web App" src="https://img.shields.io/badge/platform-PWA-2563EB?style=flat-square">
   <img alt="Stack: TypeScript" src="https://img.shields.io/badge/language-TypeScript-3178C6?style=flat-square">
-  <img alt="Access: invite only" src="https://img.shields.io/badge/access-invite--only-10B981?style=flat-square">
+  <img alt="Access: open verified signup" src="https://img.shields.io/badge/access-open--verified--signup-10B981?style=flat-square">
 </p>
 
-> **Pre-alpha · Phase 0 foundation.** A Next.js app shell and invite-only identity workflow are under review. This is **not** a working messenger or a hosted alpha; live sign-in requires Sengapp's Convex development deployment and owner-configured Clerk credentials.
+> **Pre-alpha · Phase 0 foundation.** A Next.js app shell, verified open signup, and private connection invitations are under review on isolated Preview. This is **not** yet a working messenger, AI companion, or Production/hosted alpha.
 
 ## Why Sengapp?
 
@@ -33,7 +33,7 @@ Mainstream messengers already do almost everything. Sengapp isn't trying to out-
 ## Product principles
 
 - **People first.** Reliable human messaging must work even when AI providers are unavailable.
-- **Private circles, not a public social network.** Invite-only access, no global discovery or public communities in the near term.
+- **Private circles, not a public social network.** Anyone can create a verified profile; people connect only through consent. No global directory or public communities.
 - **Control over presence.** Online, last seen, read receipts and typing are on by default but independently disableable.
 - **Companions need permission.** Every user owns their companion; joining a group requires approval and no companion volunteers the owner's private information.
 - **Lightweight on mobile.** Chat text stays accessible HTML; animation is optional and respects reduced motion/data considerations.

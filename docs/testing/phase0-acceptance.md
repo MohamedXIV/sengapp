@@ -1,27 +1,28 @@
-# Phase 0 Acceptance Ledger — Clerk + Convex
+# Sengapp Phase 0 Acceptance Ledger — Open Signup & Connections
 
-This checklist is a verification gate, not a claim that Sengapp is production ready.
+This is an evidence checklist, **not** a Production or hosted alpha approval.
 
-## Automated
+## Automated on draft PR #10
 
-- [ ] Typecheck passes locally and on GitHub Actions with Clerk dependencies.
-- [ ] ESLint passes locally and on GitHub Actions.
-- [ ] Domain and security suite passes locally and on GitHub Actions (**23 tests**), including Convex-test identity claims and absent/false `email_verified`.
-- [ ] Desktop + mobile unauthenticated Playwright checks pass in CI.
-- [ ] Next.js production build passes without real credentials; sign-in falls back to setup instructions while unconfigured.
+- [x] Verified Clerk JWT normalization regression (`email_verified` → `identity.emailVerified`) added with RED/GREEN evidence; absent/false claims denied.
+- [x] Concurrent open signup, ordinary member role, explicit allowlisted operator promotion, and suspension denial covered in `tests/integration/access.test.ts`.
+- [x] Connection token format, TTL, rate limits, email binding, one-use/replay, races, revocation, self-acceptance, and block boundaries covered in `tests/domain/connection-policy.test.ts` and `tests/integration/connections.test.ts`.
+- [x] Copy/share fallback and no false delivery claims covered in `tests/components/share-invite.test.tsx`.
+- [ ] Exact final HEAD: TypeScript, lint, Vitest, Next build, Chromium desktop/mobile Playwright success. Record specific run and SHA once complete.
+- [ ] Audit 6 npm advisories (2 moderate, 2 high, 2 critical); document safe remediation or residual risk before merge.
 
-## Live two-account smoke — owner-controlled Sengapp Clerk/Convex credentials
+## Live Preview smoke — not completed
 
-- [ ] Verified allowlisted Clerk account creates exactly one operator profile.
-- [ ] Unverified email and missing `email_verified` cannot bootstrap or redeem.
-- [ ] Operator creates a 32-byte invitation; raw token is absent from Convex documents.
-- [ ] Second verified Clerk account redeems invite and reaches `/home`.
-- [ ] Uninvited Clerk account cannot access member settings or operator actions.
-- [ ] Wrong recipient email, forged, expired and revoked codes are rejected.
-- [ ] Replaying a redeemed code fails.
-- [ ] Simultaneous redemptions consume a code at most once.
-- [ ] Sign-out / revoked Clerk session removes Convex protected access.
-- [ ] Member cannot issue, revoke or list operator invitations.
-- [ ] Mobile viewport, keyboard, motion and light/dark behavior manually checked.
+- [x] A verified Clerk Development account signed in on the stable branch Preview alias and reached an auto-created active **member** home with zero contacts (observed 2026-10-27). Operator elevation remains untested.
+- [ ] Owner explicitly activates operator; an ordinary non-allowlisted verified account cannot.
+- [ ] Independent verified account A signs up without any invite and gets a single member profile; repeated reloads do not duplicate.
+- [ ] Independent verified account B also signs up without an invite; both begin with zero contacts.
+- [ ] A issues link; B sees preview, chooses Accept; each sees exactly one connection. Opening the link alone does nothing.
+- [ ] A second link is declined, revoked, wrong-email, replayed, expired and self-accepted unsuccessfully with no unauthorized connection.
+- [ ] Sender/receiver blocked relation denies acceptance; private profile/settings/companion data stay inaccessible to others.
+- [ ] Native share (where supported) and clipboard denied fallback, mobile keyboard, light/dark, reduced motion.
+- [ ] Sign-out and Clerk revoked sessions lose protected Convex access; inspect Preview logs without logging raw invitation codes.
 
-No live Clerk, production deployment, or real two-account smoke is claimed by automated tests.
+## Scope boundary
+
+Only isolated Clerk Development, Convex Preview and Vercel Preview are in scope. Do not merge PR #10, publish to Production, send invitations automatically, enable model API keys, or claim companion/BYOK or Resend functionality in Phase 0.

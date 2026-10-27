@@ -1,9 +1,9 @@
 # Sengapp — Open Signup, Private Connections & Companion Budget Amendment
 
 **Date:** 2026-10-27  
-**Status:** Proposed for owner review; not an implementation authorization  
+**Status:** Owner-approved for isolated draft PR #10 implementation on 27 October 2026  
 **Applies to:** Sengapp v0.1 design approved 2026-10-26, especially §§1, 3, 4.1, 4.1a(2), 6 and 7  
-**Existing implementation:** Draft PR #10, `feat/phase0-invite-foundation` (currently invite-to-register)
+**Implementation:** Draft PR #10, `feat/phase0-invite-foundation` (open signup and connection invitation work in progress)
 
 ## Intent and user decisions
 
@@ -105,4 +105,4 @@ For delivery, native share plus copy is the Phase 0 option. Resend may later del
 
 ## Approval boundary
 
-This document records the owner's direction but **requires explicit owner approval before product-code implementation**. It does not authorize sending real outbound messages, connecting real users, purchasing services, relaxing server authorization, changing Production or merging PR #10.
+The owner approved Approach A, manual copy + optional native share, Resend deferral, future AI quotas/BYOK, and implementation on the isolated draft PR. This approval does **not** authorize sending real outbound messages, purchasing services, relaxing server authorization, changing Production or merging PR #10.

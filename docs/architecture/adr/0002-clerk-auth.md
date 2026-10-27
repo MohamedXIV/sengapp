@@ -1,27 +1,20 @@
-# ADR 0002 — Clerk identity with Convex membership
+# ADR 0002 — Clerk authentication, open signup and private Convex graph
 
-**Status:** Accepted by product owner, 27 October 2026.
+**Status:** Accepted by product owner, 27 October 2026 (amends invitation-only foundation).
 
 ## Decision
 
-Use Clerk for Sengapp sign-in, social/email account management, and sessions.
-Use Convex for server-authorized invite redemption, immutable role assignment,
-membership, profiles, and operator auditing. The original Better Auth component
-has been removed from Phase 0.
+Clerk manages authentication, verified emails and sessions. Convex owns one ordinary private `profiles` row per verified Clerk subject, server-side role authorization, one-use connection invitations, symmetric connections, blocks and audit records.
 
-The Clerk `convex` JWT template must include the signed `email` and boolean
-`email_verified` claims; Convex verifies JWT issuer and audience. All membership
-operations derive the user ID from `ctx.auth.getUserIdentity().subject` and fail
-closed if verification is absent. An authenticated Clerk session alone grants
-no Sengapp membership.
+`ConvexProviderWithClerk` consumes the signed Clerk session token with audience `convex`, email and boolean `email_verified`. Convex exposes the claim as `identity.emailVerified`. Without explicit `true`, a subject, and usable signed email, server functions fail closed.
 
-Only the verified owner email in the private Convex `SENGAPP_OPERATOR_EMAILS`
-allowlist may bootstrap an operator. All other memberships are granted by a
-single-use invitation redeemed atomically in Convex.
+On first verified access, `profiles.ensureMine` idempotently provisions an active `member`; no invitation is necessary. This grants zero relationships and no other user's data. `bootstrapOperator` is separate and requires a verified email present in the private Convex operator allowlist, refusing suspension; it can explicitly promote an existing ordinary member.
+
+Ordinary active members can issue hashed, expiring connection links. Recipients may create their own account independently, then knowingly accept or decline. Only a successful atomic acceptance creates a canonical symmetric connection; no public search, invitation-triggered member creation or implicit friend access exists.
 
 ## Consequences
 
-- Clerk keys, Convex issuer config and JWT template need owner setup.
-- No Google OAuth client or Better Auth secret is required by Sengapp.
-- Changing auth providers in the future is isolated from Sengapp membership.
-- Live two-account tests are mandatory before enabling an alpha.
+- Development and Preview require correct Clerk JWT claims and issuer/audience configuration; missing verification is a hard error, never inferred from a populated email.
+- All cross-user messaging, files and companion context must later enforce their own authorization; a connection alone is not a blanket grant.
+- Live two-account Preview smoke and security checks are required before Production.
+- Resend and encrypted AI BYOK plus quota enforcement are deferred to their own phases.

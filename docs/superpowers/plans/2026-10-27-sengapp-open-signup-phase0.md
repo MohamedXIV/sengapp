@@ -141,4 +141,4 @@ The owner-approved companion/budget behavior belongs to a **different implementa
 - The five Review Focus failure modes each have a named test in Tasks 2–4.
 - API names consistently use `profiles.ensureMine` and `connectionInvites.*`.
 - Every task has a test/fix/verify/commit cycle, and no Phase 0 step requires paid email or AI services.
-- **Owner must review this plan and select the execution method before product code changes.**
+- **Owner approved execution in this conversation on 2026-10-27.** All work remains on draft PR #10; live two-account validation and final security review are required before merge.

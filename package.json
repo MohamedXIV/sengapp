@@ -2,7 +2,7 @@
   "name": "sengapp",
   "version": "0.1.0",
   "private": true,
-  "description": "Sengapp — A little place for big conversations. Private, invitation-only social messaging application.",
+  "description": "Sengapp — A little place for big conversations. Open verified signup with private consent-based connections.",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

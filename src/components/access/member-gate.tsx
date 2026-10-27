@@ -15,7 +15,7 @@ export function BackendRequired({ children }: { children: ReactNode }) {
       <div role="status" className="mx-auto max-w-lg rounded-2xl border bg-card p-6 text-center">
         <h1 className="text-xl font-semibold">Sengapp needs its Clerk and Convex connection</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Set up the development environment in docs/development.md to unlock sign-in and invitations.
+          Set up the development environment in docs/development.md to unlock sign-in and private connections.
         </p>
         <Link href="/" className="mt-4 inline-block text-primary underline">Back to welcome</Link>
       </div>
