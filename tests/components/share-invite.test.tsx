@@ -2,6 +2,7 @@ import { act } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRoot } from "react-dom/client";
 import { CreateConnectionInvite } from "../../src/features/connections/create-connection-invite";
+import type { Id } from "../../convex/_generated/dataModel";
 
 const code = "A".repeat(43);
 const issue = vi.fn(async () => ({ code, expiresAt: Date.now() + 86_400_000 }));
@@ -73,4 +74,40 @@ describe("Connection invite copy and native sharing", () => {
     expect(linkInput(container).value).toContain(code);
     expect(issue).toHaveBeenCalledTimes(1);
   });
+  it("removes the issued link and consumed invite from the sender view after acceptance", async () => {
+    const invitationId = "connection-test-invite" as Id<"connectionInvites">;
+    const expiresAt = Date.now() + 86_400_000;
+    const issueWithId = vi.fn(async () => ({ code, invitationId, expiresAt }));
+    const pendingInvite = {
+      _id: invitationId, codeHint: "••••AAAA", status: "pending" as const,
+      createdAt: Date.now(), expiresAt,
+    };
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    const onRevoke = vi.fn(async () => {});
+    unmounts.push(() => { root.unmount(); container.remove(); });
+
+    act(() => {
+      root.render(<CreateConnectionInvite invitations={[]} onIssue={issueWithId} onRevoke={onRevoke} />);
+    });
+    await create(container);
+    expect(linkInput(container).value).toContain(code);
+
+    act(() => {
+      root.render(<CreateConnectionInvite invitations={[pendingInvite]} onIssue={issueWithId} onRevoke={onRevoke} />);
+    });
+    expect(linkInput(container).value).toContain(code);
+    expect(container.textContent).toContain("••••AAAA");
+
+    await act(async () => {
+      root.render(<CreateConnectionInvite
+        invitations={[{ ...pendingInvite, status: "accepted" }]}
+        onIssue={issueWithId} onRevoke={onRevoke} />);
+    });
+    expect(container.querySelector('input[aria-label="Invitation link"]')).toBeNull();
+    expect(container.textContent).not.toContain("••••AAAA");
+    expect(container.textContent).not.toContain("· accepted");
+  });
+
 });
