@@ -62,11 +62,11 @@ export const issue = action({
     recipientEmail: v.optional(v.string()),
     note: v.optional(v.string()),
   },
-  handler: async (ctx, args): Promise<{ code: string; expiresAt: number }> => {
+  handler: async (ctx, args): Promise<{ code: string; expiresAt: number; invitationId: Id<"connectionInvites"> }> => {
     const user = await getVerifiedAuthUser(ctx);
     assertConnectionIssueAllowed(args.ttlHours, 0, 0);
     const code = generateSecureInvitationToken();
-    const result: { expiresAt: number } = await ctx.runMutation(
+    const result: { expiresAt: number; invitationId: Id<"connectionInvites"> } = await ctx.runMutation(
       internal.connectionInvites.insertIssuedCode, {
         issuerAuthUserId: user.userId, ttlHours: args.ttlHours,
         codeHash: await hashInvitationToken(code), codeHint: createTokenHint(code),
@@ -74,7 +74,7 @@ export const issue = action({
         note: args.note?.trim() || undefined,
       },
     );
-    return { code, expiresAt: result.expiresAt };
+    return { code, expiresAt: result.expiresAt, invitationId: result.invitationId };
   },
 });
 
@@ -115,7 +115,7 @@ export const insertIssuedCode = internalMutation({
       actorProfileId: member._id, action: "connection_invite.issued",
       targetId: String(id), createdAt: now,
     });
-    return { expiresAt };
+    return { expiresAt, invitationId: id };
   },
 });
 
