@@ -12,7 +12,7 @@ export default function MemberHomePage() {
           <h1 className="text-3xl font-semibold">Good to see you, {profile.displayName}!</h1>
           <p className="max-w-lg text-muted-foreground">
             This is your private Sengapp lounge. Conversations and companions arrive in the next phases.
-            Right now, your invite-only account and identity settings are ready to explore.
+            Your profile is ready, even without any contacts. Your conversations remain private until you connect.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link className="rounded-xl bg-primary px-4 py-3 text-sm text-primary-foreground" href="/settings/profile">

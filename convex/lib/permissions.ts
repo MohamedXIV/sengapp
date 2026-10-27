@@ -13,7 +13,7 @@ export interface AuthenticatedActor {
 export function assertActiveMemberActor<T extends AuthenticatedActor>(actor: T | null): T {
   if (!actor) throw new ConvexError({ code: "UNAUTHENTICATED" });
   if (actor.status === "suspended") throw new ConvexError({ code: "SUSPENDED" });
-  if (actor.status !== "active") throw new ConvexError({ code: "INVITATION_REQUIRED" });
+  if (actor.status !== "active") throw new ConvexError({ code: "PROFILE_REQUIRED" });
   return actor;
 }
 

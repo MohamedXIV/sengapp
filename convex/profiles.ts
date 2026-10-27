@@ -15,39 +15,63 @@ export const getMine = query({
   },
 });
 
+function initialProfileFields(
+  user: Awaited<ReturnType<typeof getVerifiedAuthUser>>,
+  role: "member" | "operator",
+) {
+  const now = Date.now();
+  return {
+    authUserId: user.userId, email: user.email,
+    displayName: user.name?.trim().slice(0, 50) || "New member",
+    role, status: "active" as const, joinedAt: now, updatedAt: now,
+    avatarPresetKey: "acorn-scout", avatarAccentColor: "#C68A45",
+    locale: "en" as const, textDirection: "auto" as const,
+    themePreference: "system" as const, reducedMotion: false,
+    presencePreferences: {
+      onlineStatus: true, lastSeen: true, readReceipts: true, typingIndicators: true,
+    },
+  };
+}
+
+// Convex mutations are serializable: concurrent calls for one Clerk subject
+// observe the same indexed row and never create duplicate memberships.
+export const ensureMine = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getVerifiedAuthUser(ctx);
+    const existing = await ctx.db.query("profiles")
+      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", user.userId)).unique();
+    if (existing) {
+      if (existing.status !== "active") throw new ConvexError({ code: "SUSPENDED" });
+      return existing._id;
+    }
+    return ctx.db.insert("profiles", initialProfileFields(user, "member"));
+  },
+});
+
+// Operator activation is a separate explicit server-authorized operation,
+// never a side effect of ordinary verified signup.
 export const bootstrapOperator = mutation({
   args: {},
   handler: async (ctx) => {
     const user = await getVerifiedAuthUser(ctx);
-    if (!isAllowedVerifiedOperator(
-      user.email, true, process.env.SENGAPP_OPERATOR_EMAILS,
-    )) {
+    if (!isAllowedVerifiedOperator(user.email, true, process.env.SENGAPP_OPERATOR_EMAILS)) {
       throw new ConvexError({ code: "FORBIDDEN" });
     }
-    const authUserId = user.userId;
     const existing = await ctx.db.query("profiles")
-      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", authUserId)).unique();
+      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", user.userId)).unique();
+    if (existing?.status === "suspended") throw new ConvexError({ code: "SUSPENDED" });
+    const now = Date.now();
     if (existing) {
-      if (existing.role !== "operator" || existing.status !== "active") {
-        throw new ConvexError({ code: "FORBIDDEN" });
-      }
+      if (existing.role === "operator") return existing._id;
+      await ctx.db.patch(existing._id, { role: "operator", updatedAt: now });
+      await ctx.db.insert("auditLogs", {
+        actorProfileId: existing._id, action: "operator.promoted",
+        targetId: String(existing._id), createdAt: now,
+      });
       return existing._id;
     }
-
-    const now = Date.now();
-    const id = await ctx.db.insert("profiles", {
-      authUserId,
-      email: user.email.trim().toLowerCase(),
-      displayName: user.name?.trim().slice(0, 50) || "Sengapp Operator",
-      role: "operator", status: "active",
-      joinedAt: now, updatedAt: now, avatarPresetKey: "acorn-scout",
-      avatarAccentColor: "#C68A45",
-      locale: "en", textDirection: "auto", themePreference: "system",
-      reducedMotion: false,
-      presencePreferences: {
-        onlineStatus: true, lastSeen: true, readReceipts: true, typingIndicators: true,
-      },
-    });
+    const id = await ctx.db.insert("profiles", initialProfileFields(user, "operator"));
     await ctx.db.insert("auditLogs", {
       actorProfileId: id, action: "operator.bootstrapped",
       targetId: String(id), createdAt: now,

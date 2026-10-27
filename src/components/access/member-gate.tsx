@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -67,24 +67,49 @@ function ResolvedMembership({
   operatorOnly: boolean;
 }) {
   const profile = useQuery(api.profiles.getMine);
+  const ensureMine = useMutation(api.profiles.ensureMine);
   const bootstrap = useMutation(api.profiles.bootstrapOperator);
+  const [setupState, setSetupState] = useState<"idle" | "creating" | "failed">("idle");
+  const [setupError, setSetupError] = useState<string>("");
+
+  useEffect(() => {
+    if (profile !== null || setupState !== "idle") return;
+    setSetupState("creating");
+    void ensureMine({}).catch((error: unknown) => {
+      const value = String(error);
+      setSetupError(value.includes("SUSPENDED")
+        ? "This account is suspended. Contact the Sengapp operator."
+        : value.includes("VERIFIED_SIGN_IN_REQUIRED")
+          ? "Verify your email address with Clerk and sign in again."
+          : "We couldn't prepare your private space. Please try again.");
+      setSetupState("failed");
+    });
+  }, [ensureMine, profile, setupState]);
+
   if (profile === undefined) return <p role="status" className="p-8">Loading your space…</p>;
   if (!profile) {
     return (
       <div className="mx-auto max-w-md space-y-4 p-8 text-center">
-        <h1 className="text-2xl font-semibold">An invitation opens the door</h1>
-        <p className="text-sm text-muted-foreground">
-          You are signed in, but you are not yet a Sengapp member.
-        </p>
-        <Link href="/invite" className="inline-flex rounded-lg bg-primary px-5 py-3 text-primary-foreground">
-          Redeem invitation
-        </Link>
-        <OperatorBootstrap bootstrap={() => bootstrap({})} />
+        <h1 className="text-2xl font-semibold">Preparing your private space</h1>
+        {setupState !== "failed"
+          ? <p role="status" className="text-sm text-muted-foreground">Creating your Sengapp profile…</p>
+          : <>
+              <p role="alert" className="text-sm text-destructive">{setupError}</p>
+              <button type="button" className="rounded-lg border px-4 py-2"
+                onClick={() => setSetupState("idle")}>Try again</button>
+            </>}
       </div>
     );
   }
   if (operatorOnly && profile.role !== "operator") {
-    return <p role="alert" className="p-8">Only Sengapp operators can access this page.</p>;
+    return (
+      <div className="mx-auto max-w-md space-y-4 p-8 text-center">
+        <h1 className="text-2xl font-semibold">Operator access</h1>
+        <p role="alert">This page requires an operator account.</p>
+        <OperatorBootstrap bootstrap={() => bootstrap({})} />
+        <Link href="/home" className="inline-block text-primary underline">Back to your space</Link>
+      </div>
+    );
   }
   return (
     <AppShell userRole={profile.role} displayName={profile.displayName}
