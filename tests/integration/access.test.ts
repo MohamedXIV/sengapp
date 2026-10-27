@@ -84,7 +84,7 @@ describe("Convex verified signup and membership boundary", () => {
     expect((await t.run((ctx) => ctx.db.query("profiles").collect()))).toHaveLength(2);
     await expect(alice.mutation(api.profiles.updatePresencePreferences, {
       onlineStatus: false, lastSeen: false, readReceipts: false, typingIndicators: false,
-    })).resolves.toBeUndefined();
+    })).resolves.toBeNull();
     await expect(alice.query(api.invites.list, {})).rejects.toThrow();
   });
 
