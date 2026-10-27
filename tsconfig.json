@@ -19,9 +19,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": [
-      "vite/client"
-    ],
+    "types": [],
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
@@ -43,8 +41,6 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "convex/**/*.ts",
-    "tests/**/*.ts",
-    "tests/**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],

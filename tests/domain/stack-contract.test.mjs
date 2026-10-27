@@ -26,3 +26,12 @@ test("Tailwind 4 uses its dedicated PostCSS plugin", () => {
   assert.match(postcss, /@tailwindcss\/postcss/);
   assert.match(css, /@import\s+["']tailwindcss["']/);
 });
+
+test("production TypeScript config excludes Vite test-only type dependencies", () => {
+  const tsconfig = JSON.parse(readFileSync(new URL("../../tsconfig.json", import.meta.url), "utf8"));
+  assert.equal((tsconfig.compilerOptions.types ?? []).includes("vite/client"), false);
+  assert.ok(!tsconfig.include.some((glob) => glob.startsWith("tests/")));
+  const testConfig = JSON.parse(readFileSync(new URL("../../tsconfig.test.json", import.meta.url), "utf8"));
+  assert.ok(testConfig.compilerOptions.types.includes("vite/client"));
+  assert.match(packageJson.scripts.typecheck, /tsconfig\.test\.json/);
+});
