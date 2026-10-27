@@ -35,6 +35,17 @@
 
 **Credentials:** Never place Clerk secrets in Git, responses, screenshots, tests, or `NEXT_PUBLIC_*` variables. The issuer URL and operator allowlist belong to **Convex server environment**. Convex production is not configured by this change.
 
+## Hosted PR previews (Vercel + Convex)
+
+Sengapp's first hosted preview is intentionally **not a production release**. Vercel is linked to the GitHub repository, but only commits on a non-production feature branch should be used for Phase 0 acceptance; keep this PR draft until live authentication tests pass.
+
+- Vercel Preview: set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, and `CONVEX_DEPLOY_KEY` for the intended feature branch. Keep the two secret keys sensitive/server-side; do not commit them or set them as `NEXT_PUBLIC_*`.
+- Use a **Convex Preview deploy key**, not a Production or Development key. Each preview branch gets an isolated Convex backend; no existing Development or Production data is copied into it.
+- Build command: `npx convex deploy --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL --cmd 'npm run build'`. This deploys the matching Convex functions and supplies the preview backend URL to Next.js at build time. Do not rely on a hard-coded Development URL in Preview.
+- Under Convex **Project Settings → Default Environment Variables**, scope `CLERK_JWT_ISSUER_DOMAIN` and `SENGAPP_OPERATOR_EMAILS` to **Preview only** so new preview deployments receive the verified Clerk issuer and restricted operator allowlist.
+- Use Node.js 24, `npm ci --legacy-peer-deps`, and Clerk's existing Development instance for test authentication. A Clerk dashboard administrator is **not automatically** a registered Clerk app user; the approved operator must sign up with and verify the allowlisted email before initializing an operator profile.
+- Do not merge to `main` or enable Production keys until the live two-account acceptance ledger is complete. Preview deployments are protected by the hosting team's access policy.
+
 ## Commands
 
 | Command | Purpose |
