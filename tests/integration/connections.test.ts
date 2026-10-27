@@ -15,8 +15,10 @@ describe("Private one-use connection invitations", () => {
     const t = convexTest(schema, modules);
     const alice = newMember(t, "alice", "alice@example.com");
     const bob = newMember(t, "bob", "bob@example.com");
+    const carla = newMember(t, "carla", "carla@example.com");
     await alice.mutation(api.profiles.ensureMine, {});
     await bob.mutation(api.profiles.ensureMine, {});
+    await carla.mutation(api.profiles.ensureMine, {});
     const { code } = await alice.action(api.connectionInvites.issue, { ttlHours: 24, note: "Let's chat" });
     expect(code).toMatch(/^[A-Za-z0-9_-]{43}$/);
     expect(await bob.query(api.connectionInvites.preview, { code })).toMatchObject({
@@ -37,6 +39,9 @@ describe("Private one-use connection invitations", () => {
     expect(database.connections).toHaveLength(1);
     expect(JSON.stringify(database.links)).not.toContain(code);
     await expect(bob.mutation(api.connectionInvites.accept, { code })).rejects.toThrow();
+    expect(await carla.query(api.connectionInvites.preview, { code })).toMatchObject({ valid: false, reason: "UNAVAILABLE" });
+    await expect(carla.mutation(api.connectionInvites.accept, { code })).rejects.toThrow();
+    expect(await carla.query(api.connections.listMine, {})).toHaveLength(0);
   });
 
   it("binds optional verified email, refuses self-acceptance and preserves codes on rejection", async () => {
