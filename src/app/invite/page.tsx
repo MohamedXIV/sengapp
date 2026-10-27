@@ -9,9 +9,9 @@ import { AcceptConnectionInvite } from "@/features/connections/accept-connection
 const INVITE_STORAGE_KEY = "sengapp:pending-invite";
 
 export default function InvitePage() {
-  return <div className="mx-auto min-h-screen max-w-xl p-6 pt-16">
-    <BackendRequired><InviteEntry /></BackendRequired>
-  </div>;
+  // Authenticated invites render the full AppShell; do not constrain it to a
+  // narrow public-invite card or nest a second main landmark.
+  return <BackendRequired><InviteEntry /></BackendRequired>;
 }
 
 function InviteEntry() {
@@ -29,7 +29,7 @@ function InviteEntry() {
   }, []);
   if (!ready) return <p role="status">Opening connection invitation…</p>;
   if (!code) return (
-    <div className="space-y-4 rounded-xl border bg-card p-6">
+    <div className="mx-auto mt-16 max-w-xl space-y-4 rounded-xl border bg-card p-6">
       <h1 className="text-2xl font-semibold">No invitation link</h1>
       <p className="text-sm text-muted-foreground">
         Ask a friend to share a connection invitation link with you.
