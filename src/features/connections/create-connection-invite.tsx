@@ -18,13 +18,13 @@ export function CreateConnectionInvite({
   invitations, onIssue, onRevoke,
 }: {
   invitations: ConnectionInviteListItem[];
-  onIssue: (input: { ttlHours: number; recipientEmail?: string; note?: string }) => Promise<{ code: string; expiresAt: number }>;
+  onIssue: (input: { ttlHours: number; recipientEmail?: string; note?: string }) => Promise<{ code: string; expiresAt: number; invitationId: Id<"connectionInvites"> }>;
   onRevoke: (id: Id<"connectionInvites">) => Promise<unknown>;
 }) {
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
   const [ttlHours, setTtlHours] = useState<24 | 72 | 168>(72);
-  const [link, setLink] = useState("");
+  const [issuedLink, setIssuedLink] = useState<{ url: string; invitationId: Id<"connectionInvites">; expiresAt: number } | null>(null);
   const linkRef = useRef<HTMLInputElement>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [status, setStatus] = useState("");
@@ -32,6 +32,12 @@ export function CreateConnectionInvite({
   const [nativeShare, setNativeShare] = useState(false);
 
   useEffect(() => setNativeShare(typeof navigator.share === "function"), []);
+
+  const issuedRecord = issuedLink && invitations.find((invite) => invite._id === issuedLink.invitationId);
+  const issuedStillActive = issuedLink && issuedLink.expiresAt > Date.now()
+    && (!issuedRecord || (issuedRecord.status === "pending" && issuedRecord.expiresAt > Date.now()));
+  const link = issuedStillActive ? issuedLink.url : "";
+  const openInvitations = invitations.filter((invite) => invite.status === "pending" && invite.expiresAt > Date.now());
 
   async function createInvite(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,7 +60,7 @@ export function CreateConnectionInvite({
       });
       const url = new URL("/invite", window.location.origin);
       url.hash = "code=" + issued.code;
-      setLink(url.toString());
+      setIssuedLink({ url: url.toString(), invitationId: issued.invitationId, expiresAt: issued.expiresAt });
       setStatus("Connection invitation created. Copy or share the link.");
       setEmail("");
       setNote("");
@@ -152,15 +158,17 @@ export function CreateConnectionInvite({
         </div>
       </div>}
 
-      {status && <p role="status" className="text-sm text-muted-foreground">{status}</p>}
+      {status && <p role="status" className="text-sm text-muted-foreground">
+        {issuedLink && !issuedStillActive ? "Invitation used or closed; its link is no longer active." : status}
+      </p>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       <section className="space-y-3 rounded-xl border bg-card p-5">
-        <h2 className="font-semibold">Your recent invitations</h2>
-        {invitations.length === 0
-          ? <p className="text-sm text-muted-foreground">No invitations yet.</p>
+        <h2 className="font-semibold">Open invitations</h2>
+        {openInvitations.length === 0
+          ? <p className="text-sm text-muted-foreground">No open invitations.</p>
           : <ul className="space-y-3">
-              {invitations.map((inv) => <li key={inv._id} className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 text-sm">
+              {openInvitations.map((inv) => <li key={inv._id} className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 text-sm">
                 <div className="space-y-1">
                   <p className="font-mono text-xs">{inv.codeHint} <span className="font-sans text-muted-foreground">· {inv.status}</span></p>
                   <p className="text-xs text-muted-foreground">
