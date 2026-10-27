@@ -33,7 +33,7 @@ describe("Private one-use connection invitations", () => {
       connections: await ctx.db.query("connections").collect(),
     }));
     expect(database.links).toHaveLength(1);
-    expect(database.links[0].status).toBe("accepted");
+    expect(database.links[0]?.status).toBe("accepted");
     expect(database.connections).toHaveLength(1);
     expect(JSON.stringify(database.links)).not.toContain(code);
     await expect(bob.mutation(api.connectionInvites.accept, { code })).rejects.toThrow();
@@ -49,7 +49,7 @@ describe("Private one-use connection invitations", () => {
     await expect(alice.mutation(api.connectionInvites.accept, { code })).rejects.toThrow();
     await expect(wrong.mutation(api.connectionInvites.accept, { code })).rejects.toThrow();
     expect(await wrong.query(api.connectionInvites.preview, { code })).toMatchObject({ valid: false });
-    expect((await alice.query(api.connectionInvites.listMine, {}))[0].status).toBe("pending");
+    expect((await alice.query(api.connectionInvites.listMine, {}))[0]?.status).toBe("pending");
     await bob.mutation(api.connectionInvites.accept, { code });
     expect(await bob.query(api.connections.listMine, {})).toHaveLength(1);
     expect(await wrong.query(api.connections.listMine, {})).toHaveLength(0);
