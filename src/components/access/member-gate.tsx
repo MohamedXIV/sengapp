@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -69,12 +69,13 @@ function ResolvedMembership({
   const profile = useQuery(api.profiles.getMine);
   const ensureMine = useMutation(api.profiles.ensureMine);
   const bootstrap = useMutation(api.profiles.bootstrapOperator);
-  const [setupState, setSetupState] = useState<"idle" | "creating" | "failed">("idle");
+  const [setupState, setSetupState] = useState<"idle" | "failed">("idle");
   const [setupError, setSetupError] = useState<string>("");
+  const attemptedSetup = useRef(false);
 
   useEffect(() => {
-    if (profile !== null || setupState !== "idle") return;
-    setSetupState("creating");
+    if (profile !== null || setupState !== "idle" || attemptedSetup.current) return;
+    attemptedSetup.current = true;
     void ensureMine({}).catch((error: unknown) => {
       const value = String(error);
       setSetupError(value.includes("SUSPENDED")
@@ -96,7 +97,7 @@ function ResolvedMembership({
           : <>
               <p role="alert" className="text-sm text-destructive">{setupError}</p>
               <button type="button" className="rounded-lg border px-4 py-2"
-                onClick={() => setSetupState("idle")}>Try again</button>
+                onClick={() => { attemptedSetup.current = false; setSetupState("idle"); }}>Try again</button>
             </>}
       </div>
     );
@@ -112,7 +113,9 @@ function ResolvedMembership({
     );
   }
   return (
-    <AppShell userRole={profile.role} displayName={profile.displayName}
+    <AppShell profileId={profile._id} visualPreferences={profile.visualPreferences}
+      themePreference={profile.themePreference}
+      userRole={profile.role} displayName={profile.displayName}
       handle={profile.handle ?? "new-member"} locale={profile.locale}
       textDirection={profile.textDirection}>
       {children(profile)}
@@ -137,3 +140,4 @@ function OperatorBootstrap({ bootstrap }: { bootstrap: () => Promise<unknown> })
     </div>
   );
 }
+

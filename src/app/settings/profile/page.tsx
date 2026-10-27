@@ -4,6 +4,8 @@ import { useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { MemberGate } from "@/components/access/member-gate";
 import { ProfileSettingsForm } from "@/features/profile/profile-settings-form";
+import { AppearanceSettings } from "@/features/profile/appearance-settings";
+import { resolveVisualPreferences } from "@/lib/themes/preferences";
 
 export default function ProfilePage() {
   return (
@@ -20,9 +22,17 @@ function ProfileEditor({
 }) {
   const updateProfile = useMutation(api.profiles.updateMine);
   const updatePresence = useMutation(api.profiles.updatePresencePreferences);
+  const updateVisual = useMutation(api.profiles.updateVisualPreferences);
   return (
     <div className="space-y-5">
       <h1 className="text-2xl font-semibold">Profile & privacy</h1>
+      <section id="appearance" aria-label="Personal appearance">
+        <AppearanceSettings
+          initialPreferences={resolveVisualPreferences(profile.visualPreferences)}
+          initialMode={profile.themePreference}
+          onSave={async (data) => { await updateVisual(data); }}
+        />
+      </section>
       <ProfileSettingsForm
         initialProfile={{
           displayName: profile.displayName,
@@ -33,7 +43,6 @@ function ProfileEditor({
           avatarAccentColor: profile.avatarAccentColor,
           locale: profile.locale,
           textDirection: profile.textDirection,
-          themePreference: profile.themePreference,
           reducedMotion: profile.reducedMotion,
         }}
         initialPresence={profile.presencePreferences}
@@ -43,3 +52,4 @@ function ProfileEditor({
     </div>
   );
 }
+

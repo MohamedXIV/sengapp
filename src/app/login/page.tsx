@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 
+const subscribeToStorage = (onChange: () => void) => {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+};
+
 export default function LoginPage() {
-  const [pendingInvite, setPendingInvite] = useState(false);
+  const pendingInvite = useSyncExternalStore(
+    subscribeToStorage,
+    () => Boolean(sessionStorage.getItem("sengapp:pending-invite")),
+    () => false,
+  );
   const configured = Boolean(
     process.env.NEXT_PUBLIC_CONVEX_URL && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   );
-
-  useEffect(() => {
-    setPendingInvite(Boolean(sessionStorage.getItem("sengapp:pending-invite")));
-  }, []);
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-5 p-6 text-center">
@@ -35,3 +40,4 @@ export default function LoginPage() {
     </main>
   );
 }
+

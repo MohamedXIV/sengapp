@@ -11,6 +11,16 @@ This is an evidence checklist, **not** a Production or hosted alpha approval.
 - [x] Source head `7e85d1c47f1cffcbcbb7929a4498ac65179f57fd`: [GitHub Actions #40456881321](https://github.com/MohamedXIV/sengapp/actions/runs/40456881321) passed TypeScript, lint, **33/33 Vitest**, Next build and desktop/mobile **6/6 Playwright**. The follow-up evidence-only ledger commit also requires its own exact-head checks.
 - [ ] Audit 6 npm advisories (2 moderate, 2 high, 2 critical); document safe remediation or residual risk before merge.
 
+## Modern UI foundation — local verification on Node 24
+
+- [x] Next 16.4 / React 19.3 / Tailwind 4.3 / shadcn CLI generation; dependencies resolve without `--legacy-peer-deps`.
+- [x] Local TypeScript, ESLint, 48/48 Vitest tests plus 3 stack-contract checks pass; Next 16.4 production build passes using Webpack.
+- [x] Server rejects unverified theme writes and forged preset/accent/font inputs; automated two-account isolation and profile-save regression covered.
+- [x] Component tests cover immediate preview, save, cancel, reset, error rollback and account-switch cleanup.
+- [ ] Confirm the default Turbopack build in an unrestricted CI/Preview runner; the constrained local executor blocked its worker port binding, while Webpack build passed.
+- [ ] Human authenticated cross-device and two-account visual acceptance (responsive, RTL, keyboard, contrast, light/dark/system, reduced motion).
+- [ ] Reassess npm advisories after the dependency upgrade; earlier advisory counts do not reflect the new lockfile.
+
 ## Live Preview smoke — not completed
 
 - [x] A verified Clerk Development account signed in on the stable branch Preview alias and reached an auto-created active **member** home with zero contacts (observed 2026-10-27). Operator elevation remains untested.

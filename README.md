@@ -41,7 +41,9 @@ Mainstream messengers already do almost everything. Sengapp isn't trying to out-
 
 ## Stack direction
 
-**Next.js · TypeScript · Tailwind CSS · shadcn/ui · Convex · PixiJS · Zod · Zustand · AI SDK · Vitest · Playwright**
+**Current foundation:** Next.js 16.4 · React 19.3 · TypeScript 6 · Tailwind CSS 4.3 · shadcn/ui · Clerk · Convex · Zod · Vitest · Playwright.
+
+**Later phases:** PixiJS companions, Zustand where needed, Vercel AI SDK and human messaging. These are not shipped features yet.
 
 Convex-first is the agreed backend direction. We are not adding Supabase or SpacetimeDB by default. Specific integrations and release providers will be finalized as implementation begins.
 
@@ -52,10 +54,14 @@ Convex-first is the agreed backend direction. We are not adding Supabase or Spac
 | Product direction and Convex-first choice | ✅ Agreed |
 | v0.1 design specification | ✅ Approved (2026-10-26) |
 | Repository foundations | ✅ Established |
-| Phase 0 app shell, sign-in and invitations | 🚧 Under review |\n| Live OAuth smoke and deployment | ⏳ Not started |
+| Phase 0 app shell, sign-in and invitations | 🚧 Under review |
+| Modern shadcn interface & per-account themes | 🚧 In draft PR #10 |
+| Live OAuth smoke and deployment | 🚧 Partial Preview smoke only |
 | Private family/friends alpha | ⏳ Planned |
 
-To set up or test the code, read [local development](docs/development.md) and the [Phase 0 acceptance ledger](docs/testing/phase0-acceptance.md). No production credentials or real users are included.\n\nStart with the [product vision](docs/product/vision.md), [phased roadmap](docs/product/roadmap.md), [architecture overview](docs/architecture/overview.md), and [approved v0.1 design](docs/specs/sengapp-v0.1-design.md).
+To set up or test the code, read [local development](docs/development.md) and the [Phase 0 acceptance ledger](docs/testing/phase0-acceptance.md). No production credentials or real users are included.
+
+Start with the [product vision](docs/product/vision.md), [phased roadmap](docs/product/roadmap.md), [architecture overview](docs/architecture/overview.md), and [approved v0.1 design](docs/specs/sengapp-v0.1-design.md).
 
 ## Get involved
 

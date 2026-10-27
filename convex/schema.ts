@@ -20,6 +20,13 @@ export default defineSchema({
     locale: v.union(v.literal("en"), v.literal("ar")),
     textDirection: v.union(v.literal("ltr"), v.literal("rtl"), v.literal("auto")),
     themePreference: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
+    visualPreferences: v.optional(v.object({
+      preset: v.union(v.literal("acorn"), v.literal("forest"), v.literal("dusk"), v.literal("ocean")),
+      accent: v.union(v.literal("amber"), v.literal("coral"), v.literal("sage"), v.literal("teal"), v.literal("blue"), v.literal("violet")),
+      font: v.union(v.literal("system"), v.literal("inter"), v.literal("nunito")),
+      radius: v.union(v.literal("subtle"), v.literal("soft"), v.literal("round")),
+      density: v.union(v.literal("comfortable"), v.literal("compact")),
+    })),
     reducedMotion: v.boolean(),
     presencePreferences: v.object({
       onlineStatus: v.boolean(),
@@ -74,3 +81,4 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_actor", ["actorProfileId"]),
 });
+

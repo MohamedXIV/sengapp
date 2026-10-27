@@ -1,12 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useConvexAuth } from "convex/react";
 import { BackendRequired, MemberGate } from "@/components/access/member-gate";
 import { AcceptConnectionInvite } from "@/features/connections/accept-connection-invite";
 
 const INVITE_STORAGE_KEY = "sengapp:pending-invite";
+const subscribeToHash = (onChange: () => void) => {
+  window.addEventListener("hashchange", onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener("hashchange", onChange);
+    window.removeEventListener("storage", onChange);
+  };
+};
+const readInviteCode = () =>
+  new URLSearchParams(window.location.hash.slice(1)).get("code") ??
+  sessionStorage.getItem(INVITE_STORAGE_KEY);
+const INITIALIZING = "sengapp:reading-invite";
 
 export default function InvitePage() {
   // Authenticated invites render the full AppShell; do not constrain it to a
@@ -15,8 +27,7 @@ export default function InvitePage() {
 }
 
 function InviteEntry() {
-  const [code, setCode] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
+  const code = useSyncExternalStore(subscribeToHash, readInviteCode, () => INITIALIZING);
   useEffect(() => {
     const fragment = new URLSearchParams(window.location.hash.slice(1));
     const fromLink = fragment.get("code");
@@ -24,10 +35,8 @@ function InviteEntry() {
       sessionStorage.setItem(INVITE_STORAGE_KEY, fromLink);
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
-    setCode(fromLink ?? sessionStorage.getItem(INVITE_STORAGE_KEY));
-    setReady(true);
   }, []);
-  if (!ready) return <p role="status">Opening connection invitation…</p>;
+  if (code === INITIALIZING) return <p role="status">Opening connection invitation…</p>;
   if (!code) return (
     <div className="mx-auto mt-16 max-w-xl space-y-4 rounded-xl border bg-card p-6">
       <h1 className="text-2xl font-semibold">No invitation link</h1>
@@ -61,3 +70,4 @@ function ConnectionEntry({ code }: { code: string }) {
       onFinish={() => sessionStorage.removeItem(INVITE_STORAGE_KEY)} />}</MemberGate>
   );
 }
+

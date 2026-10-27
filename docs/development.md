@@ -10,7 +10,7 @@
 
 ## Clerk → Convex verified identity
 
-1. Install with `npm ci --legacy-peer-deps`, copy `.env.example` to `.env.local`.
+1. Install with `npm ci`, copy `.env.example` to `.env.local`.
 2. Configure Clerk application keys, authentication on `/login`, and native `ConvexProviderWithClerk`.
 3. In Clerk Development Dashboard → Sessions → **Customize session token**, save signed claims (the provider uses the Clerk `__session` token):
 
@@ -36,6 +36,14 @@
 - Calling `ensureMine` again returns the existing ID; it never restores a suspended account and never elevates roles.
 - To activate the vetted owner only, visit `/admin/invitations` and use the explicit **Initialize operator** action. `profiles.bootstrapOperator` checks the verified email against the server allowlist and promotes an existing active member. Ordinary users cannot promote themselves.
 - Signed-out visitors and identities missing valid verification claims have no member access. The profile gate exposes a retry or verification error rather than granting a fallback role.
+
+## Current frontend and personal appearance
+
+- Node.js 24, Next.js 16.4, React 19.3, Tailwind CSS 4.3, TypeScript 6.0 and first-party shadcn/ui components. `npm ci` must install without bypassing peer dependencies. ESLint 9 remains until the framework peer ecosystem supports ESLint 10.
+- The authenticated shell uses shadcn Sidebar (mobile Sheet), Button, Input, Select, Switch, Card and Alert. CSS semantic tokens drive the personal look; avoid ad-hoc replacements when the registry offers a component.
+- **Profile & Privacy → Appearance** previews four personal themes (Acorn, Forest, Dusk, Ocean), six contrast-focused accents, Inter/Nunito/system fonts, corner radius and spacing. Light/Dark/System is a separate persisted control.
+- Only whitelisted choices are saved on the current verified member's Convex profile. The public landing screen has the branded defaults. An unsaved preview is discarded when leaving Settings.
+- The previous Tailwind v3 configuration and Clerk middleware entry point are replaced by Tailwind 4 CSS tokens and the Next 16 `src/proxy.ts` convention.
 
 ## Private connections
 

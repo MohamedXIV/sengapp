@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "../../../convex/_generated/api";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export function AcceptConnectionInvite({ code, onFinish }: { code: string; onFinish: () => void }) {
   const router = useRouter();
@@ -16,14 +18,14 @@ export function AcceptConnectionInvite({ code, onFinish }: { code: string; onFin
 
   if (context === undefined) return <p role="status">Checking your invitation…</p>;
   if (!context.valid) return (
-    <div className="space-y-4 rounded-xl border bg-card p-6">
+    <Card className="space-y-4 p-6">
       <h1 className="text-2xl font-semibold">Invitation unavailable</h1>
       <p className="text-sm text-muted-foreground">
         This link may have expired, been used, or may not be for your account.
         No connection was made.
       </p>
       <Link href="/connections" className="text-primary underline">Go to Connections</Link>
-    </div>
+    </Card>
   );
 
   async function decide(choice: "accept" | "decline") {
@@ -41,7 +43,7 @@ export function AcceptConnectionInvite({ code, onFinish }: { code: string; onFin
   }
 
   return (
-    <div className="space-y-5 rounded-xl border bg-card p-6">
+    <Card className="space-y-5 p-6">
       <p className="text-sm font-semibold text-primary">Private connection invitation</p>
       <h1 className="text-2xl font-semibold">Connect with {context.senderDisplayName}?</h1>
       {context.note && <p className="rounded-lg bg-secondary p-3 text-sm" dir="auto">{context.note}</p>}
@@ -52,13 +54,12 @@ export function AcceptConnectionInvite({ code, onFinish }: { code: string; onFin
       <p className="text-xs text-muted-foreground">Expires {new Date(context.expiresAt).toLocaleString()}</p>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <div className="flex gap-3">
-        <button type="button" disabled={busy} onClick={() => decide("accept")}
-          className="rounded-lg bg-primary px-5 py-2.5 text-sm text-primary-foreground disabled:opacity-60">
+        <Button type="button" disabled={busy} onClick={() => decide("accept")}>
           {busy ? "Please wait…" : "Accept connection"}
-        </button>
-        <button type="button" disabled={busy} onClick={() => decide("decline")}
-          className="rounded-lg border px-5 py-2.5 text-sm disabled:opacity-60">Decline</button>
+        </Button>
+        <Button type="button" variant="outline" disabled={busy} onClick={() => decide("decline")}>Decline</Button>
       </div>
-    </div>
+    </Card>
   );
 }
+

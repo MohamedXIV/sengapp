@@ -90,7 +90,6 @@ export const updateMine = mutation({
     avatarAccentColor: v.string(),
     locale: v.union(v.literal("en"), v.literal("ar")),
     textDirection: v.union(v.literal("ltr"), v.literal("rtl"), v.literal("auto")),
-    themePreference: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
     reducedMotion: v.boolean(),
   },
   handler: async (ctx, args) => {
@@ -114,7 +113,7 @@ export const updateMine = mutation({
       statusMessage: args.statusMessage?.trim(),
       avatarPresetKey: args.avatarPresetKey, avatarAccentColor: args.avatarAccentColor,
       locale: args.locale, textDirection: args.textDirection,
-      themePreference: args.themePreference, reducedMotion: args.reducedMotion,
+      reducedMotion: args.reducedMotion,
       updatedAt,
     });
     return { updatedAt };
@@ -131,3 +130,27 @@ export const updatePresencePreferences = mutation({
     await ctx.db.patch(profile._id, { presencePreferences: args, updatedAt: Date.now() });
   },
 });
+
+// Each parameter is a closed Convex enum. Extra fields and user-authored CSS
+// cannot cross this mutation's boundary. Only the authenticated caller is updated.
+export const updateVisualPreferences = mutation({
+  args: {
+    preset: v.union(v.literal("acorn"), v.literal("forest"), v.literal("dusk"), v.literal("ocean")),
+    accent: v.union(v.literal("amber"), v.literal("coral"), v.literal("sage"), v.literal("teal"), v.literal("blue"), v.literal("violet")),
+    font: v.union(v.literal("system"), v.literal("inter"), v.literal("nunito")),
+    radius: v.union(v.literal("subtle"), v.literal("soft"), v.literal("round")),
+    density: v.union(v.literal("comfortable"), v.literal("compact")),
+    themePreference: v.optional(v.union(v.literal("light"), v.literal("dark"), v.literal("system"))),
+  },
+  handler: async (ctx, { themePreference, ...preferences }) => {
+    const profile = await requireAuthorizedProfile(ctx);
+    const updatedAt = Date.now();
+    await ctx.db.patch(profile._id, {
+      visualPreferences: preferences,
+      ...(themePreference ? { themePreference } : {}),
+      updatedAt,
+    });
+    return { updatedAt };
+  },
+});
+

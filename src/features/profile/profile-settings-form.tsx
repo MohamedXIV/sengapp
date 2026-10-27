@@ -9,6 +9,14 @@ import {
   type PresencePreferencesInput,
 } from "@/lib/validations/profile";
 import { resolveElementDirection } from "@/lib/i18n/direction";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ProfileSettingsFormProps {
   initialProfile: ProfileUpdateInput;
@@ -80,26 +88,16 @@ export function ProfileSettingsForm({
   return (
     <div className="space-y-8">
       {errorMessage && (
-        <div
-          role="alert"
-          className="p-4 rounded-lg border border-destructive bg-destructive/10 text-destructive text-sm"
-        >
-          {errorMessage}
-        </div>
+        <Alert variant="destructive" role="alert"><AlertDescription>{errorMessage}</AlertDescription></Alert>
       )}
 
       {statusBanner && (
-        <div
-          role="status"
-          className="p-4 rounded-lg border border-primary/30 bg-accent text-accent-foreground text-sm"
-        >
-          {statusBanner}
-        </div>
+        <Alert role="status"><AlertDescription>{statusBanner}</AlertDescription></Alert>
       )}
 
-      <form
+      <Card><form
         onSubmit={handleProfileSubmit}
-        className="p-6 rounded-xl border border-border bg-card space-y-5 shadow-sm"
+        className="p-6 space-y-5"
       >
         <div>
           <h2 className="text-lg font-semibold">Identity & Expression</h2>
@@ -110,10 +108,10 @@ export function ProfileSettingsForm({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label htmlFor="displayName" className="text-sm font-medium block">
+            <Label htmlFor="displayName">
               Display Name
-            </label>
-            <input
+            </Label>
+            <Input
               id="displayName"
               type="text"
               dir={resolveElementDirection(
@@ -124,16 +122,15 @@ export function ProfileSettingsForm({
               onChange={(e) =>
                 setProfile({ ...profile, displayName: e.target.value })
               }
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm"
               required
             />
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="handle" className="text-sm font-medium block">
+            <Label htmlFor="handle">
               Unique Handle
-            </label>
-            <input
+            </Label>
+            <Input
               id="handle"
               type="text"
               dir="ltr"
@@ -141,17 +138,16 @@ export function ProfileSettingsForm({
               onChange={(e) =>
                 setProfile({ ...profile, handle: e.target.value.toLowerCase() })
               }
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm"
               required
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="statusMessage" className="text-sm font-medium block">
+          <Label htmlFor="statusMessage">
             Personal Status Note (Messenger-style)
-          </label>
-          <input
+          </Label>
+          <Input
             id="statusMessage"
             type="text"
             dir={resolveElementDirection(
@@ -163,121 +159,106 @@ export function ProfileSettingsForm({
             onChange={(e) =>
               setProfile({ ...profile, statusMessage: e.target.value })
             }
-            className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm"
           />
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="bio" className="text-sm font-medium block">
+          <Label htmlFor="bio">
             About You
-          </label>
-          <textarea
+          </Label>
+          <Textarea
             id="bio"
             rows={3}
             dir={resolveElementDirection(profile.textDirection, profile.bio)}
             value={profile.bio ?? ""}
             onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1.5">
-            <label htmlFor="avatarPreset" className="text-sm font-medium block">
+            <Label htmlFor="avatarPreset">
               Squirrel Avatar Archetype
-            </label>
-            <select
-              id="avatarPreset"
-              value={profile.avatarPresetKey}
-              onChange={(e) =>
+            </Label>
+            <Select value={profile.avatarPresetKey} onValueChange={(value) =>
                 setProfile({
                   ...profile,
-                  avatarPresetKey:
-                    e.target.value as ProfileUpdateInput["avatarPresetKey"],
+                  avatarPresetKey: value as ProfileUpdateInput["avatarPresetKey"],
                 })
-              }
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm"
-            >
+              }>
+              <SelectTrigger id="avatarPreset" className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
               {SQUIRREL_AVATAR_PRESETS.map((preset) => (
-                <option key={preset} value={preset}>
+                <SelectItem key={preset} value={preset}>
                   {preset}
-                </option>
+                </SelectItem>
               ))}
-            </select>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="locale" className="text-sm font-medium block">
+            <Label htmlFor="locale">
               Preferred Language
-            </label>
-            <select
-              id="locale"
-              value={profile.locale}
-              onChange={(e) =>
+            </Label>
+            <Select value={profile.locale} onValueChange={(value) =>
                 setProfile({
                   ...profile,
-                  locale: e.target.value as "en" | "ar",
+                  locale: value as "en" | "ar",
                 })
-              }
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm"
-            >
-              <option value="en">English (LTR)</option>
-              <option value="ar">العربية (RTL)</option>
-            </select>
+              }>
+              <SelectTrigger id="locale" className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English (LTR)</SelectItem>
+                <SelectItem value="ar">العربية (RTL)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
-            <label
-              htmlFor="textDirection"
-              className="text-sm font-medium block"
-            >
+            <Label htmlFor="textDirection">
               Text Direction Mode
-            </label>
-            <select
-              id="textDirection"
-              value={profile.textDirection}
-              onChange={(e) =>
+            </Label>
+            <Select value={profile.textDirection} onValueChange={(value) =>
                 setProfile({
                   ...profile,
-                  textDirection: e.target.value as "auto" | "ltr" | "rtl",
+                  textDirection: value as "auto" | "ltr" | "rtl",
                 })
-              }
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background text-sm"
-            >
-              <option value="auto">Automatic per paragraph</option>
-              <option value="ltr">Left-to-Right (LTR)</option>
-              <option value="rtl">Right-to-Left (RTL)</option>
-            </select>
+              }>
+              <SelectTrigger id="textDirection" className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">Automatic per paragraph</SelectItem>
+                <SelectItem value="ltr">Left-to-Right (LTR)</SelectItem>
+                <SelectItem value="rtl">Right-to-Left (RTL)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <div className="flex items-center gap-3 pt-2">
-          <input
+          <Switch
             id="reducedMotion"
-            type="checkbox"
             checked={profile.reducedMotion}
-            onChange={(e) =>
-              setProfile({ ...profile, reducedMotion: e.target.checked })
+            onCheckedChange={(checked) =>
+              setProfile({ ...profile, reducedMotion: checked })
             }
-            className="h-4 w-4 rounded border-input"
           />
-          <label htmlFor="reducedMotion" className="text-sm">
+          <Label htmlFor="reducedMotion">
             Prefer reduced motion (calm companion & interface animations)
-          </label>
+          </Label>
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={isSaving}
-          className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-95 disabled:opacity-50"
         >
           {isSaving ? "Saving..." : "Save Profile Changes"}
-        </button>
-      </form>
+        </Button>
+      </form></Card>
 
-      <section
+      <Card
         aria-labelledby="presence-heading"
-        className="p-6 rounded-xl border border-border bg-card space-y-4 shadow-sm"
+        className="p-6 space-y-4"
       >
         <div>
           <h2 id="presence-heading" className="text-lg font-semibold">
@@ -327,19 +308,18 @@ export function ProfileSettingsForm({
                   {item.description}
                 </p>
               </div>
-              <input
-                type="checkbox"
+              <Switch
                 aria-label={item.title}
                 checked={presence[item.key]}
-                onChange={(e) =>
-                  handlePresenceToggle(item.key, e.target.checked)
+                onCheckedChange={(checked) =>
+                  handlePresenceToggle(item.key, checked)
                 }
-                className="h-5 w-5 accent-primary rounded cursor-pointer"
               />
             </div>
           ))}
         </div>
-      </section>
+      </Card>
     </div>
   );
 }
+

@@ -1,13 +1,24 @@
 "use client";
 
-import React from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { useClerk } from "@clerk/nextjs";
-import { Shield, Settings, MessageSquareHeart, UsersRound, Sun, Moon } from "lucide-react";
+import { Shield, Settings, MessageSquareHeart, UsersRound, SunMoon, LogOut, Palette } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
+  SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton,
+  SidebarMenuItem, SidebarProvider, SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { PersonalThemeProvider } from "@/components/themes/personal-theme-provider";
+import type { VisualPreferences } from "@/lib/themes/preferences";
 
 interface AppShellProps {
-  children: React.ReactNode;
+  children: ReactNode;
+  profileId: string;
+  visualPreferences?: Partial<VisualPreferences>;
+  themePreference: "light" | "dark" | "system";
   userRole?: "operator" | "member";
   displayName?: string;
   handle?: string;
@@ -16,120 +27,80 @@ interface AppShellProps {
 }
 
 export function AppShell({
-  children,
-  userRole = "member",
-  displayName = "Member",
-  handle = "squirrel",
-  locale = "en",
-  textDirection = "auto",
+  children, profileId, visualPreferences, themePreference,
+  userRole = "member", displayName = "Member", handle = "squirrel",
+  locale = "en", textDirection = "auto",
 }: AppShellProps) {
-  const { theme, setTheme } = useTheme();
   const { signOut } = useClerk();
-  const resolvedDir =
-    textDirection === "auto" ? (locale === "ar" ? "rtl" : "ltr") : textDirection;
+  const resolvedDir = textDirection === "auto" ? (locale === "ar" ? "rtl" : "ltr") : textDirection;
+
+  const nav = [
+    { href: "/home", icon: MessageSquareHeart, en: "Cozy Lounge", ar: "الردهة الخاصة" },
+    { href: "/connections", icon: UsersRound, en: "Connections", ar: "جهات الاتصال" },
+    { href: "/settings/profile", icon: Settings, en: "Profile & Privacy", ar: "الملف الشخصي والخصوصية" },
+    { href: "/settings/profile#appearance", icon: Palette, en: "Appearance", ar: "المظهر" },
+    ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, en: "Operator Tools", ar: "أدوات الإدارة" }] : []),
+  ];
 
   return (
-    <div
-      dir={resolvedDir}
-      className="min-h-screen bg-background text-foreground flex flex-col md:flex-row"
-    >
-      <aside
-        aria-label="Primary Navigation"
-        className="w-full md:w-72 border-b md:border-b-0 md:border-e border-border bg-card p-5 flex flex-col justify-between"
-      >
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/home"
-              className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-ring rounded-md"
-            >
-              <span
-                aria-hidden="true"
-                className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-sm"
-              >
-                🐿️
-              </span>
-              <div>
-                <span className="font-semibold text-lg tracking-tight block">
-                  Sengapp
-                </span>
-                <span className="text-xs text-muted-foreground block">
-                  {locale === "ar"
-                    ? "مكان صغير لحوارات كبيرة"
-                    : "A little place for big conversations"}
-                </span>
-              </div>
-            </Link>
-
-            <button
-              type="button"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              aria-label="Toggle color theme"
-              className="p-2 rounded-lg border border-border hover:bg-secondary transition-colors"
-            >
-              <Sun className="h-4 w-4 hidden dark:block" />
-              <Moon className="h-4 w-4 block dark:hidden" />
-            </button>
-          </div>
-
-          <nav className="space-y-1.5">
-            <Link
-              href="/home"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
-            >
-              <MessageSquareHeart className="h-4 w-4 text-primary" />
-              <span>{locale === "ar" ? "الردهة الخاصة" : "Cozy Lounge"}</span>
-            </Link>
-
-            <Link href="/connections"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary transition-colors">
-              <UsersRound className="h-4 w-4 text-primary" />
-              <span>{locale === "ar" ? "جهات الاتصال" : "Connections"}</span>
-            </Link>
-
-            <Link
-              href="/settings/profile"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
-            >
-              <Settings className="h-4 w-4 text-primary" />
-              <span>
-                {locale === "ar"
-                  ? "الملف الشخصي والخصوصية"
-                  : "Profile & Presence"}
-              </span>
-            </Link>
-
-            {userRole === "operator" && (
-              <Link
-                href="/admin/invitations"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
-              >
-                <Shield className="h-4 w-4 text-primary" />
-                <span>
-                  {locale === "ar" ? "أدوات الإدارة" : "Operator Tools"}
+    <PersonalThemeProvider key={profileId} profileId={profileId} preferences={visualPreferences} appearance={themePreference}>
+      <SidebarProvider defaultOpen>
+        <div dir={resolvedDir} className="flex min-h-screen w-full bg-background text-foreground">
+          <Sidebar side={resolvedDir === "rtl" ? "right" : "left"} collapsible="offcanvas" aria-label="Primary Navigation">
+            <SidebarHeader className="gap-3 p-4">
+              <Link href="/home" className="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-ring">
+                <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-xl text-primary-foreground">🐿️</span>
+                <span className="min-w-0">
+                  <span className="block text-lg font-semibold tracking-tight">Sengapp</span>
+                  <span className="block text-xs text-muted-foreground">
+                    {locale === "ar" ? "مكان صغير لحوارات كبيرة" : "A little place for big conversations"}
+                  </span>
                 </span>
               </Link>
-            )}
-          </nav>
-        </div>
+            </SidebarHeader>
 
-        <div className="pt-4 mt-6 border-t border-border flex items-center justify-between text-sm">
-          <div className="truncate">
-            <p className="font-medium truncate" dir="auto">
-              {displayName}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">@{handle}</p>
-          </div>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground font-medium">
-            {userRole}
-          </span>
-          <button className="text-xs underline" type="button" onClick={async () => {
-            await signOut({ redirectUrl: "/login" });
-          }}>Sign out</button>
-        </div>
-      </aside>
+            <SidebarContent>
+              <SidebarGroup>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {nav.map(({ href, icon: Icon, en, ar }) => <SidebarMenuItem key={href}>
+                      <SidebarMenuButton asChild tooltip={locale === "ar" ? ar : en}>
+                        <Link href={href}><Icon aria-hidden="true" /> <span>{locale === "ar" ? ar : en}</span></Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>)}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </SidebarContent>
 
-      <main className="flex-1 p-6 md:p-10 max-w-5xl">{children}</main>
-    </div>
+            <SidebarFooter className="border-t p-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold" dir="auto">{displayName}</p>
+                  <p className="truncate text-xs text-muted-foreground" dir="ltr">@{handle}</p>
+                </div>
+                <Badge variant="secondary">{userRole}</Badge>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <Link href="/settings/profile#appearance"><SunMoon aria-hidden="true" /> {locale === "ar" ? "المظهر" : "Appearance"}</Link>
+                </Button>
+                <Button variant="outline" size="icon" aria-label="Sign out" onClick={() => void signOut({ redirectUrl: "/login" })}>
+                  <LogOut aria-hidden="true" />
+                </Button>
+              </div>
+            </SidebarFooter>
+          </Sidebar>
+
+          <SidebarInset className="min-w-0">
+            <header className="flex h-14 shrink-0 items-center border-b px-4">
+              <SidebarTrigger aria-label="Open navigation" />
+              <span className="ms-3 text-sm text-muted-foreground">Sengapp</span>
+            </header>
+            <main className="mx-auto w-full max-w-5xl flex-1 space-y-6 p-[var(--sengapp-space,1.5rem)] md:p-10">{children}</main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    </PersonalThemeProvider>
   );
 }

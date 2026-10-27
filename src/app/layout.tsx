@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
+import "@fontsource-variable/inter";
+import "@fontsource-variable/nunito";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,3 +24,4 @@ export default function RootLayout({
     </html>
   );
 }
+

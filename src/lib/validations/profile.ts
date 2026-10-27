@@ -39,7 +39,6 @@ export const profileUpdateSchema = z.object({
     .regex(/^#[0-9a-fA-F]{6}$/, "Accent color must be a valid hex color."),
   locale: z.enum(["en", "ar"]),
   textDirection: z.enum(["ltr", "rtl", "auto"]),
-  themePreference: z.enum(["light", "dark", "system"]),
   reducedMotion: z.boolean(),
 });
 
@@ -52,3 +51,4 @@ export const presencePreferencesSchema = z.object({
 
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 export type PresencePreferencesInput = z.infer<typeof presencePreferencesSchema>;
+
