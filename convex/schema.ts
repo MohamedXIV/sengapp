@@ -49,6 +49,42 @@ export default defineSchema({
     .index("by_issued_by", ["issuedBy"])
     .index("by_issuer_status_expiry", ["issuedBy", "status", "expiresAt"]),
 
+  connectionInvites: defineTable({
+    codeHash: v.string(),
+    codeHint: v.string(),
+    issuedBy: v.id("profiles"),
+    recipientEmail: v.optional(v.string()),
+    note: v.optional(v.string()),
+    status: v.union(v.literal("pending"), v.literal("accepted"), v.literal("declined"), v.literal("revoked")),
+    createdAt: v.number(),
+    expiresAt: v.number(),
+    acceptedAt: v.optional(v.number()),
+    acceptedBy: v.optional(v.id("profiles")),
+    declinedAt: v.optional(v.number()),
+    declinedBy: v.optional(v.id("profiles")),
+    revokedAt: v.optional(v.number()),
+  })
+    .index("by_code_hash", ["codeHash"])
+    .index("by_issued_by", ["issuedBy"])
+    .index("by_issuer_status_expiry", ["issuedBy", "status", "expiresAt"])
+    .index("by_issuer_created", ["issuedBy", "createdAt"]),
+
+  connections: defineTable({
+    leftProfileId: v.id("profiles"),
+    rightProfileId: v.id("profiles"),
+    createdBy: v.id("profiles"),
+    createdAt: v.number(),
+  })
+    .index("by_pair", ["leftProfileId", "rightProfileId"])
+    .index("by_left", ["leftProfileId"])
+    .index("by_right", ["rightProfileId"]),
+
+  blocks: defineTable({
+    blockerProfileId: v.id("profiles"),
+    blockedProfileId: v.id("profiles"),
+    createdAt: v.number(),
+  }).index("by_pair", ["blockerProfileId", "blockedProfileId"]),
+
   auditLogs: defineTable({
     actorProfileId: v.optional(v.id("profiles")),
     action: v.string(),
