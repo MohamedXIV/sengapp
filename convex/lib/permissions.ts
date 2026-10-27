@@ -33,11 +33,11 @@ export function isAllowedVerifiedOperator(
   return configuredEmails.split(",").some((value) => value.trim().toLowerCase() === normalized);
 }
 
-// A signed Clerk identity needs the explicit verification claim from
-// Clerk's Convex JWT template; email alone is insufficient.
+// Convex maps the signed OIDC email_verified JWT claim to emailVerified.
+// A signed email address alone is insufficient without this boolean.
 export async function readVerifiedIdentity(ctx: AuthContext) {
   const identity = await ctx.auth.getUserIdentity();
-  if (!identity || identity.email_verified !== true
+  if (!identity || identity.emailVerified !== true
     || typeof identity.email !== "string" || !identity.email.trim()
     || !identity.subject) return null;
   return {
