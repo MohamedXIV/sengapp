@@ -9,9 +9,9 @@ import { AcceptConnectionInvite } from "@/features/connections/accept-connection
 const INVITE_STORAGE_KEY = "sengapp:pending-invite";
 
 export default function InvitePage() {
-  return <main className="mx-auto min-h-screen max-w-xl p-6 pt-16">
+  return <div className="mx-auto min-h-screen max-w-xl p-6 pt-16">
     <BackendRequired><InviteEntry /></BackendRequired>
-  </main>;
+  </div>;
 }
 
 function InviteEntry() {
