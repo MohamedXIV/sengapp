@@ -28,7 +28,7 @@ describe("Convex invite-only membership boundary", () => {
   it("denies a signed-in outsider access to profiles and issuing invites", async () => {
     const t = convexTest(schema, modules);
     const outsider = t.withIdentity({
-      subject: "outsider", email: "outsider@example.com", email_verified: true, name: "Outsider",
+      subject: "outsider", email: "outsider@example.com", emailVerified: true, name: "Outsider",
     });
     expect(await outsider.query(api.profiles.getMine, {})).toBeNull();
     await expect(outsider.action(api.invites.issue, { ttlHours: 24 })).rejects.toThrow();
@@ -41,16 +41,25 @@ describe("Convex invite-only membership boundary", () => {
     vi.stubEnv("SENGAPP_OPERATOR_EMAILS", "operator@example.com");
     const t = convexTest(schema, modules);
     const claimant = t.withIdentity({
-      subject: "unverified-claimant", email: "operator@example.com", email_verified: false,
+      subject: "unverified-claimant", email: "operator@example.com", emailVerified: false,
     });
     await expect(claimant.mutation(api.profiles.bootstrapOperator, {})).rejects.toThrow();
     const operator = t.withIdentity({
-      subject: "verified-operator", email: "operator@example.com", email_verified: true, name: "Owner",
+      subject: "verified-operator", email: "operator@example.com", emailVerified: true, name: "Owner",
     });
     const first = await operator.mutation(api.profiles.bootstrapOperator, {});
     const second = await operator.mutation(api.profiles.bootstrapOperator, {});
     expect(first).toBe(second);
     expect((await operator.query(api.profiles.getMine, {}))?.role).toBe("operator");
+  });
+
+  it("rejects unnormalized email_verified-only identities instead of trusting the raw key", async () => {
+    vi.stubEnv("SENGAPP_OPERATOR_EMAILS", "operator@example.com");
+    const t = convexTest(schema, modules);
+    const rawOnly = t.withIdentity({
+      subject: "raw-claim", email: "operator@example.com", email_verified: true,
+    });
+    await expect(rawOnly.mutation(api.profiles.bootstrapOperator, {})).rejects.toThrow();
   });
 
   it("fails closed if a signed JWT lacks an explicit verified-email claim", async () => {
@@ -67,13 +76,13 @@ describe("Convex invite-only membership boundary", () => {
     vi.stubEnv("SENGAPP_OPERATOR_EMAILS", "operator@example.com");
     const t = convexTest(schema, modules);
     const operator = t.withIdentity({
-      subject: "verified-operator", email: "operator@example.com", email_verified: true,
+      subject: "verified-operator", email: "operator@example.com", emailVerified: true,
     });
     await operator.mutation(api.profiles.bootstrapOperator, {});
     const { code } = await operator.action(api.invites.issue, { ttlHours: 24 });
     expect(code).toMatch(/^[A-Za-z0-9_-]{43}$/);
-    const firstUser = t.withIdentity({ subject: "person-a", email: "a@example.com", email_verified: true });
-    const secondUser = t.withIdentity({ subject: "person-b", email: "b@example.com", email_verified: true });
+    const firstUser = t.withIdentity({ subject: "person-a", email: "a@example.com", emailVerified: true });
+    const secondUser = t.withIdentity({ subject: "person-b", email: "b@example.com", emailVerified: true });
     const payload = { code, displayName: "Alice", handle: "alice", locale: "en" as const };
     const results = await Promise.allSettled([
       firstUser.mutation(api.invites.redeem, payload),
@@ -96,10 +105,10 @@ describe("Convex invite-only membership boundary", () => {
     vi.stubEnv("SENGAPP_OPERATOR_EMAILS", "operator@example.com");
     const t = convexTest(schema, modules);
     const operator = t.withIdentity({
-      subject: "verified-operator", email: "operator@example.com", email_verified: true,
+      subject: "verified-operator", email: "operator@example.com", emailVerified: true,
     });
     await operator.mutation(api.profiles.bootstrapOperator, {});
-    const outsider = t.withIdentity({ subject: "person-c", email: "c@example.com", email_verified: true });
+    const outsider = t.withIdentity({ subject: "person-c", email: "c@example.com", emailVerified: true });
     await expect(operator.action(api.invites.issue, { ttlHours: 0 })).rejects.toThrow();
 
     const reserved = await operator.action(api.invites.issue, {
