@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { getNavigationSide, isNavigationItemActive } from "@/components/layout/navigation";
 import { Sidebar, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarDismissLink } from "@/components/layout/app-shell";
 
 let mobile = false;
 vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => mobile }));
@@ -42,5 +43,17 @@ describe("cozy navigation", () => {
     expect(drawer).not.toHaveClass("end-0");
     expect(drawer).not.toHaveClass("[&>button]:hidden");
     expect(screen.getByText("قائمة التنقل")).toBeInTheDocument();
+  });
+
+  it("dismisses the mobile drawer after a sidebar action link is selected", () => {
+    mobile = true;
+    render(<SidebarProvider><SidebarTrigger aria-label="Show menu" />
+      <Sidebar side="right" dir="rtl"><SidebarDismissLink href="/settings/profile">Settings</SidebarDismissLink></Sidebar>
+    </SidebarProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Show menu" }));
+    expect(document.querySelector('[data-mobile="true"]')).toHaveAttribute("data-state", "open");
+    fireEvent.click(screen.getByRole("link", { name: "Settings" }));
+    // Radix may unmount the closed Sheet immediately rather than retain a closed node.
+    expect(document.querySelector('[data-mobile="true"]')?.getAttribute("data-state") ?? "closed").toBe("closed");
   });
 });

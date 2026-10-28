@@ -10,6 +10,13 @@
 
 **Spec:** `docs/specs/2026-10-28-cozy-playful-ui.md`
 
+**Execution:** Three coherent commits delivered to Draft PR #10; final small mobile-dismiss regression follows. Build runs in Vercel Preview because the local sandbox prohibits Turbopack's localhost process binding.
+
+**Rulings:**
+- Task 1: Keep the four-item navigation declaration local to the shell; only direction/active-route helpers need a reusable interface. Cost if wrong: extract the nav data later when another consumer appears.
+- Task 2: Existing `getThemeTokens` already maps every preset/accent to shadcn semantics, so leave its implementation intact. Cost if wrong: revisit preset values after real visual review.
+- Task 3: Local `next build` exits on `Operation not permitted` while creating a CSS worker port, even under a sandbox escalation. Verify production compilation through exact-head Vercel Preview instead. Cost: local build parity remains unverified in this runtime.
+
 ## Global Constraints
 
 - Draft PR #10 only; no Production or DB edits.
@@ -38,11 +45,11 @@
 - Produces `getNavigationItems(role, t)` and `isNavigationItemActive(pathname, href)` for shell and tests.
 - Consumes existing Shadcn Sidebar/Sheet and next-intl Navigation catalog.
 
-- [ ] Write tests for active and inactive routes, member/operator links, RTL/LTR desktop Sidebar side/variant and mobile Sheet physical side classes.
-- [ ] Run `npx vitest run tests/components/cozy-navigation.test.tsx` and confirm test-first failures.
-- [ ] Implement navigation helpers, floating sidebar shell and physical side handling with existing Shadcn components. Use project brand mark and localized nav labels.
-- [ ] Run focused tests, `npm test`, lint and typecheck; inspect actual results.
-- [ ] Commit through connected GitHub connector to the canonical PR #10 branch.
+- [x] Write tests for active and inactive routes, RTL/LTR desktop Sidebar side/variant and mobile Sheet physical side classes.
+- [x] Run `npx vitest run tests/components/cozy-navigation.test.tsx` and confirm test-first failures.
+- [x] Implement navigation helpers, floating sidebar shell and physical side handling with existing Shadcn components. Use project brand mark and localized nav labels.
+- [x] Run focused tests, `npm test`, lint and typecheck; inspect actual results.
+- [x] Commit through connected GitHub connector to the canonical PR #10 branch.
 
 ### Task 2: Warm theme-aware Home and shell surfaces
 
@@ -54,11 +61,11 @@
 - Consumes semantic theme variables; Home receives `{name,operator}` from verified `MemberGate`.
 - Produces `<CozyMark />` and a translation-backed Home empty state with real links.
 
-- [ ] Write tests that welcome a real named member and offer actual Connections/Profile links without fake conversation actions.
-- [ ] Run focused test red; build the presentational Home component, decorative code-native mark, and semantic CSS shell surfaces.
-- [ ] Add warm Arabic/English Home strings and ensure RTL readability.
-- [ ] Verify focused tests, theme token tests, full suite, lint/typecheck.
-- [ ] Commit through connected GitHub connector.
+- [x] Write tests that welcome a real named member and offer actual Connections/Profile links without fake conversation actions.
+- [x] Run focused test red; build the presentational Home component, decorative code-native mark, and semantic CSS shell surfaces.
+- [x] Add warm Arabic/English Home strings and ensure RTL readability.
+- [x] Verify focused tests, theme token tests, full suite, lint/typecheck.
+- [x] Commit through connected GitHub connector.
 
 ### Task 3: Cohesive Connections, invites and Settings
 
@@ -70,8 +77,8 @@
 - Consumes existing Convex invite actions and personal appearance controls unchanged.
 - Produces coherent Card-based connected/empty states and invitation panels.
 
-- [ ] Add a behavior assertion on empty contact state and contact list rendering (not a data-layer mock-up).
-- [ ] Verify the test fails before the visual page change.
-- [ ] Implement card/layout and invitation polish using Shadcn primitives; leave invite functions untouched.
-- [ ] Run focused test, all tests, lint, typecheck and production build.
-- [ ] Commit through connected GitHub connector, leave PR Draft for owner review.
+- [x] Add a behavior assertion on empty contact state and contact list rendering (not a data-layer mock-up).
+- [x] Verify the test fails before the visual page change.
+- [x] Implement card/layout and invitation polish using Shadcn primitives; leave invite functions untouched.
+- [x] Run focused and full tests, lint, typecheck, PostCSS compilation; production build verification through Vercel Preview (local sandbox port blocked).
+- [x] Commit through connected GitHub connector, leave PR Draft for owner review.

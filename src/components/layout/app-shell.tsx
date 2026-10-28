@@ -44,20 +44,27 @@ export function AppShell(props: AppShellProps) {
   );
 }
 
+export function SidebarDismissLink({ href, children, className }: {
+  href: string; children: ReactNode; className?: string;
+}) {
+  const { isMobile, setOpenMobile } = useSidebar();
+  return <Link href={href} className={className}
+    onClick={() => { if (isMobile) setOpenMobile(false); }}>{children}</Link>;
+}
+
 function SidebarLinks({ items, pathname }: {
   items: Array<{ href: string; icon: typeof HeartHandshake; label: string }>;
   pathname: string;
 }) {
-  const { isMobile, setOpenMobile } = useSidebar();
   return <SidebarMenu className="gap-1.5">
     {items.map(({ href, icon: Icon, label }) => <SidebarMenuItem key={href}>
       <SidebarMenuButton asChild size="lg" tooltip={label}
         isActive={isNavigationItemActive(pathname, href)}
         className="min-h-12 rounded-xl px-3 text-[0.925rem] font-medium data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:shadow-sm">
-        <Link href={href} onClick={() => { if (isMobile) setOpenMobile(false); }}>
+        <SidebarDismissLink href={href}>
           <Icon aria-hidden="true" className="size-5!" strokeWidth={1.8} />
           <span>{label}</span>
-        </Link>
+        </SidebarDismissLink>
       </SidebarMenuButton>
     </SidebarMenuItem>)}
   </SidebarMenu>;
@@ -85,7 +92,7 @@ function AppShellContent({
       <Sidebar dir={direction} side={getNavigationSide(locale)} variant="floating"
         collapsible="offcanvas" mobileTitle={t("primary")} aria-label={t("primary")}>
         <SidebarHeader className="px-5 pb-3 pt-6">
-          <Link href="/home" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
+          <SidebarDismissLink href="/home" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
             <span aria-hidden="true" className="sengapp-logo flex size-12 shrink-0 items-center justify-center rounded-2xl">
               <CozyMark className="size-12" />
             </span>
@@ -93,7 +100,7 @@ function AppShellContent({
               <span className="block text-xl font-extrabold tracking-tight">Sengapp</span>
               <span className="block text-xs leading-relaxed text-sidebar-foreground/65">{common("tagline")}</span>
             </span>
-          </Link>
+          </SidebarDismissLink>
         </SidebarHeader>
 
         <SidebarContent className="px-3 pt-4">
@@ -108,7 +115,7 @@ function AppShellContent({
             <p className="text-sm font-semibold leading-relaxed">{t("noteTitle")}</p>
             <p className="text-xs leading-5 text-sidebar-foreground/75">{t("noteDescription")}</p>
             <Button asChild size="sm" variant="secondary" className="mt-2 w-full rounded-xl">
-              <Link href="/connections">{t("inviteAction")}</Link>
+              <SidebarDismissLink href="/connections">{t("inviteAction")}</SidebarDismissLink>
             </Button>
           </div>
         </SidebarContent>
@@ -128,7 +135,7 @@ function AppShellContent({
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm" className="flex-1 justify-start rounded-xl">
-              <Link href="/settings/profile#appearance"><Palette aria-hidden="true" /> {t("appearance")}</Link>
+              <SidebarDismissLink href="/settings/profile#appearance"><Palette aria-hidden="true" /> {t("appearance")}</SidebarDismissLink>
             </Button>
             <Button variant="ghost" size="icon" className="shrink-0 rounded-xl" aria-label={t("signOut")}
               onClick={() => void signOut({ redirectUrl: "/login" })}>
