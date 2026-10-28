@@ -32,6 +32,18 @@ describe("sidebar quick actions", () => {
     expect(container.querySelectorAll("svg").length).toBeGreaterThanOrEqual(4);
   });
 
+  it("keeps footer actions icon-only without persistent button tiles", () => {
+    renderActions();
+    const row = screen.getByLabelText("Quick account actions");
+    const controls = row.querySelectorAll("button, a");
+    expect(controls).toHaveLength(4);
+    for (const control of controls) {
+      expect(control).toHaveClass("border-0", "bg-transparent", "hover:bg-sidebar-accent", "focus-visible:ring-2");
+      expect(control).not.toHaveClass("bg-sidebar-accent/40", "border-sidebar-border/70");
+    }
+    expect(screen.getByRole("link", { name: "Profile & privacy settings" }).querySelector(".lucide-settings")).toBeInTheDocument();
+  });
+
   it("saves just the language or mode on the signed-in account", async () => {
     renderActions();
     fireEvent.click(screen.getByRole("button", { name: "Switch to Arabic" }));
