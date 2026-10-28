@@ -28,10 +28,13 @@ export async function assertDirectNotBlocked(ctx: DbCtx, a: Id<"profiles">, b: I
 export async function requireDirectConversation(ctx: DbCtx, conversationId: Id<"conversations">) {
   const me = await requireAuthorizedProfile(ctx);
   const conversation = await ctx.db.get(conversationId);
-  if (!conversation || conversation.kind !== "direct") throw new ConvexError({ code: "CONVERSATION_FORBIDDEN" });
+  if (!conversation || conversation.kind !== "direct" || !conversation.connectionId) {
+    throw new ConvexError({ code: "CONVERSATION_FORBIDDEN" });
+  }
   const membership = await ctx.db.query("conversationMembers")
     .withIndex("by_conversation_profile", q => q.eq("conversationId", conversationId).eq("profileId", me._id)).unique();
   if (!membership) throw new ConvexError({ code: "CONVERSATION_FORBIDDEN" });
   const participants = await requireConnectionParticipant(ctx, conversation.connectionId);
   return { ...participants, conversation };
 }
+

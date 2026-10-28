@@ -69,19 +69,37 @@ export default defineSchema({
     .index("by_right", ["rightProfileId"]),
 
   conversations: defineTable({
-    kind: v.literal("direct"),
-    connectionId: v.id("connections"),
+    kind: v.union(v.literal("direct"), v.literal("group")),
+    // Optional for existing direct rows; group rows use the fields below.
+    connectionId: v.optional(v.id("connections")),
+    groupName: v.optional(v.string()),
+    ownerProfileId: v.optional(v.id("profiles")),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_connection", ["connectionId"]),
+  })
+    .index("by_connection", ["connectionId"])
+    .index("by_owner_created", ["ownerProfileId", "createdAt"]),
 
   conversationMembers: defineTable({
     conversationId: v.id("conversations"),
     profileId: v.id("profiles"),
+    role: v.optional(v.union(v.literal("owner"), v.literal("admin"), v.literal("member"))),
     joinedAt: v.number(),
   })
     .index("by_conversation_profile", ["conversationId", "profileId"])
     .index("by_profile", ["profileId"]),
+
+  groupInvites: defineTable({
+    conversationId: v.id("conversations"),
+    invitedProfileId: v.id("profiles"),
+    invitedBy: v.id("profiles"),
+    status: v.union(v.literal("pending"), v.literal("accepted"), v.literal("declined"), v.literal("revoked")),
+    createdAt: v.number(),
+    respondedAt: v.optional(v.number()),
+  })
+    .index("by_invited_status", ["invitedProfileId", "status"])
+    .index("by_conversation_invitee", ["conversationId", "invitedProfileId"])
+    .index("by_inviter_created", ["invitedBy", "createdAt"]),
 
   messages: defineTable({
     conversationId: v.id("conversations"),
@@ -107,4 +125,5 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_actor", ["actorProfileId"]),
 });
+
 
