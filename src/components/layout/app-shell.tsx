@@ -17,6 +17,7 @@ import { PersonalThemeProvider } from "@/components/themes/personal-theme-provid
 import { AccountLocaleProvider } from "@/components/i18n/account-locale-provider";
 import { getLocaleDirection, type AppLocale } from "@/lib/i18n/locale";
 import { getNavigationSide, isNavigationItemActive } from "@/components/layout/navigation";
+import { CozyMark } from "@/components/brand/cozy-mark";
 import type { VisualPreferences } from "@/lib/themes/preferences";
 
 interface AppShellProps {
@@ -85,7 +86,9 @@ function AppShellContent({
         collapsible="offcanvas" aria-label={t("primary")}>
         <SidebarHeader className="px-5 pb-3 pt-6">
           <Link href="/home" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
-            <span aria-hidden="true" className="sengapp-logo flex size-12 shrink-0 items-center justify-center rounded-2xl text-2xl">🐿️</span>
+            <span aria-hidden="true" className="sengapp-logo flex size-12 shrink-0 items-center justify-center rounded-2xl">
+              <CozyMark className="size-12" />
+            </span>
             <span className="min-w-0">
               <span className="block text-xl font-extrabold tracking-tight">Sengapp</span>
               <span className="block text-xs leading-relaxed text-sidebar-foreground/65">{common("tagline")}</span>
@@ -146,7 +149,7 @@ function AppShellContent({
           </div>
           <span className="sengapp-topbar-bloom" aria-hidden="true">✳</span>
         </header>
-        <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 pb-12 pt-5 sm:px-7 md:pt-9 lg:px-10">
+        <main className="sengapp-content mx-auto w-full max-w-6xl flex-1 space-y-6">
           {children}
         </main>
       </SidebarInset>

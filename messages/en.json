@@ -35,10 +35,18 @@
     "topbarSubtitle": "Make yourself at home."
   },
   "Home": {
-    "greeting": "Good to see you, {name}!",
-    "description": "This is your private Sengapp lounge. Conversations and companions arrive in the next phases. Your profile is ready even with zero contacts. Visit Connections only when you would like to invite someone.",
+    "eyebrow": "Your space, your pace",
+    "greeting": "There's room for you here, {name}.",
+    "description": "A little corner to feel at home. Set things up your way, bring in your favorite people, and take your time.",
     "invite": "Invite a friend",
-    "edit": "Edit profile"
+    "edit": "Edit profile",
+    "nextSteps": "Let's make it yours",
+    "nextStepsDescription": "Just two easy things to start with.",
+    "connectionTitle": "Good company",
+    "connectionDescription": "Share a private, one-use invite. Only the person who accepts joins your circle.",
+    "personalTitle": "A bit of you",
+    "personalDescription": "Pick your colors, a comfy font, and the name friends will see.",
+    "comingSoon": "Coming soon: real conversations and companions. We're keeping this corner simple until they're ready."
   },
   "Connections": {
     "description": "Your social circle is private. Invite someone to connect whenever you are ready. There is no public people directory.",
