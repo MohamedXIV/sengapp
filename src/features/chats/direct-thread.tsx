@@ -10,6 +10,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { GroupPanel } from "@/features/chats/group-panel";
 
 interface PendingMessage { body: string; clientNonce: string }
 
@@ -49,7 +50,7 @@ export function DirectThread({ conversationId, meProfileId }: {
       </Button>
       <div>
         <h1 className="text-xl font-bold" dir="auto">{info?.displayName ?? t("loadingConversation")}</h1>
-        {info?.handle && <p dir="ltr" className="text-xs text-muted-foreground">@{info.handle}</p>}
+        {info?.kind === "direct" && info.handle && <p dir="ltr" className="text-xs text-muted-foreground">@{info.handle}</p>}
       </div>
     </header>
     <Card className="flex min-h-[min(66vh,40rem)] flex-col overflow-hidden rounded-2xl border-border/70">
@@ -85,5 +86,7 @@ export function DirectThread({ conversationId, meProfileId }: {
         <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void submit()}>{t("retry")}</Button>
       </div>}
     </Card>
+    {info?.kind === "group" && <GroupPanel conversationId={conversationId} meProfileId={meProfileId} />}
   </div>;
 }
+
