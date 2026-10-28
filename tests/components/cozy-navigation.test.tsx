@@ -34,11 +34,13 @@ describe("cozy navigation", () => {
 
   it("uses a physical right-side Sheet on Arabic phones", () => {
     mobile = true;
-    render(<SidebarProvider><SidebarTrigger aria-label="Show navigation" /><Sidebar dir="rtl" side="right">Navigation</Sidebar></SidebarProvider>);
+    render(<SidebarProvider><SidebarTrigger aria-label="Show navigation" /><Sidebar dir="rtl" side="right" mobileTitle="قائمة التنقل">Navigation</Sidebar></SidebarProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Show navigation" }));
     const drawer = document.querySelector('[data-mobile="true"]');
     expect(drawer).toHaveAttribute("dir", "rtl");
     expect(drawer).toHaveClass("right-0");
     expect(drawer).not.toHaveClass("end-0");
+    expect(drawer).not.toHaveClass("[&>button]:hidden");
+    expect(screen.getByText("قائمة التنقل")).toBeInTheDocument();
   });
 });

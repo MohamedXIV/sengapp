@@ -122,9 +122,13 @@ export function CreateConnectionInvite({
   }
 
   return (
-    <section className="space-y-6" aria-label={t("ariaSection")}>
-      <Card><form onSubmit={createInvite} className="space-y-4 p-5">
-        <h2 className="text-lg font-semibold">{t("inviteFriend")}</h2>
+    <section className="space-y-5" aria-label={t("ariaSection")}>
+      <Card className="sengapp-feature-card rounded-[calc(var(--radius)+0.5rem)] border-border/70 shadow-sm">
+        <form onSubmit={createInvite} className="space-y-5 p-5 sm:p-6">
+        <div className="flex items-center gap-3">
+          <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-2xl text-primary">✉</span>
+          <h2 className="text-lg font-bold">{t("inviteFriend")}</h2>
+        </div>
         <p className="text-sm text-muted-foreground">
           {t("inviteDescription")}
         </p>
@@ -155,20 +159,20 @@ export function CreateConnectionInvite({
             onChange={(e) => setNote(e.target.value)}
             placeholder={t("notePlaceholder")} />
         </div>
-        <Button type="submit" disabled={isCreating}>
+        <Button type="submit" disabled={isCreating} className="min-h-11 rounded-xl px-5">
           {isCreating ? t("creating") : t("createLink")}
         </Button>
       </form></Card>
 
-      {link && <Card className="space-y-3 border-primary/40 p-5">
+      {link && <Card className="space-y-3 rounded-[calc(var(--radius)+0.5rem)] border-primary/40 bg-accent/20 p-5 shadow-sm">
         <h3 className="font-semibold">{t("privateLink")}</h3>
         <p className="text-xs text-muted-foreground">{t("privateLinkDescription")}</p>
         <Input ref={linkRef} readOnly aria-label={t("linkLabel")} value={link} dir="ltr"
           onFocus={(e) => e.currentTarget.select()}
           className="w-full" />
         <div className="flex flex-wrap gap-2">
-          <Button type="button" onClick={copyLink}>{t("copyLink")}</Button>
-          {nativeShare && <Button type="button" variant="outline" onClick={shareLink}>{t("share")}</Button>}
+          <Button type="button" className="min-h-10 rounded-xl" onClick={copyLink}>{t("copyLink")}</Button>
+          {nativeShare && <Button type="button" className="min-h-10 rounded-xl" variant="outline" onClick={shareLink}>{t("share")}</Button>}
         </div>
       </Card>}
 
@@ -177,12 +181,12 @@ export function CreateConnectionInvite({
       </p>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
-      <Card className="space-y-3 p-5">
-        <h2 className="font-semibold">{t("openInvites")}</h2>
+      <Card className="sengapp-feature-card space-y-3 rounded-[calc(var(--radius)+0.5rem)] border-border/70 p-5 shadow-sm sm:p-6">
+        <h2 className="text-base font-bold">{t("openInvites")}</h2>
         {openInvitations.length === 0
           ? <p className="text-sm text-muted-foreground">{t("noOpenInvites")}</p>
           : <ul className="space-y-3">
-              {openInvitations.map((inv) => <li key={inv._id} className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 text-sm">
+              {openInvitations.map((inv) => <li key={inv._id} className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-3 text-sm last:border-0 last:pb-0">
                 <div className="space-y-1">
                   <p className="font-mono text-xs">{inv.codeHint} <span className="font-sans text-muted-foreground">· {t("statusPending")}</span></p>
                   <p className="text-xs text-muted-foreground">

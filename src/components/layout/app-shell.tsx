@@ -83,7 +83,7 @@ function AppShellContent({
     <SidebarProvider defaultOpen dir={direction} className="sengapp-workspace"
       style={{ "--sidebar-width": "17.5rem" } as CSSProperties}>
       <Sidebar dir={direction} side={getNavigationSide(locale)} variant="floating"
-        collapsible="offcanvas" aria-label={t("primary")}>
+        collapsible="offcanvas" mobileTitle={t("primary")} aria-label={t("primary")}>
         <SidebarHeader className="px-5 pb-3 pt-6">
           <Link href="/home" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
             <span aria-hidden="true" className="sengapp-logo flex size-12 shrink-0 items-center justify-center rounded-2xl">

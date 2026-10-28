@@ -168,6 +168,7 @@ const Sidebar = React.forwardRef<
     side?: "left" | "right"
     variant?: "sidebar" | "floating" | "inset"
     collapsible?: "offcanvas" | "icon" | "none"
+    mobileTitle?: string
   }
 >(
   (
@@ -178,6 +179,7 @@ const Sidebar = React.forwardRef<
       className,
       children,
       dir,
+      mobileTitle = "Navigation",
       ...props
     },
     ref
@@ -206,7 +208,7 @@ const Sidebar = React.forwardRef<
             dir={dir}
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground"
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -215,7 +217,7 @@ const Sidebar = React.forwardRef<
             side={side}
           >
             <SheetHeader className="sr-only">
-              <SheetTitle>Sidebar</SheetTitle>
+              <SheetTitle>{mobileTitle}</SheetTitle>
               <SheetDescription>Displays the mobile sidebar.</SheetDescription>
             </SheetHeader>
             <div className="flex h-full w-full flex-col">{children}</div>

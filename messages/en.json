@@ -49,8 +49,10 @@
     "comingSoon": "Coming soon: real conversations and companions. We're keeping this corner simple until they're ready."
   },
   "Connections": {
-    "description": "Your social circle is private. Invite someone to connect whenever you are ready. There is no public people directory.",
+    "description": "Your people, your pace. No public directory, no random requests — just the friends you choose.",
+    "circle": "Only your circle",
     "yourContacts": "Your contacts",
+    "contactsCaption": "A quiet place for your favorite people",
     "loadingContacts": "Loading your contacts…",
     "noContacts": "No connections yet — that is completely fine. Your personal profile works on its own.",
     "loadingInvites": "Loading invitations…"
