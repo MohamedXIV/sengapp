@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   profileUpdateSchema,
   presencePreferencesSchema,
@@ -31,6 +32,8 @@ export function ProfileSettingsForm({
   onSaveProfile,
   onSavePresence,
 }: ProfileSettingsFormProps) {
+  const t = useTranslations("Profile");
+  const common = useTranslations("Common");
   const [profile, setProfile] = useState<ProfileUpdateInput>(initialProfile);
   const [presence, setPresence] =
     useState<PresencePreferencesInput>(initialPresence);
@@ -45,19 +48,22 @@ export function ProfileSettingsForm({
 
     const parsed = profileUpdateSchema.safeParse(profile);
     if (!parsed.success) {
-      setErrorMessage(
-        parsed.error.issues[0]?.message ?? "Invalid profile input."
-      );
+      const field = parsed.error.issues[0]?.path[0];
+      setErrorMessage(field === "displayName" ? t("displayNameHelp")
+        : field === "handle" ? t("handleHelp")
+          : field === "bio" ? t("bioHelp")
+            : field === "statusMessage" ? t("statusHelp")
+              : field === "avatarAccentColor" ? t("accentHelp") : t("invalid"));
       return;
     }
 
     setIsSaving(true);
     try {
       await onSaveProfile(parsed.data);
-      setStatusBanner("Profile preferences saved.");
-    } catch (err) {
+      setStatusBanner(t("saved"));
+    } catch {
       setErrorMessage(
-        err instanceof Error ? err.message : "Could not update profile."
+        t("saveFailed")
       );
     } finally {
       setIsSaving(false);
@@ -75,12 +81,10 @@ export function ProfileSettingsForm({
 
     try {
       await onSavePresence(parsed.data);
-      setStatusBanner("Presence privacy updated.");
-    } catch (err) {
+      setStatusBanner(t("presenceSaved"));
+    } catch {
       setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : "Failed to update presence setting."
+        t("presenceFailed")
       );
     }
   };
@@ -100,16 +104,16 @@ export function ProfileSettingsForm({
         className="p-6 space-y-5"
       >
         <div>
-          <h2 className="text-lg font-semibold">Identity & Expression</h2>
+          <h2 className="text-lg font-semibold">{t("identity")}</h2>
           <p className="text-sm text-muted-foreground">
-            Customize how friends and family see you in shared spaces.
+            {t("identityDescription")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="displayName">
-              Display Name
+              {t("displayName")}
             </Label>
             <Input
               id="displayName"
@@ -128,7 +132,7 @@ export function ProfileSettingsForm({
 
           <div className="space-y-1.5">
             <Label htmlFor="handle">
-              Unique Handle
+              {t("handle")}
             </Label>
             <Input
               id="handle"
@@ -144,9 +148,7 @@ export function ProfileSettingsForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="statusMessage">
-            Personal Status Note (Messenger-style)
-          </Label>
+            <Label htmlFor="statusMessage">{t("statusNote")}</Label>
           <Input
             id="statusMessage"
             type="text"
@@ -154,7 +156,7 @@ export function ProfileSettingsForm({
               profile.textDirection,
               profile.statusMessage
             )}
-            placeholder="Listening to rainy lo-fi & roasting chestnuts..."
+            placeholder={t("statusPlaceholder")}
             value={profile.statusMessage ?? ""}
             onChange={(e) =>
               setProfile({ ...profile, statusMessage: e.target.value })
@@ -164,7 +166,7 @@ export function ProfileSettingsForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="bio">
-            About You
+              {t("about")}
           </Label>
           <Textarea
             id="bio"
@@ -178,7 +180,7 @@ export function ProfileSettingsForm({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="avatarPreset">
-              Squirrel Avatar Archetype
+              {t("avatar")}
             </Label>
             <Select value={profile.avatarPresetKey} onValueChange={(value) =>
                 setProfile({
@@ -199,7 +201,7 @@ export function ProfileSettingsForm({
 
           <div className="space-y-1.5">
             <Label htmlFor="locale">
-              Preferred Language
+              {t("language")}
             </Label>
             <Select value={profile.locale} onValueChange={(value) =>
                 setProfile({
@@ -209,15 +211,15 @@ export function ProfileSettingsForm({
               }>
               <SelectTrigger id="locale" className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="en">English (LTR)</SelectItem>
-                <SelectItem value="ar">العربية (RTL)</SelectItem>
+                <SelectItem value="en">{t("english")}</SelectItem>
+                <SelectItem value="ar">{t("arabic")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="textDirection">
-              Text Direction Mode
+              {t("textDirection")}
             </Label>
             <Select value={profile.textDirection} onValueChange={(value) =>
                 setProfile({
@@ -227,9 +229,9 @@ export function ProfileSettingsForm({
               }>
               <SelectTrigger id="textDirection" className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="auto">Automatic per paragraph</SelectItem>
-                <SelectItem value="ltr">Left-to-Right (LTR)</SelectItem>
-                <SelectItem value="rtl">Right-to-Left (RTL)</SelectItem>
+                <SelectItem value="auto">{t("automatic")}</SelectItem>
+                <SelectItem value="ltr">{t("leftToRight")}</SelectItem>
+                <SelectItem value="rtl">{t("rightToLeft")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -244,7 +246,7 @@ export function ProfileSettingsForm({
             }
           />
           <Label htmlFor="reducedMotion">
-            Prefer reduced motion (calm companion & interface animations)
+            {t("reducedMotion")}
           </Label>
         </div>
 
@@ -252,7 +254,7 @@ export function ProfileSettingsForm({
           type="submit"
           disabled={isSaving}
         >
-          {isSaving ? "Saving..." : "Save Profile Changes"}
+          {isSaving ? common("saving") : t("save")}
         </Button>
       </form></Card>
 
@@ -262,11 +264,10 @@ export function ProfileSettingsForm({
       >
         <div>
           <h2 id="presence-heading" className="text-lg font-semibold">
-            Presence & Read Privacy
+            {t("presenceTitle")}
           </h2>
           <p className="text-sm text-muted-foreground">
-            All signals are enabled by default for a warm shared space, and each
-            can be toggled off independently at any time.
+            {t("presenceDescription")}
           </p>
         </div>
 
@@ -275,26 +276,23 @@ export function ProfileSettingsForm({
             [
               {
                 key: "onlineStatus",
-                title: "Online Status",
-                description: "Show when you are actively connected to Sengapp.",
+                title: t("online"),
+                description: t("onlineDescription"),
               },
               {
                 key: "lastSeen",
-                title: "Last Seen Timestamp",
-                description:
-                  "Allow friends to see when you last visited the lounge.",
+                title: t("lastSeen"),
+                description: t("lastSeenDescription"),
               },
               {
                 key: "readReceipts",
-                title: "Read Receipts",
-                description:
-                  "Show when you have read messages in direct and group chats.",
+                title: t("readReceipts"),
+                description: t("readReceiptsDescription"),
               },
               {
                 key: "typingIndicators",
-                title: "Typing Indicators",
-                description:
-                  "Display a live indicator when you are composing a reply.",
+                title: t("typing"),
+                description: t("typingDescription"),
               },
             ] as const
           ).map((item) => (

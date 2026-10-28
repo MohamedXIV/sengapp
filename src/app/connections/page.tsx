@@ -4,12 +4,15 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { MemberGate } from "@/components/access/member-gate";
 import { CreateConnectionInvite } from "@/features/connections/create-connection-invite";
+import { useTranslations } from "next-intl";
 
 export default function ConnectionsPage() {
   return <MemberGate>{() => <ConnectionsSpace />}</MemberGate>;
 }
 
 function ConnectionsSpace() {
+  const t = useTranslations("Connections");
+  const nav = useTranslations("Navigation");
   const contacts = useQuery(api.connections.listMine);
   const invitations = useQuery(api.connectionInvites.listMine);
   const issue = useAction(api.connectionInvites.issue);
@@ -17,17 +20,16 @@ function ConnectionsSpace() {
 
   return <div className="space-y-8">
     <div className="space-y-2">
-      <h1 className="text-3xl font-semibold">Connections</h1>
+      <h1 className="text-3xl font-semibold">{nav("connections")}</h1>
       <p className="max-w-xl text-muted-foreground">
-        Your social circle is private. Invite someone to connect whenever you&apos;re ready.
-        There is no public people directory.
+        {t("description")}
       </p>
     </div>
     <section className="space-y-3 rounded-xl border bg-card p-5">
-      <h2 className="font-semibold">Your contacts</h2>
-      {contacts === undefined ? <p role="status">Loading your contacts…</p>
+      <h2 className="font-semibold">{t("yourContacts")}</h2>
+      {contacts === undefined ? <p role="status">{t("loadingContacts")}</p>
         : contacts.length === 0 ? <p className="text-sm text-muted-foreground">
-            No connections yet — that&apos;s completely fine. Your personal profile works on its own.
+            {t("noContacts")}
           </p>
         : <ul className="space-y-3">
             {contacts.map((contact) => <li key={contact.connectionId} className="border-b pb-2">
@@ -36,8 +38,9 @@ function ConnectionsSpace() {
             </li>)}
           </ul>}
     </section>
-    {invitations === undefined ? <p role="status">Loading invitations…</p>
+    {invitations === undefined ? <p role="status">{t("loadingInvites")}</p>
       : <CreateConnectionInvite invitations={invitations} onIssue={issue}
           onRevoke={(invitationId) => revoke({ invitationId })} />}
   </div>;
 }
+

@@ -36,6 +36,25 @@ describe("Convex invite-only membership boundary", () => {
     })).rejects.toThrow();
   });
 
+  it("uses the browser locale for a newly created profile without overwriting returning users", async () => {
+    const t = convexTest(schema, modules);
+    const member = t.withIdentity({
+      subject: "arabic-first-login", email: "arabic@example.com", emailVerified: true,
+    });
+    const firstId = await member.mutation(api.profiles.ensureMine, { locale: "ar" });
+    expect((await member.query(api.profiles.getMine, {}))?.locale).toBe("ar");
+
+    const secondId = await member.mutation(api.profiles.ensureMine, { locale: "en" });
+    expect(secondId).toBe(firstId);
+    expect((await member.query(api.profiles.getMine, {}))?.locale).toBe("ar");
+
+    const another = t.withIdentity({
+      subject: "english-first-login", email: "english@example.com", emailVerified: true,
+    });
+    await another.mutation(api.profiles.ensureMine, {});
+    expect((await another.query(api.profiles.getMine, {}))?.locale).toBe("en");
+  });
+
   it("only bootstraps a verified allowlisted operator, idempotently", async () => {
     vi.stubEnv("SENGAPP_OPERATOR_EMAILS", "operator@example.com");
     const t = convexTest(schema, modules);
@@ -72,3 +91,4 @@ describe("Convex invite-only membership boundary", () => {
   });
 
 });
+

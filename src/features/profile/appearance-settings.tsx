@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -14,8 +15,6 @@ import {
 type Mode = "light" | "dark" | "system";
 type AppearanceInput = VisualPreferences & { themePreference: Mode };
 
-const presetLabels = { acorn: "Acorn", forest: "Forest", dusk: "Dusk", ocean: "Ocean" };
-const accentLabels = { amber: "Amber", coral: "Coral", sage: "Sage", teal: "Teal", blue: "Blue", violet: "Violet" };
 const accentColors = { amber: "#ad651a", coral: "#b74735", sage: "#357a57", teal: "#168c91", blue: "#2c68bf", violet: "#7045b5" };
 
 export function AppearanceSettings({ initialPreferences, initialMode, onSave }: {
@@ -23,6 +22,9 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
   initialMode: Mode;
   onSave: (data: AppearanceInput) => Promise<void>;
 }) {
+  const t = useTranslations("Appearance");
+  const common = useTranslations("Common");
+  const locale = useLocale();
   const { setPreview, previewMode, cancelPreview } = usePersonalTheme();
   const [draft, setDraft] = useState(initialPreferences);
   const [mode, setMode] = useState<Mode>(initialMode);
@@ -52,7 +54,7 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
     setDraft(initialPreferences);
     setMode(initialMode);
     setError("");
-    setStatus("Unsaved changes discarded.");
+    setStatus(t("discarded"));
     cancelPreview();
   }
 
@@ -62,7 +64,7 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
     setPreview(DEFAULT_VISUAL_PREFERENCES);
     previewMode("system");
     setError("");
-    setStatus("Defaults previewed. Save to keep them.");
+    setStatus(t("resetPreview"));
   }
 
   async function save() {
@@ -72,25 +74,25 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
     setStatus("");
     try {
       await onSave({ ...draft, themePreference: mode });
-      setStatus("Appearance saved for your account.");
+      setStatus(t("saved"));
     } catch (reason) {
       cancelPreview();
       setDraft(initialPreferences);
       setMode(initialMode);
-      setError(reason instanceof Error ? reason.message : "Couldn't save appearance settings.");
+      setError(locale === "en" && reason instanceof Error ? reason.message : t("saveFailed"));
     } finally {
       setBusy(false);
     }
   }
 
-  return <Card aria-label="Appearance settings">
+  return <Card aria-label={t("aria")}>
     <CardHeader>
-      <CardTitle>Appearance</CardTitle>
-      <CardDescription>Make your own cozy space. Every choice stays private to your account.</CardDescription>
+      <CardTitle>{t("title")}</CardTitle>
+      <CardDescription>{t("description")}</CardDescription>
     </CardHeader>
     <CardContent className="space-y-7">
       <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold">Theme collection</legend>
+        <legend className="text-sm font-semibold">{t("collection")}</legend>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {THEME_PRESETS.map((preset) => <Button key={preset} type="button" variant="outline"
             aria-pressed={draft.preset === preset}
@@ -101,83 +103,83 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
               <span className="size-6 rounded-full bg-current opacity-90" />
               <span className="size-6 rounded-full bg-current opacity-35" />
             </span>
-            <span>{presetLabels[preset]}</span>
+            <span>{t(preset)}</span>
           </Button>)}
         </div>
       </fieldset>
 
       <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold">Accent color</legend>
+        <legend className="text-sm font-semibold">{t("accent")}</legend>
         <div className="flex flex-wrap gap-2">
           {THEME_ACCENTS.map((accent) => <Button key={accent} type="button" variant="outline"
-            aria-label={`${accentLabels[accent]} accent`} aria-pressed={draft.accent === accent}
+            aria-label={t("accentLabel", { color: t(accent) })} aria-pressed={draft.accent === accent}
             className="h-11 gap-2 data-[pressed=true]:ring-2 data-[pressed=true]:ring-ring"
             data-pressed={draft.accent === accent}
             onClick={() => change("accent", accent)}>
             <span className="size-4 rounded-full" style={{ backgroundColor: accentColors[accent] }} aria-hidden="true" />
-            <span>{accentLabels[accent]}</span>
+            <span>{t(accent)}</span>
           </Button>)}
         </div>
       </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="appearance-font">Typography</Label>
+          <Label htmlFor="appearance-font">{t("typography")}</Label>
           <Select value={draft.font} onValueChange={(value) => change("font", value as VisualPreferences["font"])}>
             <SelectTrigger id="appearance-font" className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="system">System font</SelectItem>
+              <SelectItem value="system">{t("systemFont")}</SelectItem>
               <SelectItem value="inter">Inter</SelectItem>
               <SelectItem value="nunito">Nunito</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="appearance-radius">Corners</Label>
+          <Label htmlFor="appearance-radius">{t("corners")}</Label>
           <Select value={draft.radius} onValueChange={(value) => change("radius", value as VisualPreferences["radius"])}>
             <SelectTrigger id="appearance-radius" className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="subtle">Subtle</SelectItem>
-              <SelectItem value="soft">Soft</SelectItem>
-              <SelectItem value="round">Round</SelectItem>
+              <SelectItem value="subtle">{t("subtle")}</SelectItem>
+              <SelectItem value="soft">{t("soft")}</SelectItem>
+              <SelectItem value="round">{t("round")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="appearance-density">Spacing</Label>
+          <Label htmlFor="appearance-density">{t("spacing")}</Label>
           <Select value={draft.density} onValueChange={(value) => change("density", value as VisualPreferences["density"])}>
             <SelectTrigger id="appearance-density" className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="comfortable">Comfortable</SelectItem>
-              <SelectItem value="compact">Compact</SelectItem>
+              <SelectItem value="comfortable">{t("comfortable")}</SelectItem>
+              <SelectItem value="compact">{t("compact")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="appearance-mode">Light / dark</Label>
+          <Label htmlFor="appearance-mode">{t("lightDark")}</Label>
           <Select value={mode} onValueChange={(value) => changeMode(value as Mode)}>
             <SelectTrigger id="appearance-mode" className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="system">Follow device</SelectItem>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
+              <SelectItem value="system">{t("followDevice")}</SelectItem>
+              <SelectItem value="light">{t("light")}</SelectItem>
+              <SelectItem value="dark">{t("dark")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      <div className="rounded-lg border bg-accent p-[var(--sengapp-space,1.5rem)] text-accent-foreground" aria-label="Live theme preview">
-        <p className="font-semibold">Your little corner</p>
-        <p className="mt-1 text-sm">This is how Sengapp will feel. Nothing is saved until you choose Save.</p>
-        <span className="mt-3 inline-flex rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground">Hello, friend! 🐿️</span>
+      <div className="rounded-lg border bg-accent p-[var(--sengapp-space,1.5rem)] text-accent-foreground" aria-label={t("previewAria")}>
+        <p className="font-semibold">{t("previewTitle")}</p>
+        <p className="mt-1 text-sm">{t("previewDescription")}</p>
+        <span className="mt-3 inline-flex rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground">{t("hello")}</span>
       </div>
 
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {status && <p role="status" className="text-sm text-muted-foreground">{status}</p>}
       <div className="flex flex-wrap gap-2">
-        <Button type="button" onClick={save} disabled={busy}>{busy ? "Saving…" : "Save appearance"}</Button>
-        <Button type="button" variant="outline" disabled={busy} onClick={cancel}>Cancel changes</Button>
-        <Button type="button" variant="ghost" disabled={busy} onClick={reset}>Reset to defaults</Button>
+        <Button type="button" onClick={save} disabled={busy}>{busy ? common("saving") : t("save")}</Button>
+        <Button type="button" variant="outline" disabled={busy} onClick={cancel}>{t("cancel")}</Button>
+        <Button type="button" variant="ghost" disabled={busy} onClick={reset}>{t("reset")}</Button>
       </div>
     </CardContent>
   </Card>;

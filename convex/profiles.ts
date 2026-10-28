@@ -18,6 +18,7 @@ export const getMine = query({
 function initialProfileFields(
   user: Awaited<ReturnType<typeof getVerifiedAuthUser>>,
   role: "member" | "operator",
+  locale: "en" | "ar" = "en",
 ) {
   const now = Date.now();
   return {
@@ -25,7 +26,7 @@ function initialProfileFields(
     displayName: user.name?.trim().slice(0, 50) || "New member",
     role, status: "active" as const, joinedAt: now, updatedAt: now,
     avatarPresetKey: "acorn-scout", avatarAccentColor: "#C68A45",
-    locale: "en" as const, textDirection: "auto" as const,
+    locale, textDirection: "auto" as const,
     themePreference: "system" as const, reducedMotion: false,
     presencePreferences: {
       onlineStatus: true, lastSeen: true, readReceipts: true, typingIndicators: true,
@@ -36,8 +37,8 @@ function initialProfileFields(
 // Convex mutations are serializable: concurrent calls for one Clerk subject
 // observe the same indexed row and never create duplicate memberships.
 export const ensureMine = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { locale: v.optional(v.union(v.literal("en"), v.literal("ar"))) },
+  handler: async (ctx, { locale }) => {
     const user = await getVerifiedAuthUser(ctx);
     const existing = await ctx.db.query("profiles")
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", user.userId)).unique();
@@ -45,7 +46,7 @@ export const ensureMine = mutation({
       if (existing.status !== "active") throw new ConvexError({ code: "SUSPENDED" });
       return existing._id;
     }
-    return ctx.db.insert("profiles", initialProfileFields(user, "member"));
+    return ctx.db.insert("profiles", initialProfileFields(user, "member", locale));
   },
 });
 

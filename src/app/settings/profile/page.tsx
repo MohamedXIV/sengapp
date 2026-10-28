@@ -6,6 +6,7 @@ import { MemberGate } from "@/components/access/member-gate";
 import { ProfileSettingsForm } from "@/features/profile/profile-settings-form";
 import { AppearanceSettings } from "@/features/profile/appearance-settings";
 import { resolveVisualPreferences } from "@/lib/themes/preferences";
+import { useTranslations } from "next-intl";
 
 export default function ProfilePage() {
   return (
@@ -20,13 +21,15 @@ function ProfileEditor({
 }: {
   profile: import("../../../../convex/_generated/dataModel").Doc<"profiles">;
 }) {
+  const t = useTranslations("Profile");
+  const appearance = useTranslations("Appearance");
   const updateProfile = useMutation(api.profiles.updateMine);
   const updatePresence = useMutation(api.profiles.updatePresencePreferences);
   const updateVisual = useMutation(api.profiles.updateVisualPreferences);
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-semibold">Profile & privacy</h1>
-      <section id="appearance" aria-label="Personal appearance">
+      <h1 className="text-2xl font-semibold">{t("title")}</h1>
+      <section id="appearance" aria-label={appearance("title")}>
         <AppearanceSettings
           initialPreferences={resolveVisualPreferences(profile.visualPreferences)}
           initialMode={profile.themePreference}

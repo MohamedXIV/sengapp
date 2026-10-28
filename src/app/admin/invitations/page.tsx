@@ -2,17 +2,23 @@
 
 import Link from "next/link";
 import { MemberGate } from "@/components/access/member-gate";
+import { useTranslations } from "next-intl";
 
 export default function OperatorToolsPage() {
-  return <MemberGate operatorOnly>{() => <div className="space-y-4">
-    <h1 className="text-2xl font-semibold">Operator tools</h1>
-    <p className="text-sm text-muted-foreground">
-      Account roles are controlled by the verified server-side allowlist.
-      Member signup never grants operator privileges.
-    </p>
-    <p className="text-sm text-muted-foreground">
-      Connection invitations now belong to each member, not the operator.
-    </p>
-    <Link className="text-primary underline" href="/connections">Go to Connections</Link>
-  </div>}</MemberGate>;
+  return <MemberGate operatorOnly>{() => <OperatorContent />}</MemberGate>;
 }
+
+function OperatorContent() {
+  const t = useTranslations("Operator");
+  return <div className="space-y-4">
+    <h1 className="text-2xl font-semibold">{t("title")}</h1>
+    <p className="text-sm text-muted-foreground">
+      {t("roles")}
+    </p>
+    <p className="text-sm text-muted-foreground">
+      {t("invites")}
+    </p>
+    <Link className="text-primary underline" href="/connections">{t("connections")}</Link>
+  </div>;
+}
+

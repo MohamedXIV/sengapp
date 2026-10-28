@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRoot } from "react-dom/client";
 import { CreateConnectionInvite } from "../../src/features/connections/create-connection-invite";
 import type { Id } from "../../convex/_generated/dataModel";
+import { EnglishTestProvider } from "../helpers/intl";
 
 const code = "A".repeat(43);
 const issue = vi.fn(async () => ({ code, invitationId: "test-invite" as Id<"connectionInvites">, expiresAt: Date.now() + 86_400_000 }));
@@ -13,7 +14,7 @@ function renderFixture() {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
-  act(() => { root.render(<CreateConnectionInvite {...props} />); });
+  act(() => { root.render(<EnglishTestProvider><CreateConnectionInvite {...props} /></EnglishTestProvider>); });
   unmounts.push(() => { root.unmount(); container.remove(); });
   return container;
 }
@@ -90,21 +91,21 @@ describe("Connection invite copy and native sharing", () => {
     unmounts.push(() => { root.unmount(); container.remove(); });
 
     act(() => {
-      root.render(<CreateConnectionInvite invitations={[]} onIssue={issueWithId} onRevoke={onRevoke} />);
+      root.render(<EnglishTestProvider><CreateConnectionInvite invitations={[]} onIssue={issueWithId} onRevoke={onRevoke} /></EnglishTestProvider>);
     });
     await create(container);
     expect(linkInput(container).value).toContain(code);
 
     act(() => {
-      root.render(<CreateConnectionInvite invitations={[pendingInvite]} onIssue={issueWithId} onRevoke={onRevoke} />);
+      root.render(<EnglishTestProvider><CreateConnectionInvite invitations={[pendingInvite]} onIssue={issueWithId} onRevoke={onRevoke} /></EnglishTestProvider>);
     });
     expect(linkInput(container).value).toContain(code);
     expect(container.textContent).toContain("••••AAAA");
 
     await act(async () => {
-      root.render(<CreateConnectionInvite
+      root.render(<EnglishTestProvider><CreateConnectionInvite
         invitations={[{ ...pendingInvite, status: "accepted" }]}
-        onIssue={issueWithId} onRevoke={onRevoke} />);
+        onIssue={issueWithId} onRevoke={onRevoke} /></EnglishTestProvider>);
     });
     expect(container.querySelector('input[aria-label="Invitation link"]')).toBeNull();
     expect(container.textContent).not.toContain("••••AAAA");
@@ -112,3 +113,4 @@ describe("Connection invite copy and native sharing", () => {
   });
 
 });
+

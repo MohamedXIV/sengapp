@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 
 const subscribeToStorage = (onChange: () => void) => {
   window.addEventListener("storage", onChange);
@@ -10,6 +11,8 @@ const subscribeToStorage = (onChange: () => void) => {
 };
 
 export default function LoginPage() {
+  const t = useTranslations("Auth");
+  const common = useTranslations("Common");
   const pendingInvite = useSyncExternalStore(
     subscribeToStorage,
     () => Boolean(sessionStorage.getItem("sengapp:pending-invite")),
@@ -21,10 +24,10 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-5 p-6 text-center">
-      <Link href="/" className="text-4xl" aria-label="Sengapp home">🐿️</Link>
-      <h1 className="text-3xl font-semibold">Welcome to Sengapp</h1>
+      <Link href="/" className="text-4xl" aria-label={t("homeLabel")}>🐿️</Link>
+      <h1 className="text-3xl font-semibold">{t("welcome")}</h1>
       <p className="text-sm text-muted-foreground">
-        Sign in or create an account with your verified email. You can join without any invitation.
+        {t("description")}
       </p>
       {configured
         ? <SignIn
@@ -34,9 +37,9 @@ export default function LoginPage() {
             signUpFallbackRedirectUrl={pendingInvite ? "/invite" : "/home"}
           />
         : <p role="status" className="text-sm text-muted-foreground">
-            Sign-in will be available once Clerk and Convex are configured.
+            {t("unavailable")}
           </p>}
-      <Link href="/invite" className="text-sm text-primary underline">Have a connection invitation?</Link>
+      <Link href="/invite" className="text-sm text-primary underline">{common("haveInvite")}</Link>
     </main>
   );
 }

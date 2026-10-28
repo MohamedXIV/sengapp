@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { createConnectionInviteSchema } from "@/lib/validations/invitation";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,8 @@ export function CreateConnectionInvite({
   onIssue: (input: { ttlHours: number; recipientEmail?: string; note?: string }) => Promise<{ code: string; expiresAt: number; invitationId: Id<"connectionInvites"> }>;
   onRevoke: (id: Id<"connectionInvites">) => Promise<unknown>;
 }) {
+  const t = useTranslations("Invites");
+  const format = useFormatter();
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
   const [ttlHours, setTtlHours] = useState<24 | 72 | 168>(72);
@@ -61,7 +64,7 @@ export function CreateConnectionInvite({
       recipientEmail: email, note, ttlHours,
     });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Check the invitation details.");
+      setError(t("validationFallback"));
       return;
     }
     setIsCreating(true);
@@ -74,11 +77,11 @@ export function CreateConnectionInvite({
       const url = new URL("/invite", window.location.origin);
       url.hash = "code=" + issued.code;
       setIssuedLink({ url: url.toString(), invitationId: issued.invitationId, expiresAt: issued.expiresAt });
-      setStatus("Connection invitation created. Copy or share the link.");
+      setStatus(t("created"));
       setEmail("");
       setNote("");
     } catch {
-      setError("Couldn't create an invitation. Try again in a moment.");
+      setError(t("createError"));
     } finally {
       setIsCreating(false);
     }
@@ -89,110 +92,109 @@ export function CreateConnectionInvite({
     try {
       if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
       await navigator.clipboard.writeText(link);
-      setStatus("Copied. You can now paste the invitation into your message.");
+      setStatus(t("copied"));
     } catch {
       linkRef.current?.focus();
       linkRef.current?.select();
-      setStatus("Automatic copy is unavailable. Select and copy the visible link manually.");
+      setStatus(t("copyManual"));
     }
   }
 
   async function shareLink() {
     if (!link) return;
     if (!navigator.share) {
-      setStatus("Native sharing isn't available. Use Copy link instead.");
+      setStatus(t("shareUnavailable"));
       return;
     }
     try {
       await navigator.share({
-        title: "Sengapp connection",
-        text: "Would you like to connect with me on Sengapp?",
+        title: t("shareTitle"),
+        text: t("shareMessage"),
         url: link,
       });
       // A resolved chooser does not guarantee delivery to another person.
-      setStatus("Share dialog closed. Your link is still available here.");
+      setStatus(t("shareClosed"));
     } catch (reason) {
       setStatus(reason instanceof DOMException && reason.name === "AbortError"
-        ? "Sharing canceled. Your link is still available to copy."
-        : "Sharing wasn't available. You can copy the link instead.");
+        ? t("shareCanceled")
+        : t("shareError"));
     }
   }
 
   return (
-    <section className="space-y-6" aria-label="Invite someone to connect">
+    <section className="space-y-6" aria-label={t("ariaSection")}>
       <Card><form onSubmit={createInvite} className="space-y-4 p-5">
-        <h2 className="text-lg font-semibold">Invite a friend</h2>
+        <h2 className="text-lg font-semibold">{t("inviteFriend")}</h2>
         <p className="text-sm text-muted-foreground">
-          Anyone can join Sengapp. This one-use link only requests a private connection;
-          the other person chooses whether to accept.
+          {t("inviteDescription")}
         </p>
         <p className="text-xs text-muted-foreground">
-          An invitation without an email restriction can be used by the first eligible person who accepts it.
+          {t("emailRestriction")}
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1">
-            <Label htmlFor="connection-email">Friend&apos;s email (optional)</Label>
+            <Label htmlFor="connection-email">{t("friendEmail")}</Label>
             <Input id="connection-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               autoComplete="off" placeholder="friend@example.com" />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="connection-expiry">Expires after</Label>
+            <Label htmlFor="connection-expiry">{t("expiry")}</Label>
             <Select value={String(ttlHours)} onValueChange={(value) => setTtlHours(Number(value) as 24 | 72 | 168)}>
               <SelectTrigger id="connection-expiry" className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="24">24 hours</SelectItem>
-                <SelectItem value="72">3 days</SelectItem>
-                <SelectItem value="168">7 days</SelectItem>
+                <SelectItem value="24">{t("hours24")}</SelectItem>
+                <SelectItem value="72">{t("days3")}</SelectItem>
+                <SelectItem value="168">{t("days7")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
         <div className="space-y-1">
-          <Label htmlFor="connection-note">Short note (optional)</Label>
+          <Label htmlFor="connection-note">{t("note")}</Label>
           <Textarea id="connection-note" value={note} maxLength={200}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="It's me! Let's stay in touch." />
+            placeholder={t("notePlaceholder")} />
         </div>
         <Button type="submit" disabled={isCreating}>
-          {isCreating ? "Creating…" : "Create invitation link"}
+          {isCreating ? t("creating") : t("createLink")}
         </Button>
       </form></Card>
 
       {link && <Card className="space-y-3 border-primary/40 p-5">
-        <h3 className="font-semibold">Your private invitation link</h3>
-        <p className="text-xs text-muted-foreground">Shown only now. Treat this link as a secret until it expires or is used.</p>
-        <Input ref={linkRef} readOnly aria-label="Invitation link" value={link}
+        <h3 className="font-semibold">{t("privateLink")}</h3>
+        <p className="text-xs text-muted-foreground">{t("privateLinkDescription")}</p>
+        <Input ref={linkRef} readOnly aria-label={t("linkLabel")} value={link} dir="ltr"
           onFocus={(e) => e.currentTarget.select()}
           className="w-full" />
         <div className="flex flex-wrap gap-2">
-          <Button type="button" onClick={copyLink}>Copy link</Button>
-          {nativeShare && <Button type="button" variant="outline" onClick={shareLink}>Share…</Button>}
+          <Button type="button" onClick={copyLink}>{t("copyLink")}</Button>
+          {nativeShare && <Button type="button" variant="outline" onClick={shareLink}>{t("share")}</Button>}
         </div>
       </Card>}
 
       {status && <p role="status" className="text-sm text-muted-foreground">
-        {issuedLink && !issuedStillActive ? "Invitation used or closed; its link is no longer active." : status}
+        {issuedLink && !issuedStillActive ? t("linkClosed") : status}
       </p>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       <Card className="space-y-3 p-5">
-        <h2 className="font-semibold">Open invitations</h2>
+        <h2 className="font-semibold">{t("openInvites")}</h2>
         {openInvitations.length === 0
-          ? <p className="text-sm text-muted-foreground">No open invitations.</p>
+          ? <p className="text-sm text-muted-foreground">{t("noOpenInvites")}</p>
           : <ul className="space-y-3">
               {openInvitations.map((inv) => <li key={inv._id} className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 text-sm">
                 <div className="space-y-1">
-                  <p className="font-mono text-xs">{inv.codeHint} <span className="font-sans text-muted-foreground">· {inv.status}</span></p>
+                  <p className="font-mono text-xs">{inv.codeHint} <span className="font-sans text-muted-foreground">· {t("statusPending")}</span></p>
                   <p className="text-xs text-muted-foreground">
-                    {inv.recipientEmail ? `Reserved for ${inv.recipientEmail}` : "Anyone with the link"}
-                    {" · "}Expires {new Date(inv.expiresAt).toLocaleDateString()}
+                    {inv.recipientEmail ? t("reservedFor", { email: inv.recipientEmail }) : t("anyoneWithLink")}
+                    {" · "}{t("expiresAt", { date: format.dateTime(new Date(inv.expiresAt), { dateStyle: "medium" }) })}
                   </p>
                 </div>
                 {inv.status === "pending" && <Button type="button" variant="link" size="sm" className="text-xs text-destructive"
                   onClick={async () => {
-                    try { await onRevoke(inv._id); setStatus("Invitation revoked."); }
-                    catch { setError("Could not revoke this invitation."); }
-                  }}>Revoke</Button>}
+                    try { await onRevoke(inv._id); setStatus(t("revoked")); }
+                    catch { setError(t("revokeError")); }
+                  }}>{t("revoke")}</Button>}
               </li>)}
             </ul>}
       </Card>
