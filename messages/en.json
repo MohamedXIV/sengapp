@@ -21,6 +21,7 @@
     "primary": "Primary navigation",
     "lounge": "Cozy Lounge",
     "connections": "Connections",
+    "messages": "Messages",
     "profile": "Profile & Privacy",
     "appearance": "Appearance",
     "operator": "Operator Tools",
@@ -53,7 +54,29 @@
     "connectionDescription": "Share a private, one-use invite. Only the person who accepts joins your circle.",
     "personalTitle": "A bit of you",
     "personalDescription": "Pick your colors, a comfy font, and the name friends will see.",
-    "comingSoon": "Coming soon: real conversations and companions. We're keeping this corner simple until they're ready."
+    "comingSoon": "Your private conversations are ready. Open Connections to say hello to someone in your circle."
+  },
+  "Chats": {
+    "title": "Messages",
+    "description": "A private place to talk with your connections. Just the two of you.",
+    "messageAction": "Message",
+    "opening": "Opening…",
+    "openFailed": "Couldn't open this conversation. Try again.",
+    "loadingConversations": "Loading conversations…",
+    "emptyConversations": "No conversations yet. Start one with someone in your connections.",
+    "findContacts": "See connections",
+    "backToChats": "Back to messages",
+    "loadingConversation": "Opening conversation…",
+    "loadingMessages": "Loading messages…",
+    "olderMessages": "Load older messages",
+    "noMessages": "No messages yet. Say hello!",
+    "conversationHistory": "Conversation history",
+    "messageInput": "Message",
+    "messagePlaceholder": "Write a message…",
+    "sending": "Sending…",
+    "send": "Send message",
+    "sendFailed": "Message couldn't be sent. Please try again.",
+    "retry": "Retry sending"
   },
   "Connections": {
     "description": "Your people, your pace. No public directory, no random requests — just the friends you choose.",

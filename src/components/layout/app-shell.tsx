@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
-import { HeartHandshake, Palette, Settings2, Shield, UsersRound } from "lucide-react";
+import { HeartHandshake, MessageCircle, Palette, Settings2, Shield, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,6 +82,7 @@ function AppShellContent({
   const nav = [
     { href: "/home", icon: HeartHandshake, label: t("lounge") },
     { href: "/connections", icon: UsersRound, label: t("connections") },
+    { href: "/chats", icon: MessageCircle, label: t("messages") },
     { href: "/settings/profile", icon: Settings2, label: t("profile") },
     { href: "/settings/appearance", icon: Palette, label: t("appearance") },
     ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, label: t("operator") }] : []),
