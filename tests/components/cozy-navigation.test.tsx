@@ -15,11 +15,12 @@ describe("cozy navigation", () => {
     expect(getNavigationSide("en")).toBe("left");
   });
 
-  it("highlights the exact route, including the appearance anchor, without false positives", () => {
+  it("highlights independent appearance and profile routes without false positives", () => {
     expect(isNavigationItemActive("/home", "/home")).toBe(true);
     expect(isNavigationItemActive("/connections", "/connections")).toBe(true);
     expect(isNavigationItemActive("/connections-other", "/connections")).toBe(false);
-    expect(isNavigationItemActive("/settings/profile", "/settings/profile#appearance")).toBe(false);
+    expect(isNavigationItemActive("/settings/appearance", "/settings/appearance")).toBe(true);
+    expect(isNavigationItemActive("/settings/profile", "/settings/appearance")).toBe(false);
     expect(isNavigationItemActive("/unknown", "/home")).toBe(false);
   });
 

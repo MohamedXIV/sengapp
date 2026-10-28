@@ -155,3 +155,25 @@ export const updateVisualPreferences = mutation({
   },
 });
 
+// Atomic account-scoped shortcuts for the persistent sidebar controls.
+// They must not save a stale copy of the full profile or visual preset.
+export const updateUiShortcuts = mutation({
+  args: {
+    locale: v.optional(v.union(v.literal("en"), v.literal("ar"))),
+    themePreference: v.optional(v.union(v.literal("light"), v.literal("dark"), v.literal("system"))),
+  },
+  handler: async (ctx, { locale, themePreference }) => {
+    const profile = await requireAuthorizedProfile(ctx);
+    if (locale === undefined && themePreference === undefined) {
+      throw new ConvexError({ code: "EMPTY_PREFERENCES" });
+    }
+    const updatedAt = Date.now();
+    await ctx.db.patch(profile._id, {
+      ...(locale !== undefined ? { locale } : {}),
+      ...(themePreference !== undefined ? { themePreference } : {}),
+      updatedAt,
+    });
+    return { updatedAt };
+  },
+});
+

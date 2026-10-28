@@ -27,7 +27,10 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
   const locale = useLocale();
   const { setPreview, previewMode, cancelPreview } = usePersonalTheme();
   const [draft, setDraft] = useState(initialPreferences);
-  const [mode, setMode] = useState<Mode>(initialMode);
+  const [modeDraft, setModeDraft] = useState<{ base: Mode; value: Mode }>({
+    base: initialMode, value: initialMode,
+  });
+  const mode = modeDraft.base === initialMode ? modeDraft.value : initialMode;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
@@ -44,7 +47,7 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
   }
 
   function changeMode(value: Mode) {
-    setMode(value);
+    setModeDraft({ base: initialMode, value });
     previewMode(value);
     setError("");
     setStatus("");
@@ -52,7 +55,7 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
 
   function cancel() {
     setDraft(initialPreferences);
-    setMode(initialMode);
+    setModeDraft({ base: initialMode, value: initialMode });
     setError("");
     setStatus(t("discarded"));
     cancelPreview();
@@ -60,7 +63,7 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
 
   function reset() {
     setDraft(DEFAULT_VISUAL_PREFERENCES);
-    setMode("system");
+    setModeDraft({ base: initialMode, value: "system" });
     setPreview(DEFAULT_VISUAL_PREFERENCES);
     previewMode("system");
     setError("");
@@ -78,7 +81,7 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
     } catch (reason) {
       cancelPreview();
       setDraft(initialPreferences);
-      setMode(initialMode);
+      setModeDraft({ base: initialMode, value: initialMode });
       setError(locale === "en" && reason instanceof Error ? reason.message : t("saveFailed"));
     } finally {
       setBusy(false);

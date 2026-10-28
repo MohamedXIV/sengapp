@@ -50,4 +50,37 @@ describe("private Convex theme persistence", () => {
     expect(profile?.themePreference).toBe("dark");
     expect(profile?.visualPreferences).toEqual(preferred);
   });
+
+  it("changes account language and mode independently without resetting the visual theme", async () => {
+    const t = convexTest(schema, modules);
+    const alice = t.withIdentity({ subject: "shortcuts-alice", email: "shortcuts-a@example.com", emailVerified: true });
+    const bob = t.withIdentity({ subject: "shortcuts-bob", email: "shortcuts-b@example.com", emailVerified: true });
+    await alice.mutation(api.profiles.ensureMine, {});
+    await bob.mutation(api.profiles.ensureMine, {});
+    await alice.mutation(api.profiles.updateVisualPreferences, preferred);
+
+    await alice.mutation(api.profiles.updateUiShortcuts, { locale: "ar" });
+    expect(await alice.query(api.profiles.getMine, {})).toMatchObject({
+      locale: "ar", themePreference: "system", visualPreferences: preferred,
+    });
+    await alice.mutation(api.profiles.updateUiShortcuts, { themePreference: "dark" });
+    expect(await alice.query(api.profiles.getMine, {})).toMatchObject({
+      locale: "ar", themePreference: "dark", visualPreferences: preferred,
+    });
+    expect(await bob.query(api.profiles.getMine, {})).toMatchObject({
+      locale: "en", themePreference: "system",
+    });
+  });
+
+  it("rejects unauthorized or empty quick settings patches", async () => {
+    const t = convexTest(schema, modules);
+    const anonymous = t.withIdentity({ subject: "no-access", email: "no@example.com", emailVerified: false });
+    await expect(anonymous.mutation(api.profiles.updateUiShortcuts, { locale: "ar" })).rejects.toThrow();
+    const alice = t.withIdentity({ subject: "shortcut-errors", email: "errors@example.com", emailVerified: true });
+    await alice.mutation(api.profiles.ensureMine, {});
+    await expect(alice.mutation(api.profiles.updateUiShortcuts, {})).rejects.toThrow();
+    await expect(alice.mutation(api.profiles.updateUiShortcuts, {
+      locale: "fr" as "ar",
+    })).rejects.toThrow();
+  });
 });

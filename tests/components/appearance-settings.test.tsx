@@ -14,6 +14,18 @@ vi.mock("@/components/themes/personal-theme-provider", () => ({
 afterEach(() => { vi.clearAllMocks(); });
 
 describe("personal appearance settings", () => {
+  it("reflects a new persisted light/dark choice made from the sidebar", () => {
+    const initialPreferences = DEFAULT_VISUAL_PREFERENCES;
+    const onSave = vi.fn(async () => {});
+    const view = (mode: "light" | "dark") => <EnglishTestProvider><AppearanceSettings
+      initialPreferences={initialPreferences} initialMode={mode} onSave={onSave}
+    /></EnglishTestProvider>;
+    const { rerender } = render(view("light"));
+    expect(screen.getByRole("combobox", { name: "Light / dark" })).toHaveTextContent("Light");
+    rerender(view("dark"));
+    expect(screen.getByRole("combobox", { name: "Light / dark" })).toHaveTextContent("Dark");
+  });
+
   it("previews a preset and accent before saving and sends one bounded payload", async () => {
     const onSave = vi.fn(async () => {});
     render(<EnglishTestProvider><AppearanceSettings initialPreferences={DEFAULT_VISUAL_PREFERENCES} initialMode="system" onSave={onSave} /></EnglishTestProvider>);

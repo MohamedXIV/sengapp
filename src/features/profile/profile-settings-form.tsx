@@ -46,7 +46,9 @@ export function ProfileSettingsForm({
     setErrorMessage(null);
     setStatusBanner(null);
 
-    const parsed = profileUpdateSchema.safeParse(profile);
+    // Language belongs to the account-wide sidebar shortcut. A profile form
+    // opened before a language switch must not overwrite the newer locale.
+    const parsed = profileUpdateSchema.safeParse({ ...profile, locale: initialProfile.locale });
     if (!parsed.success) {
       const field = parsed.error.issues[0]?.path[0];
       setErrorMessage(field === "displayName" ? t("displayNameHelp")
@@ -177,7 +179,7 @@ export function ProfileSettingsForm({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="avatarPreset">
               {t("avatar")}
@@ -195,24 +197,6 @@ export function ProfileSettingsForm({
                   {preset}
                 </SelectItem>
               ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="locale">
-              {t("language")}
-            </Label>
-            <Select value={profile.locale} onValueChange={(value) =>
-                setProfile({
-                  ...profile,
-                  locale: value as "en" | "ar",
-                })
-              }>
-              <SelectTrigger id="locale" className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">{t("english")}</SelectItem>
-                <SelectItem value="ar">{t("arabic")}</SelectItem>
               </SelectContent>
             </Select>
           </div>

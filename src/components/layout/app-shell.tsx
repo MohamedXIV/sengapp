@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
-import { HeartHandshake, LogOut, Palette, Settings2, Shield, UsersRound } from "lucide-react";
+import { HeartHandshake, Palette, Settings2, Shield, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,7 @@ import { AccountLocaleProvider } from "@/components/i18n/account-locale-provider
 import { getLocaleDirection, type AppLocale } from "@/lib/i18n/locale";
 import { getNavigationSide, isNavigationItemActive } from "@/components/layout/navigation";
 import { CozyMark } from "@/components/brand/cozy-mark";
+import { SidebarQuickActions } from "@/components/layout/sidebar-quick-actions";
 import type { VisualPreferences } from "@/lib/themes/preferences";
 
 interface AppShellProps {
@@ -82,6 +83,7 @@ function AppShellContent({
     { href: "/home", icon: HeartHandshake, label: t("lounge") },
     { href: "/connections", icon: UsersRound, label: t("connections") },
     { href: "/settings/profile", icon: Settings2, label: t("profile") },
+    { href: "/settings/appearance", icon: Palette, label: t("appearance") },
     ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, label: t("operator") }] : []),
   ];
   const currentTitle = nav.find((item) => isNavigationItemActive(pathname, item.href))?.label ?? t("space");
@@ -133,15 +135,7 @@ function AppShellContent({
               </Badge>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="flex-1 justify-start rounded-xl">
-              <SidebarDismissLink href="/settings/profile#appearance"><Palette aria-hidden="true" /> {t("appearance")}</SidebarDismissLink>
-            </Button>
-            <Button variant="ghost" size="icon" className="shrink-0 rounded-xl" aria-label={t("signOut")}
-              onClick={() => void signOut({ redirectUrl: "/login" })}>
-              <LogOut aria-hidden="true" />
-            </Button>
-          </div>
+          <SidebarQuickActions locale={locale} onSignOut={() => void signOut({ redirectUrl: "/login" })} />
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
