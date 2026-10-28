@@ -117,7 +117,7 @@ describe("authorized direct messaging", () => {
       conversationId, paginationOpts: { numItems: 10, cursor: firstPage.continueCursor },
     });
     expect(olderPage.page).toHaveLength(10);
-    expect(olderPage.page[0]._id).not.toBe(firstPage.page[0]._id);
+    expect(new Set([...firstPage.page, ...olderPage.page].map(message => message._id)).size).toBe(20);
     await expect(alice.mutation(api.messages.send, {
       conversationId, body: "Too fast", clientNonce: "message-nonce-00000030",
     })).rejects.toThrow();
