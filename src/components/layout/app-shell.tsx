@@ -1,20 +1,22 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
-import { Shield, Settings, MessageSquareHeart, UsersRound, SunMoon, LogOut, Palette } from "lucide-react";
+import { HeartHandshake, LogOut, Palette, Settings2, Shield, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
-  SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton,
-  SidebarMenuItem, SidebarProvider, SidebarTrigger,
+  SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton,
+  SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
 import { PersonalThemeProvider } from "@/components/themes/personal-theme-provider";
 import { AccountLocaleProvider } from "@/components/i18n/account-locale-provider";
 import { getLocaleDirection, type AppLocale } from "@/lib/i18n/locale";
+import { getNavigationSide, isNavigationItemActive } from "@/components/layout/navigation";
 import type { VisualPreferences } from "@/lib/themes/preferences";
 
 interface AppShellProps {
@@ -41,77 +43,113 @@ export function AppShell(props: AppShellProps) {
   );
 }
 
+function SidebarLinks({ items, pathname }: {
+  items: Array<{ href: string; icon: typeof HeartHandshake; label: string }>;
+  pathname: string;
+}) {
+  const { isMobile, setOpenMobile } = useSidebar();
+  return <SidebarMenu className="gap-1.5">
+    {items.map(({ href, icon: Icon, label }) => <SidebarMenuItem key={href}>
+      <SidebarMenuButton asChild size="lg" tooltip={label}
+        isActive={isNavigationItemActive(pathname, href)}
+        className="min-h-12 rounded-xl px-3 text-[0.925rem] font-medium data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:shadow-sm">
+        <Link href={href} onClick={() => { if (isMobile) setOpenMobile(false); }}>
+          <Icon aria-hidden="true" className="size-5!" strokeWidth={1.8} />
+          <span>{label}</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>)}
+  </SidebarMenu>;
+}
+
 function AppShellContent({
   children, userRole = "member", displayName = "Member", handle = "squirrel", locale = "en",
 }: AppShellProps) {
   const { signOut } = useClerk();
+  const pathname = usePathname();
   const t = useTranslations("Navigation");
   const common = useTranslations("Common");
   const direction = getLocaleDirection(locale);
   const nav = [
-    { href: "/home", icon: MessageSquareHeart, label: t("lounge") },
+    { href: "/home", icon: HeartHandshake, label: t("lounge") },
     { href: "/connections", icon: UsersRound, label: t("connections") },
-    { href: "/settings/profile", icon: Settings, label: t("profile") },
-    { href: "/settings/profile#appearance", icon: Palette, label: t("appearance") },
+    { href: "/settings/profile", icon: Settings2, label: t("profile") },
     ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, label: t("operator") }] : []),
   ];
+  const currentTitle = nav.find((item) => isNavigationItemActive(pathname, item.href))?.label ?? t("space");
 
   return (
-    <SidebarProvider defaultOpen>
-      <div dir={direction} className="flex min-h-screen w-full bg-background text-foreground">
-        <Sidebar dir={direction} side={direction === "rtl" ? "right" : "left"} collapsible="offcanvas" aria-label={t("primary")}>
-          <SidebarHeader className="gap-3 p-4">
-            <Link href="/home" className="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-ring">
-              <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-xl text-primary-foreground">🐿️</span>
-              <span className="min-w-0">
-                <span className="block text-lg font-semibold tracking-tight">Sengapp</span>
-                <span className="block text-xs text-muted-foreground">{common("tagline")}</span>
-              </span>
-            </Link>
-          </SidebarHeader>
+    <SidebarProvider defaultOpen dir={direction} className="sengapp-workspace"
+      style={{ "--sidebar-width": "17.5rem" } as CSSProperties}>
+      <Sidebar dir={direction} side={getNavigationSide(locale)} variant="floating"
+        collapsible="offcanvas" aria-label={t("primary")}>
+        <SidebarHeader className="px-5 pb-3 pt-6">
+          <Link href="/home" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
+            <span aria-hidden="true" className="sengapp-logo flex size-12 shrink-0 items-center justify-center rounded-2xl text-2xl">🐿️</span>
+            <span className="min-w-0">
+              <span className="block text-xl font-extrabold tracking-tight">Sengapp</span>
+              <span className="block text-xs leading-relaxed text-sidebar-foreground/65">{common("tagline")}</span>
+            </span>
+          </Link>
+        </SidebarHeader>
 
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {nav.map(({ href, icon: Icon, label }) => <SidebarMenuItem key={href}>
-                    <SidebarMenuButton asChild tooltip={label}>
-                      <Link href={href}><Icon aria-hidden="true" /> <span>{label}</span></Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>)}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
+        <SidebarContent className="px-3 pt-4">
+          <SidebarGroup>
+            <SidebarGroupLabel className="mb-2 px-3 text-[0.7rem] font-semibold tracking-wide text-sidebar-foreground/60">
+              {t("space")}
+            </SidebarGroupLabel>
+            <SidebarGroupContent><SidebarLinks items={nav} pathname={pathname} /></SidebarGroupContent>
+          </SidebarGroup>
+          <div className="sengapp-sidebar-note mx-3 mt-auto space-y-2 rounded-2xl border border-sidebar-border p-4">
+            <span aria-hidden="true" className="text-xl">✿</span>
+            <p className="text-sm font-semibold leading-relaxed">{t("noteTitle")}</p>
+            <p className="text-xs leading-5 text-sidebar-foreground/75">{t("noteDescription")}</p>
+            <Button asChild size="sm" variant="secondary" className="mt-2 w-full rounded-xl">
+              <Link href="/connections">{t("inviteAction")}</Link>
+            </Button>
+          </div>
+        </SidebarContent>
 
-          <SidebarFooter className="border-t p-4">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
+        <SidebarFooter className="gap-3 px-5 pb-5 pt-4">
+          <div className="rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-3">
+            <div className="flex items-center gap-3">
+              <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xl">🌰</span>
+              <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold" dir="auto">{displayName}</p>
-                <p className="truncate text-xs text-muted-foreground" dir="ltr">@{handle}</p>
+                <p className="truncate text-xs text-sidebar-foreground/65" dir="ltr">@{handle}</p>
               </div>
-              <Badge variant="secondary">{t(userRole === "operator" ? "operatorRole" : "member")}</Badge>
+              <Badge variant="outline" className="shrink-0 border-sidebar-border text-[0.65rem] font-normal">
+                {t(userRole === "operator" ? "operatorRole" : "member")}
+              </Badge>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex-1" asChild>
-                <Link href="/settings/profile#appearance"><SunMoon aria-hidden="true" /> {t("appearance")}</Link>
-              </Button>
-              <Button variant="outline" size="icon" aria-label={t("signOut")}
-                onClick={() => void signOut({ redirectUrl: "/login" })}>
-                <LogOut aria-hidden="true" />
-              </Button>
-            </div>
-          </SidebarFooter>
-        </Sidebar>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm" className="flex-1 justify-start rounded-xl">
+              <Link href="/settings/profile#appearance"><Palette aria-hidden="true" /> {t("appearance")}</Link>
+            </Button>
+            <Button variant="ghost" size="icon" className="shrink-0 rounded-xl" aria-label={t("signOut")}
+              onClick={() => void signOut({ redirectUrl: "/login" })}>
+              <LogOut aria-hidden="true" />
+            </Button>
+          </div>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
 
-        <SidebarInset className="min-w-0">
-          <header className="flex h-14 shrink-0 items-center border-b px-4">
-            <SidebarTrigger aria-label={t("open")} />
-            <span className="ms-3 text-sm text-muted-foreground">Sengapp</span>
-          </header>
-          <main className="mx-auto w-full max-w-5xl flex-1 space-y-6 p-[var(--sengapp-space,1.5rem)] md:p-10">{children}</main>
-        </SidebarInset>
-      </div>
+      <SidebarInset className="min-w-0 bg-transparent">
+        <header className="sengapp-topbar flex h-[4.5rem] shrink-0 items-center gap-3 px-4 md:px-7">
+          <SidebarTrigger className="size-10 rounded-xl border border-border/80 bg-card/75 shadow-sm"
+            aria-label={t("open")} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold">{currentTitle}</p>
+            <p className="hidden truncate text-xs text-muted-foreground sm:block">{t("topbarSubtitle")}</p>
+          </div>
+          <span className="sengapp-topbar-bloom" aria-hidden="true">✳</span>
+        </header>
+        <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 pb-12 pt-5 sm:px-7 md:pt-9 lg:px-10">
+          {children}
+        </main>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

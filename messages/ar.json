@@ -27,7 +27,12 @@
     "signOut": "تسجيل الخروج",
     "open": "فتح قائمة التنقل",
     "member": "عضو",
-    "operatorRole": "مسؤول"
+    "operatorRole": "مسؤول",
+    "space": "ركنك الصغير",
+    "noteTitle": "المكان بيحلى بالناس اللي بنحبهم.",
+    "noteDescription": "ادعُ حد قريب منك وخلي المكان على ذوقكم.",
+    "inviteAction": "اعزم حد عندك",
+    "topbarSubtitle": "خد راحتك، إنت في مكانك."
   },
   "Home": {
     "greeting": "سعداء برؤيتك يا {name}!",

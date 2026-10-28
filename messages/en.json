@@ -27,7 +27,12 @@
     "signOut": "Sign out",
     "open": "Open navigation",
     "member": "Member",
-    "operatorRole": "Operator"
+    "operatorRole": "Operator",
+    "space": "Your little corner",
+    "noteTitle": "It's nicer with a friend.",
+    "noteDescription": "Invite someone you trust and make this place yours.",
+    "inviteAction": "Invite someone",
+    "topbarSubtitle": "Make yourself at home."
   },
   "Home": {
     "greeting": "Good to see you, {name}!",
