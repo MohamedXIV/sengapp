@@ -68,6 +68,32 @@ export default defineSchema({
     .index("by_left", ["leftProfileId"])
     .index("by_right", ["rightProfileId"]),
 
+  conversations: defineTable({
+    kind: v.literal("direct"),
+    connectionId: v.id("connections"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_connection", ["connectionId"]),
+
+  conversationMembers: defineTable({
+    conversationId: v.id("conversations"),
+    profileId: v.id("profiles"),
+    joinedAt: v.number(),
+  })
+    .index("by_conversation_profile", ["conversationId", "profileId"])
+    .index("by_profile", ["profileId"]),
+
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    senderProfileId: v.id("profiles"),
+    body: v.string(),
+    clientNonce: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_conversation_time", ["conversationId", "createdAt"])
+    .index("by_sender_nonce", ["senderProfileId", "clientNonce"])
+    .index("by_sender_time", ["senderProfileId", "createdAt"]),
+
   blocks: defineTable({
     blockerProfileId: v.id("profiles"),
     blockedProfileId: v.id("profiles"),

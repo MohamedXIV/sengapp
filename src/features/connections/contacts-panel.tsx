@@ -3,9 +3,11 @@
 import { useTranslations } from "next-intl";
 import { UsersRound } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OpenDirectButton } from "@/features/chats/open-direct-button";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 export function ContactsPanel({ contacts }: {
-  contacts?: Array<{ connectionId: string; displayName: string; handle?: string }>;
+  contacts?: Array<{ connectionId: Id<"connections">; displayName: string; handle?: string }>;
 }) {
   const t = useTranslations("Connections");
   return <Card className="sengapp-feature-card overflow-hidden rounded-[calc(var(--radius)+0.5rem)] border-border/70 shadow-sm">
@@ -31,10 +33,11 @@ export function ContactsPanel({ contacts }: {
                 <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent font-bold text-primary">
                   {Array.from(contact.displayName.trim())[0] || "✿"}
                 </span>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold" dir="auto">{contact.displayName}</p>
                   {contact.handle && <p className="truncate text-xs text-muted-foreground" dir="ltr">@{contact.handle}</p>}
                 </div>
+                <OpenDirectButton connectionId={contact.connectionId} />
               </li>)}
             </ul>}
     </CardContent>
