@@ -244,7 +244,11 @@
     "typing": "Typing Indicators",
     "typingDescription": "Display a live indicator when you are composing a reply.",
     "presenceSaved": "Presence privacy updated.",
-    "presenceFailed": "Failed to update presence setting."
+    "presenceFailed": "Failed to update presence setting.",
+    "handleOneTime": "Your handle was generated for you. You can change it once — choose carefully.",
+    "handleLocked": "Your one handle change has been used. This handle is now permanent.",
+    "handleTaken": "That handle is already taken. Please try another.",
+    "handleAlreadyChanged": "You have already used your one handle change."
   },
   "Appearance": {
     "title": "Appearance",

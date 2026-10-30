@@ -121,7 +121,7 @@ function ResolvedMembership({
   }
   return (
     <AppShell profileId={profile._id} visualPreferences={profile.visualPreferences}
-      themePreference={profile.themePreference}
+      themePreference={profile.themePreference} reducedMotion={profile.reducedMotion}
       userRole={profile.role} displayName={profile.displayName}
       handle={profile.handle ?? "new-member"} locale={profile.locale}
       textDirection={profile.textDirection}>

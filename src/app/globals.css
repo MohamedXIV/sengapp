@@ -184,3 +184,23 @@
   }
 }
 
+
+/* shadcn Sheet: CSS entry/exit animation is respected by Radix's presence
+   lifecycle. No second motion layer needed for the mobile sidebar or group panel. */
+@keyframes sengapp-sheet-left-in { from { transform: translateX(-104%); opacity: 0.8 } to { transform: translateX(0); opacity: 1 } }
+@keyframes sengapp-sheet-left-out { from { transform: translateX(0); opacity: 1 } to { transform: translateX(-104%); opacity: 0.8 } }
+@keyframes sengapp-sheet-right-in { from { transform: translateX(104%); opacity: 0.8 } to { transform: translateX(0); opacity: 1 } }
+@keyframes sengapp-sheet-right-out { from { transform: translateX(0); opacity: 1 } to { transform: translateX(104%); opacity: 0.8 } }
+@keyframes sengapp-sheet-fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes sengapp-sheet-fade-out { from { opacity: 1 } to { opacity: 0 } }
+.sengapp-sheet-panel[data-side="left"][data-state="open"] { animation: sengapp-sheet-left-in 240ms cubic-bezier(.2,.8,.2,1) both }
+.sengapp-sheet-panel[data-side="left"][data-state="closed"] { animation: sengapp-sheet-left-out 180ms ease-in both }
+.sengapp-sheet-panel[data-side="right"][data-state="open"] { animation: sengapp-sheet-right-in 240ms cubic-bezier(.2,.8,.2,1) both }
+.sengapp-sheet-panel[data-side="right"][data-state="closed"] { animation: sengapp-sheet-right-out 180ms ease-in both }
+.sengapp-sheet-overlay[data-state="open"] { animation: sengapp-sheet-fade-in 210ms ease-out both }
+.sengapp-sheet-overlay[data-state="closed"] { animation: sengapp-sheet-fade-out 170ms ease-in both }
+@media (prefers-reduced-motion: reduce) {
+  .sengapp-sheet-panel, .sengapp-sheet-overlay { animation: none !important }
+}
+:root[data-sengapp-reduced-motion="true"] .sengapp-sheet-panel,
+:root[data-sengapp-reduced-motion="true"] .sengapp-sheet-overlay { animation: none !important }

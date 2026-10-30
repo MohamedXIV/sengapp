@@ -14,7 +14,7 @@ const convexClient = convexUrl ? new ConvexReactClient(convexUrl) : null;
 
 export function Providers({ children, locale }: { children: ReactNode; locale: AppLocale }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       {convexClient && clerkKey
         ? <ClerkProvider publishableKey={clerkKey} signInUrl="/login"
             localization={locale === "ar" ? arSA : undefined}>

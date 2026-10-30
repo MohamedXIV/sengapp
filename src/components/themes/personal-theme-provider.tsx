@@ -23,11 +23,12 @@ export function usePersonalTheme() {
   return context;
 }
 
-export function PersonalThemeProvider({ children, profileId, preferences, appearance }: {
+export function PersonalThemeProvider({ children, profileId, preferences, appearance, reducedMotion = false }: {
   children: ReactNode;
   profileId: string;
   preferences?: Partial<VisualPreferences>;
   appearance: Mode;
+  reducedMotion?: boolean;
 }) {
   const { resolvedTheme, setTheme } = useTheme();
   const [preview, setPreview] = useState<VisualPreferences | null>(null);
@@ -58,6 +59,13 @@ export function PersonalThemeProvider({ children, profileId, preferences, appear
       delete root.dataset.sengappDensity;
     };
   }, [effective.preset, effective.density, tokens, profileId]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (reducedMotion) root.dataset.sengappReducedMotion = "true";
+    else delete root.dataset.sengappReducedMotion;
+    return () => { delete root.dataset.sengappReducedMotion; };
+  }, [profileId, reducedMotion]);
 
   useEffect(() => { setTheme(appearance); }, [appearance, profileId, setTheme]);
 

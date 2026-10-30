@@ -45,6 +45,7 @@ function ProfileEditor({
           textDirection: profile.textDirection,
           reducedMotion: profile.reducedMotion,
         }}
+        handleCanChange={profile.handleChangedAt === undefined}
         initialPresence={profile.presencePreferences}
         onSaveProfile={async (data) => { await updateProfile(data); }}
         onSavePresence={async (data) => { await updatePresence(data); }}

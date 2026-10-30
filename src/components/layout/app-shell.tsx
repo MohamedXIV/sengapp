@@ -26,6 +26,7 @@ interface AppShellProps {
   profileId: string;
   visualPreferences?: Partial<VisualPreferences>;
   themePreference: "light" | "dark" | "system";
+  reducedMotion?: boolean;
   userRole?: "operator" | "member";
   displayName?: string;
   handle?: string;
@@ -38,7 +39,7 @@ export function AppShell(props: AppShellProps) {
   return (
     <AccountLocaleProvider locale={locale}>
       <PersonalThemeProvider key={props.profileId} profileId={props.profileId}
-        preferences={props.visualPreferences} appearance={props.themePreference}>
+        preferences={props.visualPreferences} appearance={props.themePreference} reducedMotion={props.reducedMotion}>
         <AppShellContent {...props} locale={locale} />
       </PersonalThemeProvider>
     </AccountLocaleProvider>

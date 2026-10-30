@@ -21,6 +21,8 @@ describe("cozy chat timeline", () => {
     expect(within(log).getAllByText("Tala")).toHaveLength(1);
     expect(within(log).getByText("Mine").closest("[data-message-owner]")).toHaveAttribute("data-message-owner", "self");
     expect(log.querySelectorAll("time")).toHaveLength(3);
+    expect(log.querySelectorAll('[data-slot="marker"][data-variant="separator"]')).toHaveLength(1);
+    expect(log.querySelectorAll('[data-slot="bubble"]')).toHaveLength(3);
   });
 
   it("renders day separators when the conversation spans different dates", () => {

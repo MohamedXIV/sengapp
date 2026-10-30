@@ -9,6 +9,8 @@ export default defineSchema({
     email: v.string(),
     displayName: v.string(),
     handle: v.optional(v.string()),
+    handleChangedAt: v.optional(v.number()),
+    displayNameSource: v.optional(v.union(v.literal("provider"), v.literal("fallback"), v.literal("user"))),
     role: v.union(v.literal("operator"), v.literal("member")),
     status: v.union(v.literal("active"), v.literal("suspended")),
     joinedAt: v.number(),

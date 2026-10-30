@@ -244,7 +244,11 @@
     "typing": "مؤشر الكتابة",
     "typingDescription": "إظهار مؤشر أثناء كتابتك للرد.",
     "presenceSaved": "تم تحديث خصوصية الظهور.",
-    "presenceFailed": "تعذّر تحديث إعداد الظهور."
+    "presenceFailed": "تعذّر تحديث إعداد الظهور.",
+    "handleOneTime": "الـ Handle اتعمل لك تلقائيًا. تقدر تغيّره مرة واحدة بس، فاختار براحتك.",
+    "handleLocked": "استخدمت فرصة تغيير الـ Handle، ومبقاش ممكن تغيّره تاني.",
+    "handleTaken": "الـ Handle ده مستخدم بالفعل. جرّب واحد تاني.",
+    "handleAlreadyChanged": "إنت استخدمت فرصة تغيير الـ Handle قبل كده."
   },
   "Appearance": {
     "title": "المظهر",
