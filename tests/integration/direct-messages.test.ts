@@ -35,7 +35,7 @@ describe("authorized direct messaging", () => {
     expect(await alice.query(api.conversations.listMine, {})).toHaveLength(1);
     expect(await outsider.query(api.conversations.listMine, {})).toHaveLength(0);
     expect(await bob.query(api.conversations.getOne, { conversationId: a })).toMatchObject({
-      conversationId: a, displayName: "New member",
+      conversationId: a, displayName: "dm alice",
     });
     await expect(outsider.query(api.conversations.getOne, { conversationId: a })).rejects.toThrow();
   });

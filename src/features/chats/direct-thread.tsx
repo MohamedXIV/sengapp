@@ -87,7 +87,7 @@ export function DirectThread({ conversationId, meProfileId }: {
     }
   }
 
-  const participantNames = group?.members.reduce<Record<string, string>>((names, member) => {
+  const participantNames = group?.members?.reduce<Record<string, string>>((names, member) => {
     names[member.profileId] = member.displayName;
     return names;
   }, {});
