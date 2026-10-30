@@ -10,6 +10,7 @@ import { MemberGate } from "@/components/access/member-gate";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { GroupCreateDialog } from "@/features/chats/group-create-dialog";
 import { GroupInvitations } from "@/features/chats/group-invitations";
 
@@ -42,7 +43,12 @@ function ConversationsList() {
           <Input type="search" aria-label={t("searchConversations")} placeholder={t("searchConversations")}
             className="h-11 rounded-xl bg-background/70 ps-10" value={search} onChange={event => setSearch(event.target.value)} />
         </div>}
-        {conversations === undefined ? <p role="status" className="p-5 text-sm text-muted-foreground">{t("loadingConversations")}</p>
+        {conversations === undefined ? <div role="status" aria-label={t("loadingConversations")} className="space-y-3 p-2">
+          <span className="sr-only">{t("loadingConversations")}</span>
+          {Array.from({ length: 4 }, (_, index) => <div key={index} className="flex items-center gap-3 py-1">
+            <Skeleton className="size-12 shrink-0 rounded-2xl" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-44 max-w-full" /><Skeleton className="h-3 w-28 max-w-full" /></div>
+          </div>)}
+        </div>
           : conversations.length === 0 ? <div className="flex flex-col items-center gap-4 px-4 py-12 text-center">
             <span className="flex size-16 items-center justify-center rounded-3xl bg-primary/10 text-primary">
               <MessageCircle className="size-7" aria-hidden="true" />

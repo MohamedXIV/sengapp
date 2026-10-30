@@ -8,6 +8,7 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Doc } from "../../../convex/_generated/dataModel";
 import { AppShell } from "@/components/layout/app-shell";
+import { Skeleton } from "@/components/ui/skeleton";
 import { chooseLocale } from "@/lib/i18n/locale";
 
 type Profile = Doc<"profiles">;
@@ -52,7 +53,7 @@ function AuthenticatedMember({
 }) {
   const t = useTranslations("Access");
   const { isLoading, isAuthenticated } = useConvexAuth();
-  if (isLoading) return <p role="status" className="p-8">{t("checkingSession")}</p>;
+  if (isLoading) return <div className="mx-auto max-w-3xl space-y-4 p-8" role="status" aria-label={t("checkingSession")}><span className="sr-only">{t("checkingSession")}</span><Skeleton className="h-10 w-52 max-w-full" /><Skeleton className="h-40 w-full rounded-2xl" /></div>;
   if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-md space-y-4 p-8 text-center">
@@ -106,7 +107,12 @@ function ResolvedMembership({
     });
   }, [ensureMine, profile, setupState, t, clerkUser?.fullName, clerkUser?.firstName, clerkUser?.lastName]);
 
-  if (profile === undefined) return <p role="status" className="p-8">{t("loading")}</p>;
+  if (profile === undefined) return <div role="status" aria-label={t("loading")} className="mx-auto w-full max-w-5xl space-y-5 px-5 py-8">
+    <span className="sr-only">{t("loading")}</span>
+    <Skeleton className="h-12 w-48 max-w-full rounded-xl" />
+    <div className="flex gap-3"><Skeleton className="size-14 shrink-0 rounded-2xl" /><div className="flex-1 space-y-2"><Skeleton className="h-5 w-44 max-w-full" /><Skeleton className="h-4 w-64 max-w-full" /></div></div>
+    <Skeleton className="h-48 w-full rounded-3xl" />
+  </div>;
   if (!profile) {
     return (
       <div className="mx-auto max-w-md space-y-4 p-8 text-center">

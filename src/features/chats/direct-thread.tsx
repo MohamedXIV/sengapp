@@ -10,6 +10,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { GroupPanel } from "@/features/chats/group-panel";
 import { ChatMessageTimeline } from "@/features/chats/chat-message-timeline";
@@ -129,7 +130,12 @@ export function DirectThread({ conversationId, meProfileId }: {
         if (el) stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 96;
       }} className="sengapp-chat-messages min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="flex min-h-full flex-col justify-end px-3 py-5 sm:px-6">
-          {status === "LoadingFirstPage" && <p role="status" className="text-center text-sm text-muted-foreground">{t("loadingMessages")}</p>}
+          {status === "LoadingFirstPage" && <div role="status" aria-label={t("loadingMessages")} className="space-y-5 py-4">
+            <span className="sr-only">{t("loadingMessages")}</span>
+            <Skeleton className="h-12 w-1/2 max-w-full rounded-2xl" />
+            <Skeleton className="ms-auto h-16 w-3/5 max-w-full rounded-2xl" />
+            <Skeleton className="h-10 w-2/5 max-w-full rounded-2xl" />
+          </div>}
           {status === "CanLoadMore" && <Button type="button" size="sm" variant="outline" className="mx-auto mb-5 rounded-full"
             disabled={busy} onClick={loadOlder}>{t("olderMessages")}</Button>}
           {status === "LoadingMore" && <p role="status" className="mb-5 text-center text-sm text-muted-foreground">{t("loadingMessages")}</p>}
