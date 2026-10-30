@@ -244,11 +244,7 @@
     "typing": "Typing Indicators",
     "typingDescription": "Display a live indicator when you are composing a reply.",
     "presenceSaved": "Presence privacy updated.",
-    "presenceFailed": "Failed to update presence setting.",
-    "handleOneTime": "Your handle was generated for you. You can change it once — choose carefully.",
-    "handleLocked": "Your one handle change has been used. This handle is now permanent.",
-    "handleTaken": "That handle is already taken. Please try another.",
-    "handleAlreadyChanged": "You have already used your one handle change."
+    "presenceFailed": "Failed to update presence setting."
   },
   "Appearance": {
     "title": "Appearance",
@@ -297,5 +293,14 @@
     "roles": "Account roles are controlled by the verified server-side allowlist. Member signup never grants operator privileges.",
     "invites": "Connection invitations now belong to each member, not the operator.",
     "connections": "Go to Connections"
+  },
+  "Errors": {
+    "notFoundTitle": "This little corner doesn't exist.",
+    "notFoundDescription": "The link may have moved or the page might not be here anymore.",
+    "backHome": "Back to my corner",
+    "backMessages": "Go to messages",
+    "unexpectedTitle": "Something went wrong.",
+    "unexpectedDescription": "Couldn't load this part of Sengapp. Please try again.",
+    "retry": "Try again"
   }
 }

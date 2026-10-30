@@ -61,14 +61,14 @@ describe("private Convex theme persistence", () => {
 
     await alice.mutation(api.profiles.updateUiShortcuts, { locale: "ar" });
     expect(await alice.query(api.profiles.getMine, {})).toMatchObject({
-      locale: "ar", themePreference: "system", visualPreferences: preferred,
+      locale: "ar", themePreference: "light", visualPreferences: preferred,
     });
     await alice.mutation(api.profiles.updateUiShortcuts, { themePreference: "dark" });
     expect(await alice.query(api.profiles.getMine, {})).toMatchObject({
       locale: "ar", themePreference: "dark", visualPreferences: preferred,
     });
     expect(await bob.query(api.profiles.getMine, {})).toMatchObject({
-      locale: "en", themePreference: "system",
+      locale: "en", themePreference: "light",
     });
   });
 

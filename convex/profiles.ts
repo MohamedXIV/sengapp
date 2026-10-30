@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { allocateHandle, providerDisplayName } from "./lib/profileIdentity";
+import { allocateHandle, fallbackDisplayName, providerDisplayName } from "./lib/profileIdentity";
 import {
   getVerifiedAuthUser, isAllowedVerifiedOperator, readVerifiedIdentity, requireAuthorizedProfile,
 } from "./lib/permissions";
@@ -26,7 +26,7 @@ function initialProfileFields(
   const now = Date.now();
   return {
     authUserId: user.userId, email: user.email,
-    displayName: providerDisplayName(user.name, displayNameHint) ?? "New member",
+    displayName: providerDisplayName(user.name, displayNameHint) ?? fallbackDisplayName(user.email),
     displayNameSource: providerDisplayName(user.name, displayNameHint) ? "provider" as const : "fallback" as const,
     handle,
     role, status: "active" as const, joinedAt: now, updatedAt: now,

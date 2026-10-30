@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -72,18 +73,29 @@ function ResolvedMembership({
   operatorOnly: boolean;
 }) {
   const t = useTranslations("Access");
+  const { user: clerkUser } = useUser();
   const profile = useQuery(api.profiles.getMine);
   const ensureMine = useMutation(api.profiles.ensureMine);
   const bootstrap = useMutation(api.profiles.bootstrapOperator);
   const [setupState, setSetupState] = useState<"idle" | "failed">("idle");
   const [setupError, setSetupError] = useState<string>("");
-  const attemptedSetup = useRef(false);
+  const attemptedSetup = useRef<string | null>(null);
 
   useEffect(() => {
-    if (profile !== null || setupState !== "idle" || attemptedSetup.current) return;
-    attemptedSetup.current = true;
+    if (profile === undefined || setupState !== "idle") return;
+    const clerkName = clerkUser?.fullName?.trim()
+      || [clerkUser?.firstName, clerkUser?.lastName].filter(Boolean).join(" ").trim();
+    const needsName = Boolean(clerkName) &&
+      (profile?.displayName === "New member" || profile?.displayNameSource === "fallback");
+    const attempt = profile === null ? "create" : "upgrade";
+    if (profile !== null && profile.handle && !needsName) return;
+    if (attemptedSetup.current === attempt) return;
+    attemptedSetup.current = attempt;
     const browserLanguages = navigator.languages?.join(",") || navigator.language;
-    void ensureMine({ locale: chooseLocale(browserLanguages) }).catch((error: unknown) => {
+    void ensureMine({
+      locale: chooseLocale(browserLanguages),
+      ...(clerkName ? { displayNameHint: clerkName.slice(0, 50) } : {}),
+    }).catch((error: unknown) => {
       const value = String(error);
       setSetupError(value.includes("SUSPENDED")
         ? t("suspended")
@@ -92,7 +104,7 @@ function ResolvedMembership({
           : t("setupFailed"));
       setSetupState("failed");
     });
-  }, [ensureMine, profile, setupState, t]);
+  }, [ensureMine, profile, setupState, t, clerkUser?.fullName, clerkUser?.firstName, clerkUser?.lastName]);
 
   if (profile === undefined) return <p role="status" className="p-8">{t("loading")}</p>;
   if (!profile) {
@@ -104,7 +116,7 @@ function ResolvedMembership({
           : <>
               <p role="alert" className="text-sm text-destructive">{setupError}</p>
               <button type="button" className="rounded-lg border px-4 py-2"
-                onClick={() => { attemptedSetup.current = false; setSetupState("idle"); }}>{t("retry")}</button>
+                onClick={() => { attemptedSetup.current = null; setSetupState("idle"); }}>{t("retry")}</button>
             </>}
       </div>
     );
@@ -123,7 +135,7 @@ function ResolvedMembership({
     <AppShell profileId={profile._id} visualPreferences={profile.visualPreferences}
       themePreference={profile.themePreference} reducedMotion={profile.reducedMotion}
       userRole={profile.role} displayName={profile.displayName}
-      handle={profile.handle ?? "new-member"} locale={profile.locale}
+      handle={profile.handle ?? "…"} locale={profile.locale}
       textDirection={profile.textDirection}>
       {children(profile)}
     </AppShell>
