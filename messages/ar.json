@@ -108,7 +108,12 @@
     "memberUpdateFailed": "معرفناش نغيّر عضوية الشخص ده.",
     "leaveGroup": "سيب المجموعة",
     "leaveFailed": "معرفناش نخرجك من المجموعة.",
-    "groupPrivacyNote": "اللي بينضم جديد بيشوف الرسايل من وقت انضمامه بس."
+    "groupPrivacyNote": "اللي بينضم جديد بيشوف الرسايل من وقت انضمامه بس.",
+    "composerHint": "Enter للإرسال · Shift+Enter لسطر جديد",
+    "groupParticipant": "عضو في المجموعة",
+    "searchConversations": "دوّر على محادثة",
+    "noMatchingConversations": "مفيش محادثات مطابقة للبحث.",
+    "groupConversation": "مجموعة خاصة"
   },
   "Connections": {
     "description": "ناسِك اللي تختارهم، وعلى راحتك. مفيش دليل عام ولا طلبات من غرباء.",
@@ -290,4 +295,3 @@
     "connections": "الذهاب إلى جهات الاتصال"
   }
 }
-

@@ -38,6 +38,18 @@ describe("human direct thread", () => {
     await waitFor(() => expect(screen.getByRole("textbox", { name: "Message" })).toHaveValue(""));
   });
 
+  it("sends with Enter and keeps Shift+Enter for multiline messages", async () => {
+    renderThread();
+    const composer = screen.getByRole("textbox", { name: "Message" });
+    fireEvent.change(composer, { target: { value: "Hello again" } });
+    fireEvent.keyDown(composer, { key: "Enter", shiftKey: true });
+    expect(sender).not.toHaveBeenCalled();
+    fireEvent.keyDown(composer, { key: "Enter" });
+    await waitFor(() => expect(sender).toHaveBeenCalledWith({
+      conversationId: "conversation-id", body: "Hello again", clientNonce: "fixed-nonce-00000001",
+    }));
+  });
+
   it("retains failed text and retries with the same nonce to avoid duplicates", async () => {
     sender.mockRejectedValueOnce(new Error("Offline"));
     renderThread();

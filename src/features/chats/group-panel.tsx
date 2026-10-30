@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -55,13 +54,12 @@ export function GroupPanel({ conversationId, meProfileId }: {
     );
   }
 
-  return <Card className="rounded-2xl border-border/70">
-    <CardHeader className="space-y-1">
-      <CardTitle className="text-lg">{t("groupDetails")}</CardTitle>
-      <p className="text-sm font-semibold" dir="auto">{group.name}</p>
-      <p className="text-xs text-muted-foreground">{t("groupPrivacyNote")}</p>
-    </CardHeader>
-    <CardContent className="space-y-5">
+  return <div className="space-y-6">
+    <div className="rounded-2xl bg-accent/40 p-4">
+      <p className="font-semibold" dir="auto">{group.name}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("groupPrivacyNote")}</p>
+    </div>
+    <div className="space-y-5">
       {isAdmin && <form onSubmit={submitRename} className="flex flex-wrap items-end gap-2">
         <div className="min-w-44 flex-1 space-y-1">
           <Label htmlFor="rename-group">{t("renameGroup")}</Label>
@@ -118,6 +116,6 @@ export function GroupPanel({ conversationId, meProfileId }: {
         {t("leaveGroup")}
       </Button>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-    </CardContent>
-  </Card>;
+    </div>
+  </div>;
 }

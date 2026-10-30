@@ -108,7 +108,12 @@
     "memberUpdateFailed": "Couldn't change this membership.",
     "leaveGroup": "Leave group",
     "leaveFailed": "Couldn't leave the group.",
-    "groupPrivacyNote": "New members only see messages sent after they join."
+    "groupPrivacyNote": "New members only see messages sent after they join.",
+    "composerHint": "Enter to send · Shift+Enter for a new line",
+    "groupParticipant": "Group member",
+    "searchConversations": "Find a conversation",
+    "noMatchingConversations": "No conversations match your search.",
+    "groupConversation": "Private group"
   },
   "Connections": {
     "description": "Your people, your pace. No public directory, no random requests — just the friends you choose.",
@@ -290,4 +295,3 @@
     "connections": "Go to Connections"
   }
 }
-
