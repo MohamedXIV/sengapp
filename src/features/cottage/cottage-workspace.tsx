@@ -1,26 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import Link from "next/link";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
-import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2 } from "lucide-react";
+import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, Palette, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2 } from "lucide-react";
 import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
 import { RoomCanvas, type RoomCanvasHandle } from "./room-canvas";
 import { CAMERA, WORLD_CENTER, type CameraView } from "./room-camera";
 import { ChatsPanel, ConnectionsPanel, NotesPanel, FocusPanel } from "./workspace-panels";
 import { WorkspaceNavigationProvider } from "./workspace-navigation";
+import { WindowStyleProvider, WindowStyleTool } from "./window-style-context";
+import { DEFAULT_WINDOW_STYLE, STYLE_STORAGE_KEY, normalizeWindowStyle, type WindowStyle } from "./window-style";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { INITIAL_ITEMS, STORAGE, parseRoom, type RoomItem, type LightPreset } from "./room-model";
 
-const components = { chats: ChatsPanel, connections: ConnectionsPanel, notes: NotesPanel, focus: FocusPanel };
+const components = { chats: ChatsPanel, connections: ConnectionsPanel, notes: NotesPanel, focus: FocusPanel, style: WindowStyleTool };
 type PanelName = keyof typeof components;
 const PANELS: Record<PanelName, {title:string; width:number;height:number;left?:number;right?:number;top?:number;bottom?:number}> = {
   chats: { title: "Chats", width: 390, height: 490, left: 16, top: 82 },
   connections: { title: "Connections", width: 380, height: 475, right: 18, top: 82 },
+  style: { title: "Window style", width: 340, height: 440, right: 25, top: 135 },
   notes: { title: "Notes", width: 270, height: 285, right: 18, top: 82 },
   focus: { title: "Focus timer", width: 250, height: 210, right: 22, bottom: 18 },
 };
-const PANEL_IDS: PanelName[] = ["chats", "connections", "notes", "focus"];
+const PANEL_IDS: PanelName[] = ["chats", "notes", "focus"];
 const desktopQuery = "(min-width: 900px)";
 function subscribeDesktop(callback: () => void) {
   const media = window.matchMedia(desktopQuery);
@@ -44,6 +47,8 @@ export function CottageWorkspace() {
   const [items, setItems] = useState<RoomItem[]>(INITIAL_ITEMS);
   const [editMode, setEditMode] = useState(false);
   const [light, setLight] = useState<LightPreset>("day");
+  const [windowStyle, setWindowStyle] = useState<WindowStyle>(DEFAULT_WINDOW_STYLE);
+  const [styleLoaded, setStyleLoaded] = useState(false);
   const [cameraView, setCameraView] = useState<CameraView>({ level: 1, ...WORLD_CENTER });
   const roomCamera = useRef<RoomCanvasHandle>(null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -58,8 +63,17 @@ export function CottageWorkspace() {
   useEffect(() => {
     queueMicrotask(() => {
       try { setItems(parseRoom(localStorage.getItem(STORAGE.furniture))); } catch { /* use defaults */ }
+      try {
+        const saved = localStorage.getItem(STYLE_STORAGE_KEY);
+        if (saved) setWindowStyle(normalizeWindowStyle(JSON.parse(saved)));
+      } catch { /* use defaults when storage is blocked */ }
+      setStyleLoaded(true);
     });
   }, []);
+  useEffect(() => {
+    if (!styleLoaded) return;
+    try { localStorage.setItem(STYLE_STORAGE_KEY, JSON.stringify(windowStyle)); } catch { /* session-only */ }
+  }, [windowStyle, styleLoaded]);
 
   useEffect(() => () => {
     subscriptions.current?.dispose();
@@ -123,7 +137,11 @@ export function CottageWorkspace() {
     setLayoutMessage("Windows reset to the cozy default.");
   }
 
-  return <WorkspaceNavigationProvider value={{ selectedConversation, openConversation, returnToConversations: () => setSelectedConversation(null) }}><main className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
+  return <WorkspaceNavigationProvider value={{ selectedConversation, openConversation, returnToConversations: () => setSelectedConversation(null) }}>
+    <WindowStyleProvider value={windowStyle} onChange={setWindowStyle}>
+    <main data-window-material={windowStyle.material} data-window-atmosphere={windowStyle.atmosphere}
+      style={{ "--window-opacity": `${windowStyle.opacity}%`, "--window-blur": `${windowStyle.blur}px` } as CSSProperties}
+      className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
     <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
       <div className="flex items-center gap-3">
         <Link href="/home" className="cottage-icon-button" aria-label="Back to Sengapp"><ArrowLeft className="size-4" /></Link>
@@ -134,6 +152,7 @@ export function CottageWorkspace() {
         <button className="cottage-tool" aria-label="Chats" onClick={() => showPanel("chats")}><MessageCircle className="size-4"/><span className="hidden sm:inline">Chats</span></button>
         <button className="cottage-tool" aria-label="Connections" onClick={() => showPanel("connections")}><UsersRound className="size-4"/><span className="hidden sm:inline">People</span></button>
         <button className="cottage-tool" aria-label="Notes" onClick={() => showPanel("notes")}><BookOpenText className="size-4"/><span className="hidden sm:inline">Notes</span></button>
+        <button className="cottage-tool" aria-label="Window style" onClick={() => showPanel("style")}><Palette className="size-4"/><span className="hidden sm:inline">Style</span></button>
         <button className="cottage-tool" aria-label="Focus" onClick={() => showPanel("focus")}><Timer className="size-4"/><span className="hidden sm:inline">Focus</span></button>
         <span className="mx-1 hidden h-6 w-px bg-[#bdd3c4] sm:block"/>
         <button aria-pressed={editMode} className={`cottage-tool ${editMode ? "cottage-active" : ""}`} onClick={() => setEditMode(value => !value)}>
@@ -182,5 +201,5 @@ export function CottageWorkspace() {
       {!desktop && <MobileWindowLayer openPanels={mobilePanels} onActivate={activateMobile} onClose={closeMobile}/>} 
       <span className="sr-only" role="status">{layoutMessage}</span>
     </section>
-  </main></WorkspaceNavigationProvider>;
+  </main></WindowStyleProvider></WorkspaceNavigationProvider>;
 }

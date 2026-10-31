@@ -62,3 +62,115 @@
 .cottage-dock-layer .dv-content-container { min-height:0; overflow:hidden; }
 .cottage-dock-layer .dv-content-container > * { height:100%; min-height:0; }
 .cottage-mobile-window[data-testid="cottage-mobile-window-chats"] { min-height:0; }
+
+/* A single material system for toolbar, docked windows and touch windows.
+   These layers stay DOM text/forms; all textures are non-interactive CSS. */
+.cottage-lab {
+  --skin-surface: #fffbf2;
+  --skin-title: #d4e8da;
+  --skin-edge: #c9d6c5;
+  --skin-ink: #263d36;
+  --skin-radius: 18px;
+  --skin-blur-effective: 0px;
+  --skin-panel: color-mix(in srgb, var(--skin-surface) var(--window-opacity, 94%), transparent);
+  --skin-title-panel: color-mix(in srgb, var(--skin-title) var(--window-opacity, 94%), transparent);
+}
+.cottage-lab[data-window-material="glass"] {
+  --skin-surface: #e8f7f3;
+  --skin-title: #d9eff2;
+  --skin-edge: #b0d5d7;
+  --skin-blur-effective: var(--window-blur, 12px);
+  --skin-radius: 22px;
+  --skin-ink: #172f31;
+}
+.cottage-lab[data-window-material="paper"] {
+  --skin-surface: #fff2d3;
+  --skin-title: #f3dfb6;
+  --skin-edge: #c7ad82;
+  --skin-radius: 12px;
+  --skin-ink: #493b30;
+}
+.cottage-lab .dv-resize-container,
+.cottage-lab .cottage-mobile-window {
+  border:1px solid var(--skin-edge);
+  border-radius: var(--skin-radius);
+  background:var(--skin-panel) !important;
+  color:var(--skin-ink);
+  backdrop-filter:blur(var(--skin-blur-effective));
+  -webkit-backdrop-filter:blur(var(--skin-blur-effective));
+  isolation:isolate;
+}
+.cottage-lab .dv-resize-container > .dv-floating-titlebar,
+.cottage-lab .dv-resize-container .dv-tabs-and-actions-container,
+.cottage-lab .cottage-mobile-titlebar {
+  background:var(--skin-title-panel) !important;
+  color:var(--skin-ink);
+}
+.cottage-lab .dv-resize-container .dv-content-container,
+.cottage-lab .dv-resize-container .dv-groupview,
+.cottage-lab .dv-resize-container .dv-grid-view,
+.cottage-lab .dv-resize-container .dv-view,
+.cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) {
+  background:transparent !important;
+}
+.cottage-lab .cottage-dock-layer .dv-content-container > .cottage-panel-body,
+.cottage-lab .cottage-dock-layer .dv-content-container > section,
+.cottage-lab .cottage-mobile-window .cottage-panel-body,
+.cottage-lab .cottage-mobile-window [data-testid="cottage-live-chats"],
+.cottage-lab .cottage-mobile-window [data-testid="cottage-live-connections"] {
+  background:transparent !important;
+}
+.cottage-lab[data-window-material="glass"] :is(.cottage-toolbar,.cottage-camera-controls) {
+  background:rgba(225,245,244,.72);
+  backdrop-filter:blur(var(--skin-blur-effective));
+}
+.cottage-lab[data-window-material="paper"] :is(.cottage-toolbar,.cottage-camera-controls) {
+  background:#fcf0d9;
+  border-color:#d1b98f;
+  font-family:var(--font-nunito, system-ui),sans-serif;
+}
+.cottage-lab[data-window-material="paper"] .cottage-dock-layer .dv-content-container {
+  background-image:repeating-linear-gradient(0deg,transparent 0px,transparent 31px,rgba(150,108,58,.04) 32px) !important;
+}
+.cottage-style-choice { border-color:var(--skin-edge); background:var(--skin-panel); }
+.cottage-style-choice[aria-pressed="true"] {
+  outline:2px solid #477d67;
+  outline-offset:1px;
+  background:var(--skin-title-panel);
+}
+.cottage-style-panel { color:var(--skin-ink); }
+.cottage-lab[data-window-material="paper"] .cottage-style-panel h2,
+.cottage-lab[data-window-material="paper"] .cottage-panel-body strong {
+  font-family:Georgia,serif;
+  letter-spacing:.01em;
+}
+/* Optional decorative rain droplets and soft condensation, never over text.
+   A real refractive wet-glass shader is intentionally NOT used here. */
+.cottage-lab[data-window-atmosphere="mist"] :is(.cottage-mobile-window,.dv-resize-container)::after,
+.cottage-lab[data-window-atmosphere="rain"] :is(.cottage-mobile-window,.dv-resize-container)::after {
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  z-index:6;
+  border-radius:inherit;
+  opacity:.23;
+  background:
+    radial-gradient(ellipse 28px 48px at 9% 6%,rgba(255,255,255,.7),transparent),
+    radial-gradient(ellipse 45px 60px at 92% 94%,rgba(242,255,254,.6),transparent);
+  mask-image:linear-gradient(to bottom,#000,transparent 30%,transparent 70%,#000);
+}
+.cottage-lab[data-window-atmosphere="rain"] :is(.cottage-mobile-window,.dv-resize-container)::after {
+  opacity:.4;
+  background:
+    radial-gradient(ellipse 2px 7px at 15% 6%,rgba(255,255,255,.95) 55%,transparent 60%),
+    radial-gradient(ellipse 3px 12px at 77% 12%,rgba(255,255,255,.92) 55%,transparent 60%),
+    radial-gradient(ellipse 2px 9px at 90% 88%,rgba(255,255,255,.95) 55%,transparent 60%),
+    linear-gradient(120deg,transparent 40%,rgba(255,255,255,.16),transparent 60%);
+}
+@media (prefers-reduced-transparency:reduce) {
+  .cottage-lab { --window-opacity:100% !important; --skin-blur-effective:0px !important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .cottage-lab :is(.cottage-mobile-window,.dv-resize-container) { transition:none !important; }
+}
