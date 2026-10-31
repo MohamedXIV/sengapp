@@ -70,7 +70,7 @@ export class RoomScene extends Phaser.Scene {
       this.dragging = undefined;
       this.callbacks.onChange(this.items.map(item => ({ ...item })));
     });
-    this.setLight("day");
+    this.setLight(this.light);
   }
 
   private makeFurniture(item: RoomItem) {

@@ -11,7 +11,9 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
   const scene = useRef<RoomScene | null>(null);
   const callbacks = useRef({ onChange, onHover });
 
-  const initial = useRef(items);
+  const latestItems = useRef(items);
+  const latestEditing = useRef(editing);
+  const latestLight = useRef(light);
 
   useEffect(() => {
     const element = mount.current;
@@ -28,11 +30,13 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
     document.addEventListener("visibilitychange", onVisibility);
     void Promise.all([import("phaser"), import("./room-scene")]).then(([{ default: Phaser }, { RoomScene }]) => {
       if (disposed) return;
-      const room = new RoomScene(initial.current, {
+      const room = new RoomScene(latestItems.current, {
         onChange: value => callbacks.current.onChange(value),
         onHover: value => callbacks.current.onHover(value),
       });
       scene.current = room;
+      room.setEditMode(latestEditing.current);
+      room.setLight(latestLight.current);
       game = new Phaser.Game({
         type: Phaser.AUTO, parent: element, width: 900, height: 620,
         transparent: true, antialias: true,
@@ -55,9 +59,9 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
     };
   }, []);
 
-  useEffect(() => { scene.current?.setEditMode(editing); }, [editing]);
-  useEffect(() => { scene.current?.setLight(light); }, [light]);
-  useEffect(() => { scene.current?.setItems(items); }, [items]);
+  useEffect(() => { latestEditing.current = editing; scene.current?.setEditMode(editing); }, [editing]);
+  useEffect(() => { latestLight.current = light; scene.current?.setLight(light); }, [light]);
+  useEffect(() => { latestItems.current = items; scene.current?.setItems(items); }, [items]);
   useEffect(() => {
     callbacks.current = { onChange, onHover };
     scene.current?.setCallbacks(callbacks.current);
