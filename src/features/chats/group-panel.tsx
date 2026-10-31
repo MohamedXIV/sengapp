@@ -6,10 +6,26 @@ import { useMutation, useQuery } from "convex/react";
 import { useTranslations } from "next-intl";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+type GroupMember = {
+  profileId: Id<"profiles">;
+  displayName: string;
+  role: "owner" | "admin" | "member";
+};
 
 export function GroupPanel({ conversationId, meProfileId }: {
   conversationId: Id<"conversations">; meProfileId: Id<"profiles">;
@@ -27,7 +43,9 @@ export function GroupPanel({ conversationId, meProfileId }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentInvites, setSentInvites] = useState<Id<"profiles">[]>([]);
-  const [pendingRemove, setPendingRemove] = useState<Id<"profiles"> | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<GroupMember | null>(null);
+  const [leavingGroup, setLeavingGroup] = useState(false);
+
   if (!group) return null;
   const isAdmin = group.role === "owner" || group.role === "admin";
   const activeName = name || group.name;
@@ -87,12 +105,12 @@ export function GroupPanel({ conversationId, meProfileId }: {
               </Button>}
               {(group.role === "owner" || member.role === "member") && <Button type="button" variant="ghost" size="sm"
                 disabled={busy} aria-label={`${t("removeMember")} ${member.displayName}`}
-                onClick={() => setPendingRemove(pendingRemove === member.profileId ? null : member.profileId)}>
+                onClick={() => {
+                  setError(null);
+                  setMemberToRemove(member);
+                }}>
                 {t("removeMember")}
               </Button>}
-              {pendingRemove === member.profileId && <Button type="button" size="sm" variant="destructive" disabled={busy}
-                onClick={() => void run(() => remove({ conversationId, profileId: member.profileId }),
-                  t("memberUpdateFailed"), () => setPendingRemove(null))}>{t("confirmRemove")}</Button>}
             </div>}
           </li>)}
         </ul>
@@ -112,10 +130,95 @@ export function GroupPanel({ conversationId, meProfileId }: {
         </ul> : <p className="text-sm text-muted-foreground">{t("noContactsToInvite")}</p>}
       </section>}
       {group.role !== "owner" && <Button type="button" variant="outline" disabled={busy}
-        onClick={() => void run(() => leave({ conversationId }), t("leaveFailed"), () => router.push("/chats"))}>
+        onClick={() => {
+          setError(null);
+          setLeavingGroup(true);
+        }}>
         {t("leaveGroup")}
       </Button>}
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+      {error && !memberToRemove && !leavingGroup && <p role="alert" className="text-sm text-destructive">{error}</p>}
     </div>
+
+    <AlertDialog
+      open={Boolean(memberToRemove)}
+      onOpenChange={(open) => {
+        if (!open && !busy) {
+          setMemberToRemove(null);
+          setError(null);
+        }
+      }}
+    >
+      <AlertDialogContent onEscapeKeyDown={(event) => { if (busy) event.preventDefault(); }}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {t("removeMemberTitle", { name: memberToRemove?.displayName ?? "" })}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {t("removeMemberDescription", { name: memberToRemove?.displayName ?? "" })}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>
+            {t("dialogCancel")}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className={buttonVariants({ variant: "destructive" })}
+            disabled={busy}
+            onClick={(event) => {
+              event.preventDefault();
+              if (!memberToRemove) return;
+              void run(
+                () => remove({ conversationId, profileId: memberToRemove.profileId }),
+                t("memberUpdateFailed"),
+                () => setMemberToRemove(null),
+              );
+            }}
+          >
+            {busy ? t("removingMember") : t("confirmRemove")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog
+      open={leavingGroup}
+      onOpenChange={(open) => {
+        if (!open && !busy) {
+          setLeavingGroup(false);
+          setError(null);
+        }
+      }}
+    >
+      <AlertDialogContent onEscapeKeyDown={(event) => { if (busy) event.preventDefault(); }}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t("leaveGroupTitle")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("leaveGroupDescription")}</AlertDialogDescription>
+        </AlertDialogHeader>
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>
+            {t("dialogCancel")}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className={buttonVariants({ variant: "destructive" })}
+            disabled={busy}
+            onClick={(event) => {
+              event.preventDefault();
+              void run(
+                () => leave({ conversationId }),
+                t("leaveFailed"),
+                () => {
+                  setLeavingGroup(false);
+                  router.push("/chats");
+                },
+              );
+            }}
+          >
+            {busy ? t("leavingGroup") : t("confirmLeave")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>;
 }
