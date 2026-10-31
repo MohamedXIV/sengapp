@@ -30,7 +30,13 @@ export class RoomScene extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor("#e4ece0");
+    // Let the CSS stage show through the full-viewport transparent renderer.
+    // A Camera background would otherwise paint the obvious rectangular seam.
+    this.scale.on("resize", this.onViewportResize, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off("resize", this.onViewportResize, this);
+    });
+    this.fitViewport(this.scale.gameSize.width, this.scale.gameSize.height);
     this.add.image(ROOM.width / 2, ROOM.height / 2, "forest-shell").setDepth(-1000);
     for (const item of this.items) this.makeFurniture(item);
 
@@ -71,6 +77,21 @@ export class RoomScene extends Phaser.Scene {
       this.callbacks.onChange(this.items.map(item => ({ ...item })));
     });
     this.setLight(this.light);
+  }
+
+  private onViewportResize(gameSize: Phaser.Structs.Size) {
+    this.fitViewport(gameSize.width, gameSize.height);
+  }
+
+  private fitViewport(width: number, height: number) {
+    if (width < 1 || height < 1) return;
+    const camera = this.cameras.main;
+    camera.setSize(width, height);
+    // Preserve the entire modular room while giving Phaser a canvas covering
+    // the stage. Extra space reveals the *same* background as the web UI.
+    const zoom = Math.max(0.001, Math.min(width / ROOM.width, height / ROOM.height) * 0.97);
+    camera.setZoom(zoom);
+    camera.centerOn(ROOM.width / 2, ROOM.height / 2);
   }
 
   private makeFurniture(item: RoomItem) {

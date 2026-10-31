@@ -112,8 +112,8 @@ export function CottageWorkspace() {
     setLayoutMessage("Windows reset to the cozy default.");
   }
 
-  return <main className="cottage-lab min-h-dvh bg-[#e7f0e8] text-[#263d36]">
-    <header className="cottage-toolbar relative z-30 flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
+  return <main className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
+    <header className="cottage-toolbar relative z-30 flex min-h-16 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
       <div className="flex items-center gap-3">
         <Link href="/home" className="cottage-icon-button" aria-label="Back to Sengapp"><ArrowLeft className="size-4" /></Link>
         <span className="flex size-9 items-center justify-center rounded-2xl bg-[#cfe6ce]"><Home className="size-5"/></span>
@@ -133,9 +133,9 @@ export function CottageWorkspace() {
       </nav>
     </header>
 
-    <section className="cottage-stage relative mx-auto h-[calc(100dvh-65px)] min-h-[560px] overflow-hidden">
+    <section className="cottage-stage relative min-h-0 w-full flex-1 overflow-hidden">
       <div className="cottage-stage-background absolute inset-0" aria-hidden="true"/>
-      <div className="cottage-stage-center absolute inset-0 flex items-center justify-center px-1 pb-12">
+      <div className="cottage-stage-center absolute inset-0">
         <RoomCanvas items={items} editing={editMode} light={light} onChange={changedItems} onHover={changedHover}/>
       </div>
       <aside className="pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border border-[#c3d2c2] bg-[#fffaf0ed] px-4 py-2 text-xs shadow-sm">

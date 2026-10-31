@@ -3,7 +3,21 @@ import { test, expect } from "@playwright/test";
 test("isolated cottage lab renders a room and provides reachable workspace controls", async ({ page }, testInfo) => {
   await page.goto("/lab/cottage");
   await expect(page.getByText("Sengapp • Cottage Lab")).toBeVisible();
-  await expect(page.getByTestId("cottage-canvas").locator("canvas")).toBeVisible({ timeout: 20000 });
+  const renderer = page.getByTestId("cottage-canvas");
+  const canvas = renderer.locator("canvas");
+  await expect(canvas).toBeVisible({ timeout: 20000 });
+  // The Phaser render target must fill the stage instead of leaving an opaque
+  // 900×620 canvas rectangle sitting on a different background.
+  const stage = page.locator(".cottage-stage");
+  await expect.poll(async () => {
+    const [stageRect, canvasRect] = await Promise.all([stage.boundingBox(), canvas.boundingBox()]);
+    return stageRect && canvasRect ? {
+      width: Math.round(canvasRect.width - stageRect.width),
+      height: Math.round(canvasRect.height - stageRect.height),
+    } : null;
+  }).toEqual({ width: 0, height: 0 });
+  await expect(renderer).toHaveCSS("filter", "none");
+  await expect(canvas).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   await page.getByRole("button", { name: /Edit room/ }).click();
   await expect(page.getByRole("button", { name: /Done/ })).toBeVisible();
   await page.getByRole("button", { name: /Evening/ }).click({ force: true });

@@ -39,8 +39,8 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
       room.setLight(latestLight.current);
       game = new Phaser.Game({
         type: Phaser.AUTO, parent: element, width: 900, height: 620,
-        transparent: true, antialias: true,
-        scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+        transparent: true, backgroundColor: "rgba(0,0,0,0)", antialias: true,
+        scale: { mode: Phaser.Scale.RESIZE },
         fps: { target: 30 },
         scene: [room],
       });
@@ -69,5 +69,5 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
 
   return <div ref={mount} data-testid="cottage-canvas" role="img"
     aria-label="An isometric woodland cottage with individually movable furniture. Enable Edit room to rearrange."
-    className="cottage-renderer relative aspect-[900/620] w-full max-w-[900px]" />;
+    className="cottage-renderer absolute inset-0" />;
 }

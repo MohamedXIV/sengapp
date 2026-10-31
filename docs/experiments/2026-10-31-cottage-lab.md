@@ -39,3 +39,9 @@ The owner prefers 2D modular sprites over full 3D because authoring themed low-p
 ## Next discussion
 
 Test the playable prototype together first, then decide which elements are worth retaining. Only after the hands-on feedback should we promote this into formal Sengapp design / GDD decisions.
+
+## Seamless viewport feedback (31 Oct 2026)
+
+Owner observed a rectangular canvas boundary and strong drop shadow around the original 900×620 scene. The rectangle was caused by `Scene.cameras.main.setBackgroundColor("#e4ece0")` even though the underlying game specified `transparent: true`. The drop shadow came from `.cottage-renderer`. The lab now uses a transparent, stage-sized Phaser `Scale.RESIZE` canvas, responsive camera fitting the 900×620 source room without distortion, and a single CSS background behind both the room and its surrounding free space. The separate visual canvas shadow is removed. This is a *renderer/layout* change, not a redesign or a new production requirement.
+
+**Future companion architecture (proposal only, not implemented):** keep the independent Phaser room simulation below the UI and draw any companion that crosses React/Dockview panels in a single, transparent DOM/sprite overlay on top of the workspace. Share animation/state data and room↔screen coordinates with the room, but do not render a full second Phaser game or grant the companion access to private messages. Respect reduced motion and keep form controls unobstructed.
