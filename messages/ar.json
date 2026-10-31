@@ -104,11 +104,24 @@
     "promote": "خلّيه مشرف",
     "demote": "شيل الإشراف",
     "removeMember": "شيل العضو",
-    "confirmRemove": "أكد الإزالة",
+    "removeMemberTitle": "تشيل {name} من المجموعة؟",
+    "removeMemberDescription": "مش هيقدر يشوف الرسايل الجديدة ولا يشارك في المجموعة بعد إزالته.",
+    "removingMember": "بنخرّجه…",
+    "confirmRemove": "شيل من المجموعة",
     "memberUpdateFailed": "معرفناش نغيّر عضوية الشخص ده.",
     "leaveGroup": "سيب المجموعة",
+    "leaveGroupTitle": "عايز تسيب المجموعة؟",
+    "leaveGroupDescription": "مش هتوصلك أي رسايل جديدة ومش هتعرف ترجع غير لما حد يعزمك تاني.",
+    "leavingGroup": "بنخرّجك…",
+    "confirmLeave": "سيب المجموعة",
     "leaveFailed": "معرفناش نخرجك من المجموعة.",
-    "groupPrivacyNote": "اللي بينضم جديد بيشوف الرسايل من وقت انضمامه بس."
+    "dialogCancel": "إلغاء",
+    "groupPrivacyNote": "اللي بينضم جديد بيشوف الرسايل من وقت انضمامه بس.",
+    "composerHint": "Enter للإرسال · Shift+Enter لسطر جديد",
+    "groupParticipant": "عضو في المجموعة",
+    "searchConversations": "دوّر على محادثة",
+    "noMatchingConversations": "مفيش محادثات مطابقة للبحث.",
+    "groupConversation": "مجموعة خاصة"
   },
   "Connections": {
     "description": "ناسِك اللي تختارهم، وعلى راحتك. مفيش دليل عام ولا طلبات من غرباء.",
@@ -239,7 +252,11 @@
     "typing": "مؤشر الكتابة",
     "typingDescription": "إظهار مؤشر أثناء كتابتك للرد.",
     "presenceSaved": "تم تحديث خصوصية الظهور.",
-    "presenceFailed": "تعذّر تحديث إعداد الظهور."
+    "presenceFailed": "تعذّر تحديث إعداد الظهور.",
+    "handleOneTime": "الـ Handle اتعمل لك تلقائيًا. تقدر تغيّره مرة واحدة بس، فاختار براحتك.",
+    "handleLocked": "استخدمت فرصة تغيير الـ Handle، ومبقاش ممكن تغيّره تاني.",
+    "handleTaken": "الـ Handle ده مستخدم بالفعل. جرّب واحد تاني.",
+    "handleAlreadyChanged": "إنت استخدمت فرصة تغيير الـ Handle قبل كده."
   },
   "Appearance": {
     "title": "المظهر",
@@ -288,6 +305,14 @@
     "roles": "تخضع صلاحيات الحسابات لقائمة السماح الموثّقة على الخادم. إنشاء حساب عضو لا يمنح صلاحية المسؤول.",
     "invites": "دعوات التواصل الآن تخص كل عضو، وليست مملوكة للمسؤول.",
     "connections": "الذهاب إلى جهات الاتصال"
+  },
+  "Errors": {
+    "notFoundTitle": "الركن ده مش موجود.",
+    "notFoundDescription": "يمكن الرابط اتغيّر، أو الصفحة مبقتش موجودة.",
+    "backHome": "ارجع لركنك",
+    "backMessages": "روح للرسائل",
+    "unexpectedTitle": "حصلت مشكلة صغيرة.",
+    "unexpectedDescription": "معرفناش نفتح الجزء ده من Sengapp. جرّب تاني.",
+    "retry": "جرّب تاني"
   }
 }
-

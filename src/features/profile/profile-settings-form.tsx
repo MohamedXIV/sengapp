@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface ProfileSettingsFormProps {
   initialProfile: ProfileUpdateInput;
   initialPresence: PresencePreferencesInput;
+  handleCanChange?: boolean;
   onSaveProfile: (data: ProfileUpdateInput) => Promise<void>;
   onSavePresence: (data: PresencePreferencesInput) => Promise<void>;
 }
@@ -29,6 +30,7 @@ interface ProfileSettingsFormProps {
 export function ProfileSettingsForm({
   initialProfile,
   initialPresence,
+  handleCanChange = true,
   onSaveProfile,
   onSavePresence,
 }: ProfileSettingsFormProps) {
@@ -63,10 +65,10 @@ export function ProfileSettingsForm({
     try {
       await onSaveProfile(parsed.data);
       setStatusBanner(t("saved"));
-    } catch {
-      setErrorMessage(
-        t("saveFailed")
-      );
+    } catch (error) {
+      const code = String(error);
+      setErrorMessage(code.includes("HANDLE_TAKEN") ? t("handleTaken")
+        : code.includes("HANDLE_CHANGE_USED") ? t("handleAlreadyChanged") : t("saveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -141,11 +143,16 @@ export function ProfileSettingsForm({
               type="text"
               dir="ltr"
               value={profile.handle}
+              disabled={!handleCanChange}
+              aria-describedby="handle-rule"
               onChange={(e) =>
                 setProfile({ ...profile, handle: e.target.value.toLowerCase() })
               }
               required
             />
+            <p id="handle-rule" className="text-xs leading-relaxed text-muted-foreground">
+              {handleCanChange ? t("handleOneTime") : t("handleLocked")}
+            </p>
           </div>
         </div>
 

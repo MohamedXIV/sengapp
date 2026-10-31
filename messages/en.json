@@ -104,11 +104,24 @@
     "promote": "Make admin",
     "demote": "Remove admin",
     "removeMember": "Remove",
-    "confirmRemove": "Confirm removal",
+    "removeMemberTitle": "Remove {name}?",
+    "removeMemberDescription": "{name} will lose access to this group and won't see future messages.",
+    "removingMember": "Removing…",
+    "confirmRemove": "Remove member",
     "memberUpdateFailed": "Couldn't change this membership.",
     "leaveGroup": "Leave group",
+    "leaveGroupTitle": "Leave this group?",
+    "leaveGroupDescription": "You won't receive new messages or be able to participate unless someone invites you back.",
+    "leavingGroup": "Leaving…",
+    "confirmLeave": "Leave group",
     "leaveFailed": "Couldn't leave the group.",
-    "groupPrivacyNote": "New members only see messages sent after they join."
+    "dialogCancel": "Cancel",
+    "groupPrivacyNote": "New members only see messages sent after they join.",
+    "composerHint": "Enter to send · Shift+Enter for a new line",
+    "groupParticipant": "Group member",
+    "searchConversations": "Find a conversation",
+    "noMatchingConversations": "No conversations match your search.",
+    "groupConversation": "Private group"
   },
   "Connections": {
     "description": "Your people, your pace. No public directory, no random requests — just the friends you choose.",
@@ -239,7 +252,11 @@
     "typing": "Typing Indicators",
     "typingDescription": "Display a live indicator when you are composing a reply.",
     "presenceSaved": "Presence privacy updated.",
-    "presenceFailed": "Failed to update presence setting."
+    "presenceFailed": "Failed to update presence setting.",
+    "handleOneTime": "Your handle was generated for you. You can change it once — choose carefully.",
+    "handleLocked": "You've used your one handle change. This handle is now permanent.",
+    "handleTaken": "That handle is already taken. Please try another.",
+    "handleAlreadyChanged": "You've already used your one handle change."
   },
   "Appearance": {
     "title": "Appearance",
@@ -288,6 +305,14 @@
     "roles": "Account roles are controlled by the verified server-side allowlist. Member signup never grants operator privileges.",
     "invites": "Connection invitations now belong to each member, not the operator.",
     "connections": "Go to Connections"
+  },
+  "Errors": {
+    "notFoundTitle": "This little corner doesn't exist.",
+    "notFoundDescription": "The link may have moved or the page might not be here anymore.",
+    "backHome": "Back to my corner",
+    "backMessages": "Go to messages",
+    "unexpectedTitle": "Something went wrong.",
+    "unexpectedDescription": "Couldn't load this part of Sengapp. Please try again.",
+    "retry": "Try again"
   }
 }
-

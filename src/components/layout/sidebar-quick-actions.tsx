@@ -57,7 +57,7 @@ export function SidebarQuickActions({ locale, onSignOut }: {
   }
 
   const shortcutClass = "size-11 justify-self-center rounded-full border-0 bg-transparent text-sidebar-foreground/80 shadow-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring";
-  return <div className="space-y-2 border-t border-sidebar-border/40 pt-2">
+  return <div className="space-y-2 pt-2">
     <div className="grid grid-cols-4 gap-2" aria-label={t("quickActions")}>
       <Tooltip>
         <TooltipTrigger asChild>
