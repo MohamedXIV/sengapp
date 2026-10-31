@@ -32,6 +32,12 @@ function subscribeDesktop(callback: () => void) {
 }
 function desktopSnapshot() { return window.matchMedia(desktopQuery).matches; }
 
+function requestedPanel(): PanelName | null {
+  if (typeof window === "undefined") return null;
+  const name = new URLSearchParams(window.location.search).get("panel");
+  return name && Object.hasOwn(PANELS, name) ? name as PanelName : null;
+}
+
 function addFloating(api: DockviewApi, name: PanelName) {
   const panel = PANELS[name];
   api.addPanel({
@@ -102,12 +108,25 @@ export function CottageWorkspace() {
       try { api.clear(); } catch { /* freshly created instance */ }
     }
     if (!restored) for (const name of PANEL_IDS) addFloating(api, name);
+    const requested = requestedPanel();
+    if (requested) {
+      const existing = api.getPanel(requested);
+      if (existing) existing.api.setActive();
+      else addFloating(api, requested);
+    }
     subscriptions.current?.dispose();
     subscriptions.current = api.onDidLayoutChange(() => {
       if (persistTimer.current) clearTimeout(persistTimer.current);
       persistTimer.current = setTimeout(saveLayout, 300);
     });
   }, [saveLayout]);
+
+  useEffect(() => {
+    if (desktop) return;
+    const requested = requestedPanel();
+    if (requested) queueMicrotask(() =>
+      setMobilePanels(current => current.includes(requested) ? current : [...current, requested]));
+  }, [desktop]);
 
   function showPanel(name: PanelName) {
     if (!desktop) { activateMobile(name); return; }

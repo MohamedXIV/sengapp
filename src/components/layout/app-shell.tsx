@@ -81,9 +81,9 @@ function AppShellContent({
   const common = useTranslations("Common");
   const direction = getLocaleDirection(locale);
   const nav = [
-    { href: "/home", icon: HeartHandshake, label: t("lounge") },
-    { href: "/connections", icon: UsersRound, label: t("connections") },
-    { href: "/chats", icon: MessageCircle, label: t("messages") },
+    { href: "/lab/cottage", icon: HeartHandshake, label: t("lounge") },
+    { href: "/lab/cottage?panel=connections", icon: UsersRound, label: t("connections") },
+    { href: "/lab/cottage?panel=chats", icon: MessageCircle, label: t("messages") },
     { href: "/settings/profile", icon: Settings2, label: t("profile") },
     { href: "/settings/appearance", icon: Palette, label: t("appearance") },
     ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, label: t("operator") }] : []),
@@ -96,7 +96,7 @@ function AppShellContent({
       <Sidebar dir={direction} side={getNavigationSide(locale)} variant="floating"
         collapsible="offcanvas" mobileTitle={t("primary")} aria-label={t("primary")}>
         <SidebarHeader className="px-5 pb-3 pt-6">
-          <SidebarDismissLink href="/home" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
+          <SidebarDismissLink href="/lab/cottage" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
             <span aria-hidden="true" className="sengapp-logo flex size-12 shrink-0 items-center justify-center rounded-2xl">
               <CozyMark className="size-12" />
             </span>
