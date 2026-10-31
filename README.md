@@ -43,9 +43,13 @@ Mainstream messengers already do almost everything. Sengapp isn't trying to out-
 
 **Current foundation:** Next.js 16.4 · React 19.3 · TypeScript 6 · Tailwind CSS 4.3 · shadcn/ui · Clerk · Convex · Zod · Vitest · Playwright.
 
-**Later phases:** PixiJS companions, Zustand where needed, Vercel AI SDK and human messaging. These are not shipped features yet.
+**New optional visual direction (in Draft PR #20):** Phaser 4 full-viewport 2D personal world + Dockview floating React workspace, with a smaller modular isometric room inside a wider 16:10 landscape. Later: cross-window visual companions and permissioned AI. **This is a Prototype, not Production.** Read [the approved direction](docs/product/cozy-world-workspace-direction.md) and [ADR 0002](docs/architecture/adr/0002-personal-world-and-workspace.md).
 
 Convex-first is the agreed backend direction. We are not adding Supabase or SpacetimeDB by default. Specific integrations and release providers will be finalized as implementation begins.
+
+## The evolving Cozy World experience
+
+The owner accepted a new creative direction on 2026-10-31: a private personal 2D world, real messaging in floating/resizable/dockable React windows, and a fallback direct chat when graphics are disabled or unavailable. The Phaser world fills the screen and has world coordinates independent of the small forest cottage, leaving room for later outdoor scenery and optional themes. The [playable Draft Preview](https://sengapp-git-experiment-cozy-room-workspace-mxiv.vercel.app/lab/cottage) is a sketch with **local-only** Notes, timer and furniture; it does **not** yet embed authenticated chat or an AI companion. The older v0.1 spec remains the authority on chat privacy/security.
 
 ## Project status
 
