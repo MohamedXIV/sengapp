@@ -135,7 +135,8 @@ export function MobileWindowLayer({
   }
 
   return <div ref={layer} className="cottage-mobile-layer pointer-events-none absolute inset-0 z-30" data-testid="cottage-mobile-layer">
-    {openPanels.map((name, order) => {
+    {(Object.keys(LABELS) as MobilePanelName[]).filter(name => openPanels.includes(name)).map(name => {
+      const order = openPanels.indexOf(name);
       const box = constrainWindow(positions[name] ?? DEFAULTS[name], stage);
       return <section key={name} data-testid={`cottage-mobile-window-${name}`}
         className="cottage-mobile-window pointer-events-auto absolute flex flex-col overflow-hidden rounded-[20px] border border-[#bdccbd] bg-[#fffcf4] shadow-[0_16px_45px_#32483c40]"

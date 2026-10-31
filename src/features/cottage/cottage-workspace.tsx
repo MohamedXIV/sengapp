@@ -97,7 +97,8 @@ export function CottageWorkspace() {
     else addFloating(api, name);
   }
   function activateMobile(name: MobilePanelName) {
-    setMobilePanels(current => [...current.filter(panel => panel !== name), name]);
+    setMobilePanels(current => current[current.length - 1] === name
+      ? current : [...current.filter(panel => panel !== name), name]);
   }
   function closeMobile(name: MobilePanelName) {
     setMobilePanels(current => current.filter(panel => panel !== name));
