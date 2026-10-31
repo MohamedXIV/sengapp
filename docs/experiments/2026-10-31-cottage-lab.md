@@ -45,3 +45,18 @@ Test the playable prototype together first, then decide which elements are worth
 Owner observed a rectangular canvas boundary and strong drop shadow around the original 900×620 scene. The rectangle was caused by `Scene.cameras.main.setBackgroundColor("#e4ece0")` even though the underlying game specified `transparent: true`. The drop shadow came from `.cottage-renderer`. The lab now uses a transparent, stage-sized Phaser `Scale.RESIZE` canvas, responsive camera fitting the 900×620 source room without distortion, and a single CSS background behind both the room and its surrounding free space. The separate visual canvas shadow is removed. This is a *renderer/layout* change, not a redesign or a new production requirement.
 
 **Future companion architecture (proposal only, not implemented):** keep the independent Phaser room simulation below the UI and draw any companion that crosses React/Dockview panels in a single, transparent DOM/sprite overlay on top of the workspace. Share animation/state data and room↔screen coordinates with the room, but do not render a full second Phaser game or grant the companion access to private messages. Respect reduced motion and keep form controls unobstructed.
+
+
+## Landscape world independent of the cottage — 31 October 2026
+
+**Owner's final lab direction:** Phaser should always own the entire viewport, while the *world coordinates* are a landscape 16:10 canvas (1600 × 1000 in logical units); the 900 × 684 illustrated cottage occupies only part of that world. Exterior scenery (forest, lake, ship decks, fantasy exteriors) will become additional sprites/scene objects **inside the same Phaser world** later. No scenery catalog or new drawing layers were added in this pass.
+
+After inspecting `MohamedXIV/unknown-yield` branch `design/ui-reskin-first-pass-20261021`, particularly `apps/web/game/camera-navigation.ts` and `components/GameHost.tsx`, adopted its key separation: simulation/world geometry does **not** equal viewport dimensions. Did not copy the other project's industrial world or navigation classes into Sengapp.
+
+- `WORLD_BOUNDS`: independent, centered landscape 1600 × 1000 world, 16:10.
+- `ROOM_BOUNDS`: separate source SVG bounds, including its roof extending above Y=0; existing furniture grid and positions unchanged.
+- `Phaser.Scale.RESIZE` fills the **entire screen**, with the React toolbar floating translucently above it; UI never changes the world aspect ratio or rescales the cottage sprites non-uniformly.
+- Desktop defaults to **Fit World** with the room shown smaller within the wide, initially mostly empty world. Portrait mobile defaults to **Fit Room** for readable sprites, with Fit World available any time. Both buttons are explicit, as is zoom/pan; mobile retains dock-like windows.
+- Camera math clamps pan over WORLD bounds rather than ROOM bounds; the user can now explore beyond the cottage while keeping the world reachable. Camera zoom range is relative to the landscape world fit (1–8×).
+- World and scene remain one Phaser instance below Dockview; no second canvas, no new backend writes.
+- **Acceptance:** exact-head CI, Playwright mobile/desktop render full browser viewport with buttons and free camera movement, plus user inspection of wide framing. Real low-end mobile GPU/device testing and audit remediation are still open.

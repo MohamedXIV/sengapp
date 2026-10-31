@@ -116,7 +116,7 @@ export function CottageWorkspace() {
   }
 
   return <main className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
-    <header className="cottage-toolbar relative z-30 flex min-h-16 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
+    <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
       <div className="flex items-center gap-3">
         <Link href="/home" className="cottage-icon-button" aria-label="Back to Sengapp"><ArrowLeft className="size-4" /></Link>
         <span className="flex size-9 items-center justify-center rounded-2xl bg-[#cfe6ce]"><Home className="size-5"/></span>
@@ -136,13 +136,13 @@ export function CottageWorkspace() {
       </nav>
     </header>
 
-    <section className="cottage-stage relative min-h-0 w-full flex-1 overflow-hidden">
+    <section className="cottage-stage relative h-full min-h-0 w-full flex-1 overflow-hidden">
       <div className="cottage-stage-background absolute inset-0" aria-hidden="true"/>
       <div className="cottage-stage-center absolute inset-0">
         <RoomCanvas ref={roomCamera} items={items} editing={editMode} light={light}
           onChange={changedItems} onHover={changedHover} onViewChange={setCameraView}/>
       </div>
-      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-3 z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-[#bbd0c1] bg-[#fffcf2eb] p-1 shadow-sm backdrop-blur-sm">
+      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-[80px] z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-[#bbd0c1] bg-[#fffcf2eb] p-1 shadow-sm backdrop-blur-sm">
         <button type="button" aria-label="Zoom out" title="Zoom out" className="cottage-camera-button" disabled={cameraView.level <= CAMERA.minLevel + .001}
           onClick={() => roomCamera.current?.zoomOut()}><ZoomOut className="size-[17px]"/></button>
         <output data-testid="room-zoom-indicator" data-camera-x={cameraView.x.toFixed(2)}

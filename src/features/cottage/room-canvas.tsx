@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
-import { CAMERA, type CameraView } from "./room-camera";
+import { CAMERA, WORLD_BOUNDS, type CameraView } from "./room-camera";
 import type { RoomItem, LightPreset } from "./room-model";
 import type { RoomScene } from "./room-scene";
 
-export type RoomCanvasHandle = { zoomIn(): void; zoomOut(): void; fit(): void };
+export type RoomCanvasHandle = { zoomIn(): void; zoomOut(): void; fit(): void; fitWorld(): void };
 
 export function RoomCanvas({ items, editing, light, onChange, onHover, onViewChange, ref }: {
   items: RoomItem[]; editing: boolean; light: LightPreset;
@@ -24,6 +24,7 @@ export function RoomCanvas({ items, editing, light, onChange, onHover, onViewCha
     zoomIn: () => scene.current?.zoomBy(CAMERA.buttonFactor),
     zoomOut: () => scene.current?.zoomBy(1 / CAMERA.buttonFactor),
     fit: () => scene.current?.fitRoom(),
+    fitWorld: () => scene.current?.fitWorld(),
   }), []);
 
   useEffect(() => {
@@ -50,7 +51,8 @@ export function RoomCanvas({ items, editing, light, onChange, onHover, onViewCha
       room.setEditMode(latestEditing.current);
       room.setLight(latestLight.current);
       game = new Phaser.Game({
-        type: Phaser.AUTO, parent: element, width: 900, height: 620,
+        type: Phaser.AUTO, parent: element,
+        width: WORLD_BOUNDS.width, height: WORLD_BOUNDS.height,
         transparent: true, backgroundColor: "rgba(0,0,0,0)", antialias: true,
         scale: { mode: Phaser.Scale.RESIZE },
         fps: { target: 30 },
@@ -81,5 +83,5 @@ export function RoomCanvas({ items, editing, light, onChange, onHover, onViewCha
 
   return <div ref={mount} data-testid="cottage-canvas" role="img"
     aria-label="An isometric woodland cottage with individually movable furniture. Enable Edit room to rearrange."
-    className="cottage-renderer absolute inset-0" />;
+    className="cottage-renderer absolute inset-0" data-world-aspect={WORLD_BOUNDS.aspect} />;
 }

@@ -1,5 +1,5 @@
 .cottage-lab { font-family: var(--font-nunito, "Nunito Variable"), system-ui, sans-serif; color-scheme: light; }
-.cottage-toolbar { background: #fffcf2; }
+.cottage-toolbar { background: #fffcf2df; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .cottage-stage { isolation: isolate; }
 .cottage-stage-background { background: radial-gradient(ellipse at 50% 25%,#fbf4d8 0%,#e5efe5 55%,#d4e6dd 100%); }
 .cottage-renderer { width:100%; height:100%; background:transparent; filter:none; }
@@ -50,3 +50,9 @@
 .cottage-camera-button:disabled { opacity:.3; cursor:not-allowed; }
 .cottage-camera-button:focus-visible { outline:2px solid #45785e; outline-offset:1px; }
 @media (pointer:coarse) { .cottage-camera-button { width:42px; height:42px; } }
+
+/* The Phaser stage is the entire viewport, including *behind* the floating
+   top controls. No extra header row shrinks the landscape world canvas. */
+@media (max-width:899px) {
+  .cottage-camera-controls { top:124px; }
+}

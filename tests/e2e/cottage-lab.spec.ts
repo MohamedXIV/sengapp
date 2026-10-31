@@ -16,6 +16,11 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
       height: Math.round(canvasRect.height - stageRect.height),
     } : null;
   }).toEqual({ width: 0, height: 0 });
+  await expect.poll(async () => {
+    const bounds = await canvas.boundingBox();
+    const viewport = page.viewportSize();
+    return bounds && viewport ? Math.round(bounds.height - viewport.height) : null;
+  }).toBe(0);
   await expect(renderer).toHaveCSS("filter", "none");
   await expect(canvas).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   const shell = await page.request.get("/lab/cottage/forest-room.svg");
