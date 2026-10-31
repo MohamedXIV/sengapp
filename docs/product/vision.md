@@ -1,18 +1,18 @@
 # Sengapp — Product Vision
 
-**Status:** Product direction and v0.1 design approved by the owner on 2026-10-26.
+**Status:** Core messaging v0.1 direction approved 2026-10-26; **Cozy World + Floating Workspace direction accepted 2026-10-31**. See [the current direction](cozy-world-workspace-direction.md).
 
 ## One sentence
 
-A cozy, invite-only social messenger with expressive profiles, optional animated AI companions and, later, shared experiences that remain part of your conversations.
+A cozy private-circle messenger set in a personal, customizable 2D isometric world, with accessible floating chat and personal tools; optional animated/AI companions may enrich it later.
 
 ## Why build it?
 
-The first users are friends and family who dislike the crowding, group noise and social pressure of major messaging platforms. Sengapp is a deliberate small-space alternative, **not** a WhatsApp replacement.
+Accounts use verified open signup; private social connections are established by consent and one-use invitations. The first users are friends and family who dislike the crowding, group noise and social pressure of major messaging platforms. Sengapp is a deliberate small-space alternative, **not** a WhatsApp replacement.
 
 ## The personality
 
-**Modern by default, playful by choice.** A clean, accessible experience first, with optional self-expression inspired by classic MSN and Yahoo Messenger: personal message fonts/colors, statuses, and later playful interactions.
+**A living, cozy workspace — without sacrificing a reliable messenger.** The proposed signature experience is a full-viewport, customizable 2D isometric world with floating, rounded, touch-friendly panels. Chat remains accessible without graphics. The interface still welcomes personal fonts/colors, statuses and small, nostalgic interactions inspired by MSN/Yahoo. See [Cozy World & Workspace](cozy-world-workspace-direction.md).
 
 ## What makes it distinct over time?
 
@@ -23,11 +23,11 @@ The first users are friends and family who dislike the crowding, group noise and
 
 ## Product commitments
 
-- Invite-only people and spaces. No stranger discovery, public feed or public community features in the foreseeable roadmap.
+- Open verified signup, consent-based one-use private connection invites, and private conversations/groups. No stranger discovery, public feed or public communities in the foreseeable roadmap.
 - Presence/last seen/read receipts/typing are default-on but individually configurable.
 - A companion never joins a group automatically with its owner; an explicit approval path is required.
 - A companion must not reveal private owner information on its own. Provider context and external integrations are opt-in and least-privilege.
-- Avoid wasteful mobile bandwidth, intrusive notifications and decorative animation that impairs reading.
+- Avoid wasteful mobile bandwidth, intrusive notifications and decorative animation that impairs reading. The Phaser world is progressive enhancement: no GPU dependency for sending a message.
 - Public source code and official hosting initially; self-hosting is not a supported release target yet.
 
 ## Release intent

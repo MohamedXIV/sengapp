@@ -4,6 +4,8 @@
 **Date:** 2026-10-26  
 **Project:** Sengapp (working name; trademark/domain availability not verified)
 
+> **Historical baseline / amendments:** This document records the 2026-10-26 original v0.1 design. On 2026-10-31, the owner adopted the [Cozy World + Floating Workspace direction](../product/cozy-world-workspace-direction.md) and [ADR 0002](../architecture/adr/0002-personal-world-and-workspace.md). Those documents supersede this specification **only for the visual shell, 2D renderer, floating panel strategy and future mascot rendering choice**. They do **not** loosen messaging authorization, group consent, privacy, security or release scope. Also note the live P0 decision is **open verified Clerk signup with invitation-only private connections**, not invite-only account registration. Preserve this older spec as a historical design record.
+
 ## 1. Intent
 
 Sengapp is a **mobile-first, invite-only social messenger** for a small circle of family and friends. It should be a comfortable place to talk, share interests and spend time together without the noise of large mainstream messaging networks. It is **not** intended to replace WhatsApp or compete on feature count.
