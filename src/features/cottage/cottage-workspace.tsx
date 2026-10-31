@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
 import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, RotateCcw, Sun, Timer, X } from "lucide-react";
 import { RoomCanvas } from "./room-canvas";
 import { ChatsPanel, NotesPanel, FocusPanel } from "./workspace-panels";
-import { INITIAL_ITEMS, STORAGE, parseRoom, type FurnitureId, type RoomItem, type LightPreset } from "./room-model";
+import { INITIAL_ITEMS, STORAGE, parseRoom, type RoomItem, type LightPreset } from "./room-model";
 
 const components = { chats: ChatsPanel, notes: NotesPanel, focus: FocusPanel };
 type PanelName = keyof typeof components;
@@ -16,6 +16,13 @@ const PANELS: Record<PanelName, {title:string; width:number;height:number;left?:
   focus: { title: "Focus timer", width: 250, height: 210, right: 22, bottom: 18 },
 };
 const PANEL_IDS: PanelName[] = ["chats", "notes", "focus"];
+const desktopQuery = "(min-width: 900px)";
+function subscribeDesktop(callback: () => void) {
+  const media = window.matchMedia(desktopQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+function desktopSnapshot() { return window.matchMedia(desktopQuery).matches; }
 
 function addFloating(api: DockviewApi, name: PanelName) {
   const panel = PANELS[name];
@@ -33,7 +40,7 @@ export function CottageWorkspace() {
   const [editMode, setEditMode] = useState(false);
   const [light, setLight] = useState<LightPreset>("day");
   const [hovered, setHovered] = useState<string | null>(null);
-  const [desktop, setDesktop] = useState<boolean | null>(null);
+  const desktop = useSyncExternalStore(subscribeDesktop, desktopSnapshot, () => false);
   const [mobilePanel, setMobilePanel] = useState<PanelName | null>(null);
   const dockApi = useRef<DockviewApi | null>(null);
   const subscriptions = useRef<{ dispose(): void } | null>(null);
@@ -41,12 +48,9 @@ export function CottageWorkspace() {
   const [layoutMessage, setLayoutMessage] = useState("Move the furniture, or rearrange the windows.");
 
   useEffect(() => {
-    try { setItems(parseRoom(localStorage.getItem(STORAGE.furniture))); } catch { /* use defaults */ }
-    const query = window.matchMedia("(min-width: 900px)");
-    const change = () => setDesktop(query.matches);
-    change();
-    query.addEventListener("change", change);
-    return () => query.removeEventListener("change", change);
+    queueMicrotask(() => {
+      try { setItems(parseRoom(localStorage.getItem(STORAGE.furniture))); } catch { /* use defaults */ }
+    });
   }, []);
 
   useEffect(() => () => {
@@ -110,14 +114,14 @@ export function CottageWorkspace() {
         <div><strong className="block text-sm tracking-tight">Sengapp • Cottage Lab</strong><span className="block text-[11px] text-[#657e70]">An isolated, playable workspace experiment</span></div>
       </div>
       <nav aria-label="Workspace tools" className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-        <button className="cottage-tool" onClick={() => showPanel("chats")}><MessageCircle className="size-4"/><span className="hidden sm:inline">Chats</span></button>
-        <button className="cottage-tool" onClick={() => showPanel("notes")}><BookOpenText className="size-4"/><span className="hidden sm:inline">Notes</span></button>
-        <button className="cottage-tool" onClick={() => showPanel("focus")}><Timer className="size-4"/><span className="hidden sm:inline">Focus</span></button>
+        <button className="cottage-tool" aria-label="Chats" onClick={() => showPanel("chats")}><MessageCircle className="size-4"/><span className="hidden sm:inline">Chats</span></button>
+        <button className="cottage-tool" aria-label="Notes" onClick={() => showPanel("notes")}><BookOpenText className="size-4"/><span className="hidden sm:inline">Notes</span></button>
+        <button className="cottage-tool" aria-label="Focus" onClick={() => showPanel("focus")}><Timer className="size-4"/><span className="hidden sm:inline">Focus</span></button>
         <span className="mx-1 hidden h-6 w-px bg-[#bdd3c4] sm:block"/>
         <button aria-pressed={editMode} className={`cottage-tool ${editMode ? "cottage-active" : ""}`} onClick={() => setEditMode(value => !value)}>
           {editMode ? <Check className="size-4" /> : <Armchair className="size-4"/>}<span>{editMode ? "Done" : "Edit room"}</span>
         </button>
-        <button className="cottage-tool" onClick={() => setLight(value => value === "day" ? "evening" : "day")}>
+        <button aria-label={light === "day" ? "Evening" : "Day"} className="cottage-tool" onClick={() => setLight(value => value === "day" ? "evening" : "day")}>
           {light === "day" ? <CloudMoon className="size-4"/> : <Sun className="size-4"/>}<span className="hidden sm:inline">{light === "day" ? "Evening" : "Day"}</span>
         </button>
       </nav>
@@ -146,7 +150,6 @@ export function CottageWorkspace() {
         </div>
         {mobileContent}
       </section>}
-      {desktop === null && <span className="absolute inset-0 flex items-center justify-center text-sm" role="status">Preparing your cottage…</span>}
       <span className="sr-only" role="status">{layoutMessage}</span>
     </section>
   </main>;

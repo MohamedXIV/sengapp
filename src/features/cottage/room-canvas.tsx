@@ -10,7 +10,7 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
   const mount = useRef<HTMLDivElement>(null);
   const scene = useRef<RoomScene | null>(null);
   const callbacks = useRef({ onChange, onHover });
-  callbacks.current = { onChange, onHover };
+
   const initial = useRef(items);
 
   useEffect(() => {
@@ -58,7 +58,10 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
   useEffect(() => { scene.current?.setEditMode(editing); }, [editing]);
   useEffect(() => { scene.current?.setLight(light); }, [light]);
   useEffect(() => { scene.current?.setItems(items); }, [items]);
-  useEffect(() => { scene.current?.setCallbacks(callbacks.current); }, [onChange, onHover]);
+  useEffect(() => {
+    callbacks.current = { onChange, onHover };
+    scene.current?.setCallbacks(callbacks.current);
+  }, [onChange, onHover]);
 
   return <div ref={mount} data-testid="cottage-canvas" role="img"
     aria-label="An isometric woodland cottage with individually movable furniture. Enable Edit room to rearrange."

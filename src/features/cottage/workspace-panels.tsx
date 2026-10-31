@@ -18,8 +18,10 @@ export function NotesPanel() {
   const [note, setNote] = useState("");
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    try { setNote(localStorage.getItem(STORAGE.notes) ?? "Sketch the next cozy room ✨"); } catch { /* storage can be blocked */ }
-    setLoaded(true);
+    queueMicrotask(() => {
+      try { setNote(localStorage.getItem(STORAGE.notes) ?? "Sketch the next cozy room ✨"); } catch { /* storage can be blocked */ }
+      setLoaded(true);
+    });
   }, []);
   useEffect(() => {
     if (!loaded) return;
