@@ -154,7 +154,7 @@ export function CottageWorkspace() {
           onClick={() => roomCamera.current?.zoomIn()}><ZoomIn className="size-[17px]"/></button>
         <span className="mx-1 h-5 w-px bg-[#c4d7c7]" aria-hidden="true"/>
         <button type="button" aria-label="Fit room" title="Show the full room" className="cottage-camera-button"
-          onClick={() => roomCamera.current?.fitRoom()}><Scan className="size-[17px]"/></button>
+          onClick={() => roomCamera.current?.fit()}><Scan className="size-[17px]"/></button>
       </nav>
       <aside className="pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border border-[#c3d2c2] bg-[#fffaf0ed] px-4 py-2 text-xs shadow-sm">
         <span className="block font-bold">{hovered ?? (editMode ? "Edit mode · drag sprites to new tiles" : "Your little forest cottage")}</span>

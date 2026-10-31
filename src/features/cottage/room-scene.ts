@@ -19,7 +19,7 @@ export class RoomScene extends Phaser.Scene {
   private lampGlow?: Phaser.GameObjects.Image;
   private dragging?: { id: FurnitureId; x: number; y: number };
   private glowTime = 0;
-  private viewport = { width: ROOM.width, height: ROOM.height };
+  private viewport: { width: number; height: number } = { width: ROOM.width, height: ROOM.height };
   private view: CameraView = { level: 1, ...ROOM_CENTER };
   private pointers = new Map<number, { x: number; y: number }>();
   private pinch: { midpoint: { x: number; y: number }; distance: number } | null = null;
@@ -103,6 +103,7 @@ export class RoomScene extends Phaser.Scene {
       this.pointers.set(pointer.id, { x: pointer.x, y: pointer.y });
       if (this.pointers.size >= 2) {
         const [a, b] = [...this.pointers.values()].slice(0, 2);
+        if (!a || !b) return;
         const distance = Math.hypot(a.x - b.x, a.y - b.y);
         const midpoint = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
         if (this.pinch && this.pinch.distance > 1 && distance > 1) {
