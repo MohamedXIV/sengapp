@@ -72,7 +72,16 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     const chatWindow = page.getByTestId("cottage-mobile-window-chats");
     await expect(chatWindow.getByTestId("cottage-live-chats")).toBeVisible();
     await expect(chatWindow.getByRole("link", { name: "Messages" })).toHaveAttribute("href", "/chats");
+    // The responsive toolbar overlays the world; windows must not open
+    // beneath it or allow their title bar to be dragged under it.
+    await expect.poll(async () => {
+      const [header, win] = await Promise.all([
+        page.locator(".cottage-toolbar").boundingBox(), chatWindow.boundingBox(),
+      ]);
+      return header && win ? win.y - (header.y + header.height) : null;
+    }).toBeGreaterThanOrEqual(0);
     await page.getByRole("button", { name: "Close Chats window" }).click();
+    await expect(chatWindow).toHaveCount(0);
     await page.getByRole("button", { name: "Notes", exact: true }).click();
     const mobileNotes = page.getByTestId("cottage-mobile-window-notes");
     await expect(mobileNotes).toBeVisible();

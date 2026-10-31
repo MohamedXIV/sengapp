@@ -23,12 +23,17 @@ const DEFAULTS: Record<MobilePanelName, MobileWindowBounds> = {
 
 const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), Math.max(min, max));
 
-export function constrainWindow(box: MobileWindowBounds, stage: { width: number; height: number }): MobileWindowBounds {
-  const width = clamp(box.width, Math.min(MIN_WIDTH, stage.width - MARGIN * 2), stage.width - MARGIN * 2);
-  const height = clamp(box.height, Math.min(MIN_HEIGHT, stage.height - MARGIN * 2), stage.height - MARGIN * 2);
+export function constrainWindow(box: MobileWindowBounds, stage: { width: number; height: number; topInset?: number }): MobileWindowBounds {
+  // The world canvas extends *behind* the responsive toolbar, but floating
+  // windows need their own safe region so title bars/close buttons stay touchable.
+  const safeTop = clamp(stage.topInset ?? MARGIN, MARGIN, Math.max(MARGIN, stage.height - 100));
+  const usableHeight = Math.max(1, stage.height - safeTop - MARGIN);
+  const usableWidth = Math.max(1, stage.width - MARGIN * 2);
+  const width = clamp(box.width, Math.min(MIN_WIDTH, usableWidth), usableWidth);
+  const height = clamp(box.height, Math.min(MIN_HEIGHT, usableHeight), usableHeight);
   return {
     x: clamp(box.x, MARGIN, stage.width - width - MARGIN),
-    y: clamp(box.y, MARGIN, stage.height - height - MARGIN),
+    y: clamp(box.y, safeTop, stage.height - height - MARGIN),
     width, height,
   };
 }
@@ -71,18 +76,26 @@ export function MobileWindowLayer({
 }) {
   const layer = useRef<HTMLDivElement>(null);
   const gesture = useRef<Gesture | null>(null);
-  const [stage, setStage] = useState({ width: 390, height: 650 });
+  const [stage, setStage] = useState({ width: 390, height: 650, topInset: 150 });
   const [positions, setPositions] = useState<Partial<Record<MobilePanelName, MobileWindowBounds>>>({});
   const [restored, setRestored] = useState(false);
 
   useEffect(() => {
     const el = layer.current;
     if (!el) return;
-    const observer = new ResizeObserver(entries => {
-      const rect = entries[0]?.contentRect;
-      if (rect) setStage({ width: rect.width, height: rect.height });
-    });
+    const toolbar = document.querySelector<HTMLElement>(".cottage-toolbar");
+    const measure = () => {
+      const box = el.getBoundingClientRect();
+      const toolbarBottom = toolbar?.getBoundingClientRect().bottom ?? box.top;
+      setStage({
+        width: box.width, height: box.height,
+        topInset: Math.max(MARGIN, toolbarBottom - box.top + 10),
+      });
+    };
+    const observer = new ResizeObserver(measure);
     observer.observe(el);
+    if (toolbar) observer.observe(toolbar);
+    measure();
     return () => observer.disconnect();
   }, []);
 
