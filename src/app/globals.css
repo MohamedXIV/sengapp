@@ -204,3 +204,17 @@
 }
 :root[data-sengapp-reduced-motion="true"] .sengapp-sheet-panel,
 :root[data-sengapp-reduced-motion="true"] .sengapp-sheet-overlay { animation: none !important }
+
+/* Consistent Radix AlertDialog presence animation; keep CSS translate independent
+   from scale so physical centering is identical in RTL and LTR. */
+@keyframes sengapp-alert-in { from { opacity: 0; scale: .97 } to { opacity: 1; scale: 1 } }
+@keyframes sengapp-alert-out { from { opacity: 1; scale: 1 } to { opacity: 0; scale: .98 } }
+.sengapp-alert-panel[data-state="open"] { animation: sengapp-alert-in 210ms cubic-bezier(.2,.8,.2,1) both }
+.sengapp-alert-panel[data-state="closed"] { animation: sengapp-alert-out 150ms ease-in both }
+.sengapp-alert-overlay[data-state="open"] { animation: sengapp-sheet-fade-in 190ms ease-out both }
+.sengapp-alert-overlay[data-state="closed"] { animation: sengapp-sheet-fade-out 150ms ease-in both }
+@media (prefers-reduced-motion: reduce) {
+  .sengapp-alert-panel, .sengapp-alert-overlay { animation: none !important }
+}
+:root[data-sengapp-reduced-motion="true"] .sengapp-alert-panel,
+:root[data-sengapp-reduced-motion="true"] .sengapp-alert-overlay { animation: none !important }

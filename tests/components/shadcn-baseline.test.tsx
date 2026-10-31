@@ -47,6 +47,7 @@ describe("shadcn/ui foundation", () => {
       </AlertDialog>,
     );
     expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByRole("alertdialog")).toHaveClass("sengapp-alert-panel", "w-[calc(100%_-_2rem)]", "left-1/2", "-translate-x-1/2");
     expect(screen.getByRole("heading", { name: "Confirm action" })).toBeInTheDocument();
     expect(screen.getByText("This action cannot be undone.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
