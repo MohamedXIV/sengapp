@@ -1,0 +1,25 @@
+.cottage-lab { font-family: var(--font-nunito, "Nunito Variable"), system-ui, sans-serif; color-scheme: light; }
+.cottage-toolbar { background: #fffcf2; }
+.cottage-stage { isolation: isolate; }
+.cottage-stage-background { background: radial-gradient(ellipse at 50% 25%,#fbf4d8 0%,#e5efe5 55%,#d4e6dd 100%); }
+.cottage-renderer { max-height: calc(100dvh - 120px); filter: drop-shadow(0 19px 35px #536c5d48); }
+.cottage-renderer canvas { width: 100%; height: 100%; object-fit: contain; touch-action: none; display: block; }
+.cottage-renderer[data-error="true"]::after { content: "The 2D renderer did not start. The rest of Sengapp remains available."; display:block; padding:1rem; border-radius:12px; background:#fff9e9; text-align:center; }
+.cottage-tool,.cottage-icon-button { display:inline-flex;min-height:36px;align-items:center;justify-content:center;gap:6px;border:1px solid #d4dfd0;background:#fffdf7;border-radius:12px;padding:7px 10px;font-size:12px;font-weight:700;transition:background .15s; }
+.cottage-tool:hover,.cottage-icon-button:hover { background:#e6f3e9; }
+.cottage-tool:focus-visible,.cottage-icon-button:focus-visible,.cottage-link:focus-visible { outline:2px solid #407960; outline-offset:2px; }
+.cottage-active { background:#c3e4d3;border-color:#9bc9ad; }
+.cottage-panel-body { padding:14px; font-size:13px; color:#324638; }
+.cottage-panel-body p { line-height:1.55; }
+.cottage-link { display:inline-flex;align-items:center;gap:7px;width:fit-content;border-radius:9px;background:#d8ebe0;padding:9px 11px;font-size:12px;font-weight:700;color:#315b47; }
+.cottage-note { border-radius:12px;border:1px solid #e6d8b8;background:#fff6df;padding:12px;line-height:1.5;outline-offset:3px; }
+.cottage-mini-button { display:inline-flex;align-items:center;gap:5px;border-radius:9px;border:1px solid #c2d1c1;background:#edf3e9;padding:8px 12px;font-size:12px;font-weight:700; }
+.cottage-dock-layer { pointer-events:none; }
+.cottage-dock-layer .dockview-theme-light,.cottage-dock-layer .dv-dockview { width:100%;height:100%;background:transparent !important;pointer-events:none; }
+.cottage-dock-layer .dv-floating-group,.cottage-dock-layer .dv-floating-container,.cottage-dock-layer .dv-floating-box { pointer-events:auto; }
+.cottage-dock-layer .dv-floating-group { border:1px solid #c9d6c5;border-radius:16px;overflow:hidden;box-shadow:0 14px 35px #344b4140; }
+.cottage-dock-layer .dv-groupview,.cottage-dock-layer .dv-tabs-and-actions-container { --dv-background-color: #fffbf2; --dv-group-view-background-color:#fffbf2; --dv-tabs-and-actions-container-background-color:#e4efe5; --dv-activegroup-visiblepanel-tab-background-color:#d4e8da; --dv-activegroup-visiblepanel-tab-color:#294a38; --dv-inactivegroup-visiblepanel-tab-color:#5b7065; }
+.cottage-dock-layer .dv-content-container { background:#fffbf2; }
+.cottage-dock-layer .dv-floating-titlebar { background:#c2dac8; }
+@media (max-width:899px) { .cottage-renderer { width:min(98vw,700px); } .cottage-stage { min-height:440px; } .cottage-toolbar { gap:7px; } .cottage-tool { min-height:38px; } }
+@media (prefers-reduced-motion:reduce) { .cottage-tool { transition:none; } }
