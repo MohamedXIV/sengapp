@@ -16,10 +16,30 @@
 .cottage-mini-button { display:inline-flex;align-items:center;gap:5px;border-radius:9px;border:1px solid #c2d1c1;background:#edf3e9;padding:8px 12px;font-size:12px;font-weight:700; }
 .cottage-dock-layer { pointer-events:none; }
 .cottage-dock-layer .dockview-theme-light,.cottage-dock-layer .dv-dockview { width:100%;height:100%;background:transparent !important;pointer-events:none; }
-.cottage-dock-layer .dv-floating-group,.cottage-dock-layer .dv-floating-container,.cottage-dock-layer .dv-floating-box { pointer-events:auto; }
-.cottage-dock-layer .dv-floating-group { border:1px solid #c9d6c5;border-radius:16px;overflow:hidden;box-shadow:0 14px 35px #344b4140; }
+.cottage-dock-layer .dv-resize-container { pointer-events:auto; border:1px solid #c9d6c5; border-radius:18px; background:#fffbf2; box-shadow:0 14px 35px #344b4140; }
+.cottage-dock-layer .dv-resize-container > .dv-floating-titlebar { border-radius:17px 17px 0 0; background:#d4e8da; }
+.cottage-dock-layer .dv-resize-container > .dv-grid-view { overflow:hidden; border-radius:0 0 17px 17px; }
+.cottage-dock-layer .dv-resize-container:not(.dv-resize-container-with-titlebar) > .dv-grid-view { border-radius:17px; }
+.cottage-dock-layer .dv-resize-container .dv-tabs-and-actions-container { background:#e6efe6; }
+.cottage-dock-layer .dv-resize-container .dv-groupview { overflow:hidden; }
+.cottage-dock-layer .dv-resize-container .dv-content-container { min-width:0; }
 .cottage-dock-layer .dv-groupview,.cottage-dock-layer .dv-tabs-and-actions-container { --dv-background-color: #fffbf2; --dv-group-view-background-color:#fffbf2; --dv-tabs-and-actions-container-background-color:#e4efe5; --dv-activegroup-visiblepanel-tab-background-color:#d4e8da; --dv-activegroup-visiblepanel-tab-color:#294a38; --dv-inactivegroup-visiblepanel-tab-color:#5b7065; }
 .cottage-dock-layer .dv-content-container { background:#fffbf2; }
 .cottage-dock-layer .dv-floating-titlebar { background:#c2dac8; }
 @media (max-width:899px) { .cottage-renderer { width:min(98vw,700px); } .cottage-stage { min-height:440px; } .cottage-toolbar { gap:7px; } .cottage-tool { min-height:38px; } }
 @media (prefers-reduced-motion:reduce) { .cottage-tool { transition:none; } }
+
+/* Mobile uses real touch-draggable React windows instead of a fixed bottom sheet.
+   The header and resize grip own touch gestures; panel bodies retain scrolling. */
+.cottage-mobile-titlebar { user-select:none; -webkit-user-select:none; }
+.cottage-mobile-drag { cursor:grab; -webkit-user-select:none; touch-action:none; }
+.cottage-mobile-drag:active { cursor:grabbing; }
+.cottage-mobile-resize { cursor:nwse-resize; touch-action:none; }
+.cottage-mobile-window { color:#263d36; overscroll-behavior:contain; }
+.cottage-mobile-window:focus-within { outline-color:#85b79b; }
+.cottage-mobile-drag:focus-visible, .cottage-mobile-resize:focus-visible {
+  outline:2px solid #45785e; outline-offset:-2px;
+}
+@media (pointer:coarse) {
+  .cottage-mobile-resize { width:44px; height:44px; }
+}

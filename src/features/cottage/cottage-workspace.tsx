@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
-import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, RotateCcw, Sun, Timer, X } from "lucide-react";
+import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, RotateCcw, Sun, Timer } from "lucide-react";
+import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
 import { RoomCanvas } from "./room-canvas";
 import { ChatsPanel, NotesPanel, FocusPanel } from "./workspace-panels";
 import { INITIAL_ITEMS, STORAGE, parseRoom, type RoomItem, type LightPreset } from "./room-model";
@@ -41,7 +42,7 @@ export function CottageWorkspace() {
   const [light, setLight] = useState<LightPreset>("day");
   const [hovered, setHovered] = useState<string | null>(null);
   const desktop = useSyncExternalStore(subscribeDesktop, desktopSnapshot, () => false);
-  const [mobilePanel, setMobilePanel] = useState<PanelName | null>(null);
+  const [mobilePanels, setMobilePanels] = useState<MobilePanelName[]>([]);
   const dockApi = useRef<DockviewApi | null>(null);
   const subscriptions = useRef<{ dispose(): void } | null>(null);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -88,12 +89,18 @@ export function CottageWorkspace() {
   }, [saveLayout]);
 
   function showPanel(name: PanelName) {
-    if (!desktop) { setMobilePanel(prev => prev === name ? null : name); return; }
+    if (!desktop) { activateMobile(name); return; }
     const api = dockApi.current;
     if (!api) return;
     const existing = api.getPanel(name);
     if (existing) existing.api.setActive();
     else addFloating(api, name);
+  }
+  function activateMobile(name: MobilePanelName) {
+    setMobilePanels(current => [...current.filter(panel => panel !== name), name]);
+  }
+  function closeMobile(name: MobilePanelName) {
+    setMobilePanels(current => current.filter(panel => panel !== name));
   }
   function resetWindows() {
     if (!desktop || !dockApi.current) return;
@@ -103,8 +110,6 @@ export function CottageWorkspace() {
     for (const name of PANEL_IDS) addFloating(api, name);
     setLayoutMessage("Windows reset to the cozy default.");
   }
-
-  const mobileContent = mobilePanel === "chats" ? <ChatsPanel /> : mobilePanel === "notes" ? <NotesPanel /> : <FocusPanel />;
 
   return <main className="cottage-lab min-h-dvh bg-[#e7f0e8] text-[#263d36]">
     <header className="cottage-toolbar relative z-30 flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
@@ -144,12 +149,7 @@ export function CottageWorkspace() {
         <DockviewReact className="cottage-dock" theme={themeLight} components={components}
           floatingGroupDragHandle="titlebar" onReady={onDockReady}/>
       </div>}
-      {!desktop && mobilePanel && <section className="cottage-mobile-panel absolute inset-x-3 bottom-20 z-30 max-h-[65dvh] overflow-auto rounded-2xl border border-[#c8d2c5] bg-[#fffcf4] shadow-xl" aria-label={mobilePanel}>
-        <div className="flex items-center justify-between border-b px-4 py-2 font-semibold capitalize">{mobilePanel}
-          <button aria-label="Close panel" onClick={() => setMobilePanel(null)}><X className="size-5"/></button>
-        </div>
-        {mobileContent}
-      </section>}
+      {!desktop && <MobileWindowLayer openPanels={mobilePanels} onActivate={activateMobile} onClose={closeMobile}/>} 
       <span className="sr-only" role="status">{layoutMessage}</span>
     </section>
   </main>;
