@@ -13,7 +13,7 @@ import { INITIAL_ITEMS, STORAGE, parseRoom, type RoomItem, type LightPreset } fr
 const components = { chats: ChatsPanel, notes: NotesPanel, focus: FocusPanel };
 type PanelName = keyof typeof components;
 const PANELS: Record<PanelName, {title:string; width:number;height:number;left?:number;right?:number;top?:number;bottom?:number}> = {
-  chats: { title: "Chats", width: 265, height: 360, left: 16, top: 82 },
+  chats: { title: "Chats", width: 390, height: 490, left: 16, top: 82 },
   notes: { title: "Notes", width: 270, height: 285, right: 18, top: 82 },
   focus: { title: "Focus timer", width: 250, height: 210, right: 22, bottom: 18 },
 };

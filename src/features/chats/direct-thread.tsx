@@ -17,8 +17,10 @@ import { ChatMessageTimeline } from "@/features/chats/chat-message-timeline";
 
 interface PendingMessage { body: string; clientNonce: string }
 
-export function DirectThread({ conversationId, meProfileId }: {
+export function DirectThread({ conversationId, meProfileId, embedded = false, onBack }: {
   conversationId: Id<"conversations">; meProfileId: Id<"profiles">;
+  embedded?: boolean;
+  onBack?: () => void;
 }) {
   const t = useTranslations("Chats");
   const locale = useLocale();
@@ -93,11 +95,16 @@ export function DirectThread({ conversationId, meProfileId }: {
     return names;
   }, {});
 
-  return <div className="sengapp-chat-page space-y-3">
+  return <div className={embedded ? "sengapp-chat-page flex h-full min-h-0 flex-col gap-2" : "sengapp-chat-page space-y-3"}>
     <header className="flex min-w-0 items-center gap-3 pb-1">
-      <Button asChild variant="ghost" size="icon" aria-label={t("backToChats")} className="size-11 shrink-0 rounded-xl">
-        <Link href="/chats"><ArrowLeft className="rtl:rotate-180" aria-hidden="true" /></Link>
-      </Button>
+      {onBack
+        ? <Button type="button" variant="ghost" size="icon" aria-label={t("backToChats")}
+            className="size-11 shrink-0 rounded-xl" onClick={onBack}>
+            <ArrowLeft className="rtl:rotate-180" aria-hidden="true" />
+          </Button>
+        : <Button asChild variant="ghost" size="icon" aria-label={t("backToChats")} className="size-11 shrink-0 rounded-xl">
+            <Link href="/chats"><ArrowLeft className="rtl:rotate-180" aria-hidden="true" /></Link>
+          </Button>}
       <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
         {info?.kind === "group" ? <UsersRound className="size-5" /> : <MessageCircle className="size-5" />}
       </span>
@@ -124,7 +131,9 @@ export function DirectThread({ conversationId, meProfileId }: {
         </SheetContent>
       </Sheet>}
     </header>
-    <Card className="flex h-[calc(100dvh-12rem)] min-h-80 max-h-[52rem] flex-col overflow-hidden rounded-[1.5rem] border-border/70 shadow-sm">
+    <Card className={embedded
+      ? "flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-border/70 shadow-none"
+      : "flex h-[calc(100dvh-12rem)] min-h-80 max-h-[52rem] flex-col overflow-hidden rounded-[1.5rem] border-border/70 shadow-sm"}>
       <div ref={scroller} onScroll={() => {
         const el = scroller.current;
         if (el) stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 96;

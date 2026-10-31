@@ -56,3 +56,9 @@
 @media (max-width:899px) {
   .cottage-camera-controls { top:124px; }
 }
+
+/* Real DOM messages live within Dockview, never as Phaser textures.
+   Keep the composer and subscribed history in the panel's own flex layout. */
+.cottage-dock-layer .dv-content-container { min-height:0; overflow:hidden; }
+.cottage-dock-layer .dv-content-container > * { height:100%; min-height:0; }
+.cottage-mobile-window[data-testid="cottage-mobile-window-chats"] { min-height:0; }

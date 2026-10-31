@@ -67,6 +67,21 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
   await page.getByRole("button", { name: /Done/ }).click();
 
   if (testInfo.project.name === "mobile-chrome") {
+    await page.getByRole("button", { name: "Chats", exact: true }).click();
+    await expect(page.getByTestId("cottage-mobile-window-chats")).toBeVisible();
+    const chatWindow = page.getByTestId("cottage-mobile-window-chats");
+    await expect(chatWindow.getByTestId("cottage-live-chats")).toBeVisible();
+    await expect(chatWindow.getByRole("link", { name: "Messages" })).toHaveAttribute("href", "/chats");
+    // The responsive toolbar overlays the world; windows must not open
+    // beneath it or allow their title bar to be dragged under it.
+    await expect.poll(async () => {
+      const [header, win] = await Promise.all([
+        page.locator(".cottage-toolbar").boundingBox(), chatWindow.boundingBox(),
+      ]);
+      return header && win ? win.y - (header.y + header.height) : null;
+    }).toBeGreaterThanOrEqual(0);
+    await page.getByRole("button", { name: "Close Chats window" }).click();
+    await expect(chatWindow).toHaveCount(0);
     await page.getByRole("button", { name: "Notes", exact: true }).click();
     const mobileNotes = page.getByTestId("cottage-mobile-window-notes");
     await expect(mobileNotes).toBeVisible();
@@ -104,7 +119,10 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     await expect(page.getByLabel("A little note to yourself")).toHaveValue("Private lab note");
     await expect(page.getByTestId("cottage-mobile-window-notes")).toBeVisible();
   } else {
-    await expect(page.getByText("Private conversations")).toBeVisible();
+    await expect(page.getByTestId("cottage-live-chats")).toBeVisible();
+    // No real credentials are configured in CI; the member gate must not
+    // render fabricated chat history or silently authorize the lab visitor.
+    await expect(page.getByTestId("cottage-live-chats").getByText("Private conversations")).toHaveCount(0);
     await expect(page.getByText("Your focus moment")).toBeVisible();
     await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", "18px");
   }
