@@ -67,6 +67,12 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
   await page.getByRole("button", { name: /Done/ }).click();
 
   if (testInfo.project.name === "mobile-chrome") {
+    await page.getByRole("button", { name: "Chats", exact: true }).click();
+    await expect(page.getByTestId("cottage-mobile-window-chats")).toBeVisible();
+    const chatWindow = page.getByTestId("cottage-mobile-window-chats");
+    await expect(chatWindow.getByTestId("cottage-live-chats")).toBeVisible();
+    await expect(chatWindow.getByRole("link", { name: "Messages" })).toHaveAttribute("href", "/chats");
+    await page.getByRole("button", { name: "Close Chats window" }).click();
     await page.getByRole("button", { name: "Notes", exact: true }).click();
     const mobileNotes = page.getByTestId("cottage-mobile-window-notes");
     await expect(mobileNotes).toBeVisible();

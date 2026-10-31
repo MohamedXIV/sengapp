@@ -35,10 +35,6 @@ export function ConversationsList({ compact = false, onSelect }: {
       <GroupCreateDialog />
     </header>}
     {!compact && <GroupInvitations />}
-    {compact ? <div className="flex items-center justify-between gap-2 px-1">
-      <h2 className="text-sm font-semibold">{t("title")}</h2>
-      <Link href="/chats" className="text-xs text-primary underline underline-offset-2">{t("title")} ↗</Link>
-    </div> : null}
     <Card className={compact ? "flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-border/70 shadow-none" : "overflow-hidden rounded-3xl border-border/70 shadow-sm"}>
       <CardContent className={compact ? "flex min-h-0 flex-1 flex-col gap-3 p-2" : "space-y-3 p-3 sm:p-5"}>
         {conversations !== undefined && conversations.length > 0 && <div className="relative">
@@ -71,7 +67,6 @@ export function ConversationsList({ compact = false, onSelect }: {
                     className="group flex min-h-[4.75rem] items-center gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-accent/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:px-4">
                       <ConversationRow item={item} locale={locale} date={date} groupLabel={t("groupConversation")}/>
                     </Link>}
-
                 </li>)}
               </ul>}
       </CardContent>
