@@ -108,7 +108,7 @@ export class RoomScene extends Phaser.Scene {
       if (sprite) this.positionObject(sprite, item);
     }
   }
-  update(_time: number, delta: number) {
+  override update(_time: number, delta: number) {
     if (!this.lampGlow || this.light !== "evening") return;
     this.glowTime += delta * .001;
     this.lampGlow.setAlpha(.7 + Math.sin(this.glowTime * 2.1) * .04);
