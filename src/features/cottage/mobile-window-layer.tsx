@@ -12,7 +12,6 @@ const MARGIN = 10;
 const MIN_WIDTH = 236;
 const MIN_HEIGHT = 174;
 const DEFAULT_WIDTH = 312;
-const DEFAULT_HEIGHT = 300;
 const LABELS: Record<MobilePanelName, string> = {
   chats: "Chats", notes: "Notes", focus: "Focus timer",
 };
