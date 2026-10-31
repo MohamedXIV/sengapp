@@ -3,21 +3,24 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
-import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2 } from "lucide-react";
+import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2 } from "lucide-react";
 import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
 import { RoomCanvas, type RoomCanvasHandle } from "./room-canvas";
 import { CAMERA, WORLD_CENTER, type CameraView } from "./room-camera";
-import { ChatsPanel, NotesPanel, FocusPanel } from "./workspace-panels";
+import { ChatsPanel, ConnectionsPanel, NotesPanel, FocusPanel } from "./workspace-panels";
+import { WorkspaceNavigationProvider } from "./workspace-navigation";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { INITIAL_ITEMS, STORAGE, parseRoom, type RoomItem, type LightPreset } from "./room-model";
 
-const components = { chats: ChatsPanel, notes: NotesPanel, focus: FocusPanel };
+const components = { chats: ChatsPanel, connections: ConnectionsPanel, notes: NotesPanel, focus: FocusPanel };
 type PanelName = keyof typeof components;
 const PANELS: Record<PanelName, {title:string; width:number;height:number;left?:number;right?:number;top?:number;bottom?:number}> = {
   chats: { title: "Chats", width: 390, height: 490, left: 16, top: 82 },
+  connections: { title: "Connections", width: 380, height: 475, right: 18, top: 82 },
   notes: { title: "Notes", width: 270, height: 285, right: 18, top: 82 },
   focus: { title: "Focus timer", width: 250, height: 210, right: 22, bottom: 18 },
 };
-const PANEL_IDS: PanelName[] = ["chats", "notes", "focus"];
+const PANEL_IDS: PanelName[] = ["chats", "connections", "notes", "focus"];
 const desktopQuery = "(min-width: 900px)";
 function subscribeDesktop(callback: () => void) {
   const media = window.matchMedia(desktopQuery);
@@ -46,6 +49,7 @@ export function CottageWorkspace() {
   const [hovered, setHovered] = useState<string | null>(null);
   const desktop = useSyncExternalStore(subscribeDesktop, desktopSnapshot, () => false);
   const [mobilePanels, setMobilePanels] = useState<MobilePanelName[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<Id<"conversations"> | null>(null);
   const dockApi = useRef<DockviewApi | null>(null);
   const subscriptions = useRef<{ dispose(): void } | null>(null);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -99,6 +103,10 @@ export function CottageWorkspace() {
     if (existing) existing.api.setActive();
     else addFloating(api, name);
   }
+  function openConversation(conversationId: Id<"conversations">) {
+    setSelectedConversation(conversationId);
+    showPanel("chats");
+  }
   function activateMobile(name: MobilePanelName) {
     setMobilePanels(current => current[current.length - 1] === name
       ? current : [...current.filter(panel => panel !== name), name]);
@@ -115,7 +123,7 @@ export function CottageWorkspace() {
     setLayoutMessage("Windows reset to the cozy default.");
   }
 
-  return <main className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
+  return <WorkspaceNavigationProvider value={{ selectedConversation, openConversation, returnToConversations: () => setSelectedConversation(null) }}><main className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
     <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
       <div className="flex items-center gap-3">
         <Link href="/home" className="cottage-icon-button" aria-label="Back to Sengapp"><ArrowLeft className="size-4" /></Link>
@@ -124,6 +132,7 @@ export function CottageWorkspace() {
       </div>
       <nav aria-label="Workspace tools" className="flex flex-wrap items-center gap-1.5 sm:gap-2">
         <button className="cottage-tool" aria-label="Chats" onClick={() => showPanel("chats")}><MessageCircle className="size-4"/><span className="hidden sm:inline">Chats</span></button>
+        <button className="cottage-tool" aria-label="Connections" onClick={() => showPanel("connections")}><UsersRound className="size-4"/><span className="hidden sm:inline">People</span></button>
         <button className="cottage-tool" aria-label="Notes" onClick={() => showPanel("notes")}><BookOpenText className="size-4"/><span className="hidden sm:inline">Notes</span></button>
         <button className="cottage-tool" aria-label="Focus" onClick={() => showPanel("focus")}><Timer className="size-4"/><span className="hidden sm:inline">Focus</span></button>
         <span className="mx-1 hidden h-6 w-px bg-[#bdd3c4] sm:block"/>
@@ -173,5 +182,5 @@ export function CottageWorkspace() {
       {!desktop && <MobileWindowLayer openPanels={mobilePanels} onActivate={activateMobile} onClose={closeMobile}/>} 
       <span className="sr-only" role="status">{layoutMessage}</span>
     </section>
-  </main>;
+  </main></WorkspaceNavigationProvider>;
 }

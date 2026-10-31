@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OpenDirectButton } from "@/features/chats/open-direct-button";
 import type { Id } from "../../../convex/_generated/dataModel";
 
-export function ContactsPanel({ contacts }: {
+export function ContactsPanel({ contacts, onOpenConversation }: {
   contacts?: Array<{ connectionId: Id<"connections">; displayName: string; handle?: string }>;
+  onOpenConversation?: (conversationId: Id<"conversations">) => void;
 }) {
   const t = useTranslations("Connections");
   return <Card className="sengapp-feature-card overflow-hidden rounded-[calc(var(--radius)+0.5rem)] border-border/70 shadow-sm">
@@ -37,7 +38,7 @@ export function ContactsPanel({ contacts }: {
                   <p className="truncate font-semibold" dir="auto">{contact.displayName}</p>
                   {contact.handle && <p className="truncate text-xs text-muted-foreground" dir="ltr">@{contact.handle}</p>}
                 </div>
-                <OpenDirectButton connectionId={contact.connectionId} />
+                <OpenDirectButton connectionId={contact.connectionId} onOpenConversation={onOpenConversation} />
               </li>)}
             </ul>}
     </CardContent>

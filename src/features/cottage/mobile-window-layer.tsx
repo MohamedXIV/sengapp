@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Grip, X } from "lucide-react";
-import { ChatsPanel, FocusPanel, NotesPanel } from "./workspace-panels";
+import { ChatsPanel, ConnectionsPanel, FocusPanel, NotesPanel } from "./workspace-panels";
 
-export type MobilePanelName = "chats" | "notes" | "focus";
+export type MobilePanelName = "chats" | "connections" | "notes" | "focus";
 export type MobileWindowBounds = { x: number; y: number; width: number; height: number };
 
 const STORAGE_KEY = "sengapp-lab-mobile-windows-v1";
@@ -13,10 +13,11 @@ const MIN_WIDTH = 236;
 const MIN_HEIGHT = 174;
 const DEFAULT_WIDTH = 312;
 const LABELS: Record<MobilePanelName, string> = {
-  chats: "Chats", notes: "Notes", focus: "Focus timer",
+  chats: "Chats", connections: "Connections", notes: "Notes", focus: "Focus timer",
 };
 const DEFAULTS: Record<MobilePanelName, MobileWindowBounds> = {
   chats: { x: 14, y: 45, width: DEFAULT_WIDTH, height: 290 },
+  connections: { x: 24, y: 80, width: DEFAULT_WIDTH, height: 390 },
   notes: { x: 30, y: 105, width: DEFAULT_WIDTH, height: 280 },
   focus: { x: 52, y: 170, width: 265, height: 218 },
 };
@@ -173,8 +174,8 @@ export function MobileWindowLayer({
           <button className="flex size-9 shrink-0 items-center justify-center rounded-lg hover:bg-[#c5decf] focus-visible:outline-2 focus-visible:outline-[#45785e]"
             aria-label={`Close ${LABELS[name]} window`} onClick={() => onClose(name)}><X className="size-4"/></button>
         </div>
-        <div className={name === "chats" ? "min-h-0 flex-1 overflow-hidden" : "min-h-0 flex-1 overflow-auto overscroll-contain"}>
-          {name === "chats" ? <ChatsPanel /> : name === "notes" ? <NotesPanel /> : <FocusPanel />}
+        <div className={name === "chats" || name === "connections" ? "min-h-0 flex-1 overflow-hidden" : "min-h-0 flex-1 overflow-auto overscroll-contain"}>
+          {name === "chats" ? <ChatsPanel /> : name === "connections" ? <ConnectionsPanel /> : name === "notes" ? <NotesPanel /> : <FocusPanel />}
         </div>
         <button aria-label={`Resize ${LABELS[name]} window`}
           title="Drag to resize" className="cottage-mobile-resize absolute bottom-0 right-0 flex size-9 touch-none select-none items-end justify-end rounded-br-[19px] p-1.5 text-[#71927b]"

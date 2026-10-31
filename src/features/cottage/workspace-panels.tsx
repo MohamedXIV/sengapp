@@ -9,9 +9,15 @@ import { ConversationsList } from "@/features/chats/conversations-list";
 import { DirectThread } from "@/features/chats/direct-thread";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { STORAGE } from "./room-model";
+import { ConnectionsSpace } from "@/app/connections/page";
+import { useWorkspaceNavigation } from "./workspace-navigation";
 
 export function ChatsPanel() {
-  const [selected, setSelected] = useState<Id<"conversations"> | null>(null);
+  const [localSelected, setLocalSelected] = useState<Id<"conversations"> | null>(null);
+  const navigation = useWorkspaceNavigation();
+  const selected = navigation?.selectedConversation ?? localSelected;
+  const select = navigation?.openConversation ?? setLocalSelected;
+  const back = navigation?.returnToConversations ?? (() => setLocalSelected(null));
   const t = useTranslations("Chats");
 
   return <section data-testid="cottage-live-chats" className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-card text-card-foreground">
@@ -24,10 +30,19 @@ export function ChatsPanel() {
     <div className="min-h-0 flex-1 overflow-hidden px-2 pb-2">
       <MemberGate embedded>{profile => selected
         ? <DirectThread key={selected} embedded conversationId={selected}
-            meProfileId={profile._id} onBack={() => setSelected(null)}/>
-        : <ConversationsList compact onSelect={setSelected}/>}
+            meProfileId={profile._id} onBack={back}/>
+        : <ConversationsList compact onSelect={select}/>}
       </MemberGate>
     </div>
+  </section>;
+}
+
+export function ConnectionsPanel() {
+  const navigation = useWorkspaceNavigation();
+  return <section data-testid="cottage-live-connections" className="h-full min-h-0 overflow-hidden bg-card text-card-foreground">
+    <MemberGate embedded>{() =>
+      <ConnectionsSpace compact onOpenConversation={navigation?.openConversation}/>}
+    </MemberGate>
   </section>;
 }
 

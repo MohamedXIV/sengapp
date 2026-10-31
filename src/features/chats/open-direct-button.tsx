@@ -9,7 +9,7 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 
-export function OpenDirectButton({ connectionId }: { connectionId: Id<"connections"> }) {
+export function OpenDirectButton({ connectionId, onOpenConversation }: { connectionId: Id<"connections">; onOpenConversation?: (conversationId: Id<"conversations">) => void; }) {
   const t = useTranslations("Chats");
   const router = useRouter();
   const openDirect = useMutation(api.conversations.openDirect);
@@ -22,7 +22,8 @@ export function OpenDirectButton({ connectionId }: { connectionId: Id<"connectio
     setError(false);
     try {
       const conversationId = await openDirect({ connectionId });
-      router.push(`/chats/${conversationId}`);
+      if (onOpenConversation) { onOpenConversation(conversationId); setBusy(false); }
+      else router.push(`/chats/${conversationId}`);
     } catch {
       setError(true);
       setBusy(false);

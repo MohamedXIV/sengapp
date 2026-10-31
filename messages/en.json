@@ -314,5 +314,21 @@
     "unexpectedTitle": "Something went wrong.",
     "unexpectedDescription": "Couldn't load this part of Sengapp. Please try again.",
     "retry": "Try again"
+  },
+  "WindowStyle": {
+    "heading": "Window materials",
+    "description": "Dress your workspace in a style that feels like yours.",
+    "material": "Material",
+    "cozy": "Cozy",
+    "glass": "Glass",
+    "paper": "Paper",
+    "opacity": "Opacity",
+    "blur": "Glass blur",
+    "atmosphere": "Atmosphere",
+    "none": "Clear",
+    "mist": "Mist",
+    "rain": "Rain",
+    "reset": "Restore defaults",
+    "localNote": "For now, this experiment saves your window look in this browser. Account-wide syncing comes after review."
   }
 }
