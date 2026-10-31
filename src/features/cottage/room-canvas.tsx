@@ -1,19 +1,30 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
+import { CAMERA, type CameraView } from "./room-camera";
 import type { RoomItem, LightPreset } from "./room-model";
 import type { RoomScene } from "./room-scene";
 
-export function RoomCanvas({ items, editing, light, onChange, onHover }: {
+export type RoomCanvasHandle = { zoomIn(): void; zoomOut(): void; fit(): void };
+
+export function RoomCanvas({ items, editing, light, onChange, onHover, onViewChange, ref }: {
   items: RoomItem[]; editing: boolean; light: LightPreset;
   onChange(items: RoomItem[]): void; onHover(label: string | null): void;
+  onViewChange(view: CameraView): void;
+  ref?: Ref<RoomCanvasHandle>;
 }) {
   const mount = useRef<HTMLDivElement>(null);
   const scene = useRef<RoomScene | null>(null);
-  const callbacks = useRef({ onChange, onHover });
+  const callbacks = useRef({ onChange, onHover, onViewChange });
 
   const latestItems = useRef(items);
   const latestEditing = useRef(editing);
   const latestLight = useRef(light);
+
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => scene.current?.zoomBy(CAMERA.buttonFactor),
+    zoomOut: () => scene.current?.zoomBy(1 / CAMERA.buttonFactor),
+    fit: () => scene.current?.fitRoom(),
+  }), []);
 
   useEffect(() => {
     const element = mount.current;
@@ -33,6 +44,7 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
       const room = new RoomScene(latestItems.current, {
         onChange: value => callbacks.current.onChange(value),
         onHover: value => callbacks.current.onHover(value),
+        onViewChange: view => callbacks.current.onViewChange(view),
       });
       scene.current = room;
       room.setEditMode(latestEditing.current);
@@ -63,9 +75,9 @@ export function RoomCanvas({ items, editing, light, onChange, onHover }: {
   useEffect(() => { latestLight.current = light; scene.current?.setLight(light); }, [light]);
   useEffect(() => { latestItems.current = items; scene.current?.setItems(items); }, [items]);
   useEffect(() => {
-    callbacks.current = { onChange, onHover };
+    callbacks.current = { onChange, onHover, onViewChange };
     scene.current?.setCallbacks(callbacks.current);
-  }, [onChange, onHover]);
+  }, [onChange, onHover, onViewChange]);
 
   return <div ref={mount} data-testid="cottage-canvas" role="img"
     aria-label="An isometric woodland cottage with individually movable furniture. Enable Edit room to rearrange."

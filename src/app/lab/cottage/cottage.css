@@ -43,3 +43,10 @@
 @media (pointer:coarse) {
   .cottage-mobile-resize { width:44px; height:44px; }
 }
+
+/* Scene navigation: compact, touch-sized controls above the world canvas. */
+.cottage-camera-button { display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:12px; color:#315742; }
+.cottage-camera-button:hover:not(:disabled) { background:#d7ecdc; }
+.cottage-camera-button:disabled { opacity:.3; cursor:not-allowed; }
+.cottage-camera-button:focus-visible { outline:2px solid #45785e; outline-offset:1px; }
+@media (pointer:coarse) { .cottage-camera-button { width:42px; height:42px; } }

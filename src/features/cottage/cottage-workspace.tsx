@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
-import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, RotateCcw, Sun, Timer } from "lucide-react";
+import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan } from "lucide-react";
 import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
-import { RoomCanvas } from "./room-canvas";
+import { RoomCanvas, type RoomCanvasHandle } from "./room-canvas";
+import { CAMERA, ROOM_CENTER, type CameraView } from "./room-camera";
 import { ChatsPanel, NotesPanel, FocusPanel } from "./workspace-panels";
 import { INITIAL_ITEMS, STORAGE, parseRoom, type RoomItem, type LightPreset } from "./room-model";
 
@@ -40,6 +41,8 @@ export function CottageWorkspace() {
   const [items, setItems] = useState<RoomItem[]>(INITIAL_ITEMS);
   const [editMode, setEditMode] = useState(false);
   const [light, setLight] = useState<LightPreset>("day");
+  const [cameraView, setCameraView] = useState<CameraView>({ level: 1, ...ROOM_CENTER });
+  const roomCamera = useRef<RoomCanvasHandle>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const desktop = useSyncExternalStore(subscribeDesktop, desktopSnapshot, () => false);
   const [mobilePanels, setMobilePanels] = useState<MobilePanelName[]>([]);
@@ -136,11 +139,26 @@ export function CottageWorkspace() {
     <section className="cottage-stage relative min-h-0 w-full flex-1 overflow-hidden">
       <div className="cottage-stage-background absolute inset-0" aria-hidden="true"/>
       <div className="cottage-stage-center absolute inset-0">
-        <RoomCanvas items={items} editing={editMode} light={light} onChange={changedItems} onHover={changedHover}/>
+        <RoomCanvas ref={roomCamera} items={items} editing={editMode} light={light}
+          onChange={changedItems} onHover={changedHover} onViewChange={setCameraView}/>
       </div>
+      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-3 z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-[#bbd0c1] bg-[#fffcf2eb] p-1 shadow-sm backdrop-blur-sm">
+        <button type="button" aria-label="Zoom out" title="Zoom out" className="cottage-camera-button" disabled={cameraView.level <= CAMERA.minLevel + .001}
+          onClick={() => roomCamera.current?.zoomOut()}><ZoomOut className="size-[17px]"/></button>
+        <output data-testid="room-zoom-indicator" data-camera-x={cameraView.x.toFixed(2)}
+          data-camera-y={cameraView.y.toFixed(2)}
+          className="min-w-12 text-center text-xs font-bold tabular-nums" aria-label="Room zoom">
+          {cameraView.level.toFixed(1)}×
+        </output>
+        <button type="button" aria-label="Zoom in" title="Zoom in" className="cottage-camera-button" disabled={cameraView.level >= CAMERA.maxLevel - .001}
+          onClick={() => roomCamera.current?.zoomIn()}><ZoomIn className="size-[17px]"/></button>
+        <span className="mx-1 h-5 w-px bg-[#c4d7c7]" aria-hidden="true"/>
+        <button type="button" aria-label="Fit room" title="Show the full room" className="cottage-camera-button"
+          onClick={() => roomCamera.current?.fitRoom()}><Scan className="size-[17px]"/></button>
+      </nav>
       <aside className="pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border border-[#c3d2c2] bg-[#fffaf0ed] px-4 py-2 text-xs shadow-sm">
         <span className="block font-bold">{hovered ?? (editMode ? "Edit mode · drag sprites to new tiles" : "Your little forest cottage")}</span>
-        <span className="block text-[#63796e]">{editMode ? "7 movable decorations · collision-aware soft grid" : "Three layers: shell · furniture · gentle lighting"}</span>
+        <span className="block text-[#63796e]">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "Drag to pan · Scroll or pinch to zoom · Fit room to reset"}</span>
       </aside>
       <div className="absolute bottom-4 right-4 z-20 flex gap-2">
         <button className="cottage-tool bg-white/90" onClick={resetFurniture} title="Reset furniture"><RotateCcw className="size-4"/> <span className="hidden sm:inline">Reset room</span></button>

@@ -1,8 +1,13 @@
 import Phaser from "phaser";
 import { CATALOG, ROOM, type RoomItem, type FurnitureId, type LightPreset, toScreen, toCell, canPlace, updatePlacement } from "./room-model";
+import { CAMERA, ROOM_BOUNDS, ROOM_CENTER, type CameraView, clampView, fitZoom, zoomAt } from "./room-camera";
 
 const ASSETS = "/lab/cottage";
-type Callbacks = { onChange(items: RoomItem[]): void; onHover(label: string | null): void };
+type Callbacks = {
+  onChange(items: RoomItem[]): void;
+  onHover(label: string | null): void;
+  onViewChange(view: CameraView): void;
+};
 
 export class RoomScene extends Phaser.Scene {
   private items: RoomItem[];
@@ -14,6 +19,10 @@ export class RoomScene extends Phaser.Scene {
   private lampGlow?: Phaser.GameObjects.Image;
   private dragging?: { id: FurnitureId; x: number; y: number };
   private glowTime = 0;
+  private viewport = { width: ROOM.width, height: ROOM.height };
+  private view: CameraView = { level: 1, ...ROOM_CENTER };
+  private pointers = new Map<number, { x: number; y: number }>();
+  private pinch: { midpoint: { x: number; y: number }; distance: number } | null = null;
 
   constructor(items: RoomItem[], callbacks: Callbacks) {
     super({ key: "cottage-room" });
@@ -22,7 +31,7 @@ export class RoomScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.svg("forest-shell", `${ASSETS}/forest-room.svg`, { width: ROOM.width, height: ROOM.height });
+    this.load.svg("forest-shell", `${ASSETS}/forest-room.svg`, { width: ROOM_BOUNDS.width, height: ROOM_BOUNDS.height });
     for (const [id, size] of Object.entries(CATALOG)) {
       this.load.svg(`item-${id}`, `${ASSETS}/${id}.svg`, { width: size.width, height: size.height });
     }
@@ -37,7 +46,8 @@ export class RoomScene extends Phaser.Scene {
       this.scale.off("resize", this.onViewportResize, this);
     });
     this.fitViewport(this.scale.gameSize.width, this.scale.gameSize.height);
-    this.add.image(ROOM.width / 2, ROOM.height / 2, "forest-shell").setDepth(-1000);
+    this.add.image(ROOM_BOUNDS.x, ROOM_BOUNDS.y, "forest-shell")
+      .setOrigin(0, 0).setDepth(-1000);
     for (const item of this.items) this.makeFurniture(item);
 
     this.nightShade = this.add.rectangle(ROOM.width / 2, ROOM.height / 2,
@@ -77,6 +87,49 @@ export class RoomScene extends Phaser.Scene {
       this.callbacks.onChange(this.items.map(item => ({ ...item })));
     });
     this.setLight(this.light);
+    this.input.addPointer(2);
+
+    // Pan using one finger or a mouse drag. Two fingers pinch/translate.
+    // While editing furniture, scene camera gestures are disabled.
+    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+      if (this.editing) return;
+      this.pointers.set(pointer.id, { x: pointer.x, y: pointer.y });
+      this.pinch = null;
+    });
+    this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
+      if (this.editing || !pointer.isDown) return;
+      const previous = this.pointers.get(pointer.id);
+      if (!previous) return;
+      this.pointers.set(pointer.id, { x: pointer.x, y: pointer.y });
+      if (this.pointers.size >= 2) {
+        const [a, b] = [...this.pointers.values()].slice(0, 2);
+        const distance = Math.hypot(a.x - b.x, a.y - b.y);
+        const midpoint = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        if (this.pinch && this.pinch.distance > 1 && distance > 1) {
+          this.applyView(zoomAt(this.view, this.view.level * distance / this.pinch.distance,
+            this.viewport, this.pinch.midpoint, midpoint));
+        }
+        this.pinch = { distance, midpoint };
+      } else {
+        const zoom = fitZoom(this.viewport.width, this.viewport.height) * this.view.level;
+        this.applyView({ ...this.view,
+          x: this.view.x - (pointer.x - previous.x) / zoom,
+          y: this.view.y - (pointer.y - previous.y) / zoom });
+      }
+    });
+    const endPointer = (pointer: Phaser.Input.Pointer) => {
+      this.pointers.delete(pointer.id);
+      this.pinch = null;
+    };
+    this.input.on("pointerup", endPointer);
+    this.input.on("pointerupoutside", endPointer);
+    this.input.on("gameout", () => { this.pointers.clear(); this.pinch = null; });
+    this.input.on("wheel", (pointer: Phaser.Input.Pointer, _over: unknown,
+      _dx: number, dy: number) => {
+      if (!dy) return;
+      const factor = dy < 0 ? CAMERA.wheelFactor : 1 / CAMERA.wheelFactor;
+      this.zoomBy(factor, { x: pointer.x, y: pointer.y });
+    });
   }
 
   private onViewportResize(gameSize: Phaser.Structs.Size) {
@@ -85,13 +138,27 @@ export class RoomScene extends Phaser.Scene {
 
   private fitViewport(width: number, height: number) {
     if (width < 1 || height < 1) return;
-    const camera = this.cameras.main;
-    camera.setSize(width, height);
-    // Preserve the entire modular room while giving Phaser a canvas covering
-    // the stage. Extra space reveals the *same* background as the web UI.
-    const zoom = Math.max(0.001, Math.min(width / ROOM.width, height / ROOM.height) * 0.97);
-    camera.setZoom(zoom);
-    camera.centerOn(ROOM.width / 2, ROOM.height / 2);
+    this.viewport = { width, height };
+    this.cameras.main.setSize(width, height);
+    this.applyView(this.view.level === CAMERA.minLevel
+      ? { level: 1, ...ROOM_CENTER } : this.view);
+  }
+
+  private applyView(view: CameraView) {
+    this.view = clampView(view, this.viewport.width, this.viewport.height);
+    this.cameras.main.setZoom(fitZoom(this.viewport.width, this.viewport.height) * this.view.level);
+    this.cameras.main.centerOn(this.view.x, this.view.y);
+    this.callbacks.onViewChange({ ...this.view });
+  }
+
+  zoomBy(factor: number, anchor = { x: this.viewport.width / 2, y: this.viewport.height / 2 }) {
+    if (!this.scene.isActive()) return;
+    this.applyView(zoomAt(this.view, this.view.level * factor, this.viewport, anchor));
+  }
+
+  fitRoom() {
+    if (!this.scene.isActive()) return;
+    this.applyView({ level: 1, ...ROOM_CENTER });
   }
 
   private makeFurniture(item: RoomItem) {
@@ -116,7 +183,12 @@ export class RoomScene extends Phaser.Scene {
   }
 
   setCallbacks(callbacks: Callbacks) { this.callbacks = callbacks; }
-  setEditMode(editing: boolean) { this.editing = editing; this.dragging = undefined; }
+  setEditMode(editing: boolean) {
+    this.editing = editing;
+    this.dragging = undefined;
+    this.pointers.clear();
+    this.pinch = null;
+  }
   setLight(light: LightPreset) {
     this.light = light;
     this.nightShade?.setAlpha(light === "evening" ? .34 : 0);
