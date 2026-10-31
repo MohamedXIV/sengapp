@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
-import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan } from "lucide-react";
+import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2 } from "lucide-react";
 import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
 import { RoomCanvas, type RoomCanvasHandle } from "./room-canvas";
-import { CAMERA, ROOM_CENTER, type CameraView } from "./room-camera";
+import { CAMERA, WORLD_CENTER, type CameraView } from "./room-camera";
 import { ChatsPanel, NotesPanel, FocusPanel } from "./workspace-panels";
 import { INITIAL_ITEMS, STORAGE, parseRoom, type RoomItem, type LightPreset } from "./room-model";
 
@@ -41,7 +41,7 @@ export function CottageWorkspace() {
   const [items, setItems] = useState<RoomItem[]>(INITIAL_ITEMS);
   const [editMode, setEditMode] = useState(false);
   const [light, setLight] = useState<LightPreset>("day");
-  const [cameraView, setCameraView] = useState<CameraView>({ level: 1, ...ROOM_CENTER });
+  const [cameraView, setCameraView] = useState<CameraView>({ level: 1, ...WORLD_CENTER });
   const roomCamera = useRef<RoomCanvasHandle>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const desktop = useSyncExternalStore(subscribeDesktop, desktopSnapshot, () => false);
@@ -153,12 +153,14 @@ export function CottageWorkspace() {
         <button type="button" aria-label="Zoom in" title="Zoom in" className="cottage-camera-button" disabled={cameraView.level >= CAMERA.maxLevel - .001}
           onClick={() => roomCamera.current?.zoomIn()}><ZoomIn className="size-[17px]"/></button>
         <span className="mx-1 h-5 w-px bg-[#c4d7c7]" aria-hidden="true"/>
-        <button type="button" aria-label="Fit room" title="Show the full room" className="cottage-camera-button"
+        <button type="button" aria-label="Fit room" title="Focus on the cottage" className="cottage-camera-button"
           onClick={() => roomCamera.current?.fit()}><Scan className="size-[17px]"/></button>
+        <button type="button" aria-label="Fit world" title="Show the 16:10 world" className="cottage-camera-button"
+          onClick={() => roomCamera.current?.fitWorld()}><Maximize2 className="size-[17px]"/></button>
       </nav>
       <aside className="pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border border-[#c3d2c2] bg-[#fffaf0ed] px-4 py-2 text-xs shadow-sm">
         <span className="block font-bold">{hovered ?? (editMode ? "Edit mode · drag sprites to new tiles" : "Your little forest cottage")}</span>
-        <span className="block text-[#63796e]">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "Drag to pan · Scroll or pinch to zoom · Fit room to reset"}</span>
+        <span className="block text-[#63796e]">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "16:10 world · Drag to pan · Scroll or pinch to zoom"}</span>
       </aside>
       <div className="absolute bottom-4 right-4 z-20 flex gap-2">
         <button className="cottage-tool bg-white/90" onClick={resetFurniture} title="Reset furniture"><RotateCcw className="size-4"/> <span className="hidden sm:inline">Reset room</span></button>
