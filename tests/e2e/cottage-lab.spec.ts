@@ -82,6 +82,9 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     }).toBeGreaterThanOrEqual(0);
     await page.getByRole("button", { name: "Close Chats window" }).click();
     await expect(chatWindow).toHaveCount(0);
+    await page.getByRole("button", { name: "Connections", exact: true }).click();
+    await expect(page.getByTestId("cottage-mobile-window-connections")).toBeVisible();
+    await page.getByRole("button", { name: "Close Connections window" }).click();
     await page.getByRole("button", { name: "Notes", exact: true }).click();
     const mobileNotes = page.getByTestId("cottage-mobile-window-notes");
     await expect(mobileNotes).toBeVisible();
@@ -126,4 +129,25 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     await expect(page.getByText("Your focus moment")).toBeVisible();
     await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", "18px");
   }
+});
+
+test("workspace offers switchable glass, paper and ambient effects", async ({ page }, testInfo) => {
+  await page.goto("/lab/cottage");
+  await page.getByRole("button", { name: "Window style", exact: true }).click();
+  const panel = page.getByTestId("window-style-panel");
+  await expect(panel).toBeVisible();
+  await panel.getByRole("button", { name: "Glass" }).click();
+  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
+  await panel.getByLabel("Opacity").fill("77");
+  await panel.getByLabel("Glass blur").fill("20");
+  await expect(page.locator(".cottage-lab")).toHaveAttribute("style", /--window-opacity: 77%/);
+  await expect(page.locator(".cottage-lab")).toHaveAttribute("style", /--window-blur: 20px/);
+  await panel.getByRole("button", { name: "Rain" }).click();
+  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-atmosphere", "rain");
+  await page.reload();
+  if (testInfo.project.name === "mobile-chrome") await page.getByRole("button", { name: "Window style", exact: true }).click();
+  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
+  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-atmosphere", "rain");
+  await page.getByTestId("window-style-panel").getByRole("button", { name: "Paper" }).click();
+  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "paper");
 });
