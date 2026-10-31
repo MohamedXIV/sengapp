@@ -24,7 +24,7 @@ describe("embedded workspace chat flow", () => {
   it("keeps selected thread bound to the authorized member and returns to live list", () => {
     render(<EnglishTestProvider><ChatsPanel /></EnglishTestProvider>);
     expect(screen.getByTestId("cottage-live-chats")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Chats/i })).toHaveAttribute("href", "/chats");
+    expect(screen.getByRole("link", { name: /Messages/i })).toHaveAttribute("href", "/chats");
     fireEvent.click(screen.getByRole("button", { name: "Select Mina" }));
     expect(screen.getByTestId("real-thread")).toHaveTextContent("dm-from-real-list · authorized-profile");
     fireEvent.click(screen.getByRole("button", { name: "Back to chats" }));
