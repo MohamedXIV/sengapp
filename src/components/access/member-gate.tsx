@@ -8,6 +8,8 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Doc } from "../../../convex/_generated/dataModel";
 import { AppShell } from "@/components/layout/app-shell";
+import { AccountLocaleProvider } from "@/components/i18n/account-locale-provider";
+import { PersonalThemeProvider } from "@/components/themes/personal-theme-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { chooseLocale } from "@/lib/i18n/locale";
 
@@ -33,13 +35,16 @@ export function BackendRequired({ children }: { children: ReactNode }) {
 export function MemberGate({
   children,
   operatorOnly = false,
+  embedded = false,
 }: {
   children: (profile: Profile) => ReactNode;
   operatorOnly?: boolean;
+  /** Use the same Clerk + Convex member gate inside a floating panel, without nesting the app sidebar. */
+  embedded?: boolean;
 }) {
   return (
     <BackendRequired>
-      <AuthenticatedMember operatorOnly={operatorOnly}>{children}</AuthenticatedMember>
+      <AuthenticatedMember operatorOnly={operatorOnly} embedded={embedded}>{children}</AuthenticatedMember>
     </BackendRequired>
   );
 }
@@ -47,9 +52,11 @@ export function MemberGate({
 function AuthenticatedMember({
   children,
   operatorOnly,
+  embedded,
 }: {
   children: (profile: Profile) => ReactNode;
   operatorOnly: boolean;
+  embedded: boolean;
 }) {
   const t = useTranslations("Access");
   const { isLoading, isAuthenticated } = useConvexAuth();
@@ -63,15 +70,17 @@ function AuthenticatedMember({
       </div>
     );
   }
-  return <ResolvedMembership operatorOnly={operatorOnly}>{children}</ResolvedMembership>;
+  return <ResolvedMembership operatorOnly={operatorOnly} embedded={embedded}>{children}</ResolvedMembership>;
 }
 
 function ResolvedMembership({
   children,
   operatorOnly,
+  embedded,
 }: {
   children: (profile: Profile) => ReactNode;
   operatorOnly: boolean;
+  embedded: boolean;
 }) {
   const t = useTranslations("Access");
   const { user: clerkUser } = useUser();
@@ -136,6 +145,15 @@ function ResolvedMembership({
         <Link href="/home" className="inline-block text-primary underline">{t("backSpace")}</Link>
       </div>
     );
+  }
+  if (embedded) {
+    return <AccountLocaleProvider locale={profile.locale}>
+      <PersonalThemeProvider key={profile._id} profileId={profile._id}
+        preferences={profile.visualPreferences} appearance={profile.themePreference}
+        reducedMotion={profile.reducedMotion}>
+        {children(profile)}
+      </PersonalThemeProvider>
+    </AccountLocaleProvider>;
   }
   return (
     <AppShell profileId={profile._id} visualPreferences={profile.visualPreferences}

@@ -104,7 +104,10 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     await expect(page.getByLabel("A little note to yourself")).toHaveValue("Private lab note");
     await expect(page.getByTestId("cottage-mobile-window-notes")).toBeVisible();
   } else {
-    await expect(page.getByText("Private conversations")).toBeVisible();
+    await expect(page.getByTestId("cottage-live-chats")).toBeVisible();
+    // No real credentials are configured in CI; the member gate must not
+    // render fabricated chat history or silently authorize the lab visitor.
+    await expect(page.getByTestId("cottage-live-chats").getByText("Private conversations")).toHaveCount(0);
     await expect(page.getByText("Your focus moment")).toBeVisible();
     await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", "18px");
   }

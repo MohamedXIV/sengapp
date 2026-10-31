@@ -1,16 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { MessageCircle, StickyNote, Timer, Play, Pause, RotateCcw, ArrowUpRight } from "lucide-react";
+import { StickyNote, Timer, Play, Pause, RotateCcw, ArrowUpRight } from "lucide-react";
+import { MemberGate } from "@/components/access/member-gate";
+import { ConversationsList } from "@/features/chats/conversations-list";
+import { DirectThread } from "@/features/chats/direct-thread";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { STORAGE } from "./room-model";
 
 export function ChatsPanel() {
-  return <section className="cottage-panel-body space-y-3">
-    <div className="flex items-center gap-2 text-[#557963]"><MessageCircle className="size-5" /><strong>Private conversations</strong></div>
-    <p>Your real DMs and private groups are one click away. This lab doesn&apos;t read or imitate your messages.</p>
-    <Link className="cottage-link" href="/chats">Open Sengapp messages <ArrowUpRight className="size-4" /></Link>
-    <p className="text-xs opacity-70">Later: embed the actual authorized chat surface in this panel.</p>
+  const [selected, setSelected] = useState<Id<"conversations"> | null>(null);
+  const t = useTranslations("Chats");
+
+  return <section data-testid="cottage-live-chats" className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-card text-card-foreground">
+    <div className="flex shrink-0 items-center justify-between gap-2 px-3 pt-3">
+      <h2 className="text-sm font-semibold">{t("title")}</h2>
+      <Link href="/chats" className="flex min-h-9 items-center gap-1 rounded-xl px-2 text-xs text-primary underline-offset-2 hover:underline">
+        {t("title")} <ArrowUpRight className="size-3.5" aria-hidden="true" />
+      </Link>
+    </div>
+    <div className="min-h-0 flex-1 overflow-hidden px-2 pb-2">
+      <MemberGate embedded>{profile => selected
+        ? <DirectThread key={selected} embedded conversationId={selected}
+            meProfileId={profile._id} onBack={() => setSelected(null)}/>
+        : <ConversationsList compact onSelect={setSelected}/>}
+      </MemberGate>
+    </div>
   </section>;
 }
 

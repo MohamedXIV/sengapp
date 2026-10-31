@@ -160,7 +160,7 @@ export function MobileWindowLayer({
           <button className="flex size-9 shrink-0 items-center justify-center rounded-lg hover:bg-[#c5decf] focus-visible:outline-2 focus-visible:outline-[#45785e]"
             aria-label={`Close ${LABELS[name]} window`} onClick={() => onClose(name)}><X className="size-4"/></button>
         </div>
-        <div className="min-h-0 flex-1 overflow-auto overscroll-contain">
+        <div className={name === "chats" ? "min-h-0 flex-1 overflow-hidden" : "min-h-0 flex-1 overflow-auto overscroll-contain"}>
           {name === "chats" ? <ChatsPanel /> : name === "notes" ? <NotesPanel /> : <FocusPanel />}
         </div>
         <button aria-label={`Resize ${LABELS[name]} window`}
