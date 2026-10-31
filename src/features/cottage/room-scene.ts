@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { CATALOG, ROOM, type RoomItem, type FurnitureId, type LightPreset, toScreen, toCell, canPlace, updatePlacement } from "./room-model";
-import { CAMERA, ROOM_BOUNDS, ROOM_CENTER, type CameraView, clampView, fitZoom, zoomAt } from "./room-camera";
+import { CAMERA, ROOM_BOUNDS, WORLD_CENTER, type CameraView, clampView, fitZoom, homeView, roomFitView, zoomAt } from "./room-camera";
 
 const ASSETS = "/lab/cottage";
 type Callbacks = {
@@ -20,7 +20,8 @@ export class RoomScene extends Phaser.Scene {
   private dragging?: { id: FurnitureId; x: number; y: number };
   private glowTime = 0;
   private viewport: { width: number; height: number } = { width: ROOM.width, height: ROOM.height };
-  private view: CameraView = { level: 1, ...ROOM_CENTER };
+  private view: CameraView = { level: 1, ...WORLD_CENTER };
+  private hasViewport = false;
   private pointers = new Map<number, { x: number; y: number }>();
   private pinch: { midpoint: { x: number; y: number }; distance: number } | null = null;
 
@@ -141,8 +142,12 @@ export class RoomScene extends Phaser.Scene {
     if (width < 1 || height < 1) return;
     this.viewport = { width, height };
     this.cameras.main.setSize(width, height);
-    this.applyView(this.view.level === CAMERA.minLevel
-      ? { level: 1, ...ROOM_CENTER } : this.view);
+    if (!this.hasViewport) {
+      this.hasViewport = true;
+      this.applyView(homeView(width, height));
+    } else {
+      this.applyView(this.view);
+    }
   }
 
   private applyView(view: CameraView) {
@@ -159,7 +164,12 @@ export class RoomScene extends Phaser.Scene {
 
   fitRoom() {
     if (!this.scene.isActive()) return;
-    this.applyView({ level: 1, ...ROOM_CENTER });
+    this.applyView(roomFitView(this.viewport.width, this.viewport.height));
+  }
+
+  fitWorld() {
+    if (!this.scene.isActive()) return;
+    this.applyView({ level: CAMERA.minLevel, ...WORLD_CENTER });
   }
 
   private makeFurniture(item: RoomItem) {
