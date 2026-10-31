@@ -22,12 +22,21 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     return bounds && viewport ? Math.round(bounds.height - viewport.height) : null;
   }).toBe(0);
   await expect(renderer).toHaveCSS("filter", "none");
+  await expect(renderer).toHaveAttribute("data-world-aspect", "16:10");
   await expect(canvas).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   const shell = await page.request.get("/lab/cottage/forest-room.svg");
   expect(shell.ok()).toBeTruthy();
   expect(await shell.text()).toContain('viewBox="0 -64 900 684"');
 
   const zoom = page.getByTestId("room-zoom-indicator");
+  // The world is 16:10 on every device. Portrait mobile starts zoomed to
+  // the room for legibility, rather than showing tiny furniture.
+  if (testInfo.project.name === "mobile-chrome") {
+    await expect.poll(async () => Number((await zoom.textContent())?.replace("×", ""))).toBeGreaterThan(1);
+  } else {
+    await expect(zoom).toHaveText("1.0×");
+  }
+  await page.getByRole("button", { name: "Fit world" }).click();
   await expect(zoom).toHaveText("1.0×");
   await page.getByRole("button", { name: "Zoom in" }).click();
   await expect(zoom).toHaveText("1.4×");
@@ -46,6 +55,9 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     await expect.poll(async () => Number(await zoom.getAttribute("data-camera-x"))).not.toBe(beforeX);
   }
   await page.getByRole("button", { name: "Fit room" }).click();
+  await expect.poll(async () => Number((await zoom.textContent())?.replace("×", ""))).toBeGreaterThan(1);
+  await expect(zoom).toHaveAttribute("data-camera-x", "450.00");
+  await page.getByRole("button", { name: "Fit world" }).click();
   await expect(zoom).toHaveText("1.0×");
   await expect(zoom).toHaveAttribute("data-camera-x", "450.00");
   await page.getByRole("button", { name: /Edit room/ }).click();
