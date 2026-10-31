@@ -9,7 +9,7 @@ import { ConversationsList } from "@/features/chats/conversations-list";
 import { DirectThread } from "@/features/chats/direct-thread";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { STORAGE } from "./room-model";
-import { ConnectionsSpace } from "@/app/connections/page";
+import { ConnectionsSpace } from "@/features/connections/connections-space";
 import { useWorkspaceNavigation } from "./workspace-navigation";
 
 export function ChatsPanel() {
