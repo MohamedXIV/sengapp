@@ -138,8 +138,16 @@ test("workspace offers switchable glass, paper and ambient effects", async ({ pa
   await expect(panel).toBeVisible();
   await panel.getByRole("button", { name: "Glass" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
-  await panel.getByLabel("Opacity").fill("77");
-  await panel.getByLabel("Glass blur").fill("20");
+  const setRange = async (label: string, value: string) => {
+    await panel.getByLabel(label).evaluate((el, next) => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+      setter?.call(el, next);
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    }, value);
+  };
+  await setRange("Opacity", "77");
+  await setRange("Glass blur", "20");
   await expect(page.locator(".cottage-lab")).toHaveAttribute("style", /--window-opacity: 77%/);
   await expect(page.locator(".cottage-lab")).toHaveAttribute("style", /--window-blur: 20px/);
   await panel.getByRole("button", { name: "Rain" }).click();
