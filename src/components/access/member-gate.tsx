@@ -16,7 +16,10 @@ import { chooseLocale } from "@/lib/i18n/locale";
 
 type Profile = Doc<"profiles">;
 
-export function BackendRequired({ children }: { children: ReactNode }) {
+export function BackendRequired({ children, showExperienceSwitch = false }: {
+  children: ReactNode;
+  showExperienceSwitch?: boolean;
+}) {
   const t = useTranslations("Access");
   const common = useTranslations("Common");
   if (!process.env.NEXT_PUBLIC_CONVEX_URL || !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
@@ -27,7 +30,7 @@ export function BackendRequired({ children }: { children: ReactNode }) {
           {t("backendDescription")}
         </p>
         <Link href="/" className="mt-4 inline-block text-primary underline">{common("backWelcome")}</Link>
-        <div className="mt-4"><ExperienceSwitch to="cozy" /></div>
+        {showExperienceSwitch && <div className="mt-4"><ExperienceSwitch to="cozy" /></div>}
       </div>
     );
   }
@@ -45,7 +48,7 @@ export function MemberGate({
   embedded?: boolean;
 }) {
   return (
-    <BackendRequired>
+    <BackendRequired showExperienceSwitch={!embedded}>
       <AuthenticatedMember operatorOnly={operatorOnly} embedded={embedded}>{children}</AuthenticatedMember>
     </BackendRequired>
   );
