@@ -358,6 +358,7 @@
     "reset": "استرجاع",
     "resetRoom": "رجّع الأثاث",
     "resetWindows": "رجّع النوافذ",
-    "simpleChat": "افتح الشات البسيط"
+    "simpleChat": "افتح الشات البسيط",
+    "signInCompact": "دخول"
   }
 }

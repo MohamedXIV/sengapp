@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "A little place for big conversations.",
     start_url: "/",
     display: "standalone",
-    background_color: "#17120f",
-    theme_color: "#bb713e",
+    background_color: "#e7f0e8",
+    theme_color: "#e7f0e8",
     icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
   };
 }

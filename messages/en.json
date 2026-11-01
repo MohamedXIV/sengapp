@@ -358,6 +358,7 @@
     "reset": "RESET",
     "resetRoom": "Reset furniture",
     "resetWindows": "Reset windows",
-    "simpleChat": "Open simple chat instead"
+    "simpleChat": "Open simple chat instead",
+    "signInCompact": "Sign in"
   }
 }

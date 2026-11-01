@@ -18,10 +18,14 @@ export function WorkspaceAuthEntry() {
   const t = useTranslations("CozyShell");
   const configured = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
   const pendingInvite = useSyncExternalStore(subscribePending, pendingSnapshot, () => false);
-  if (!configured || pendingInvite) return <Link href="/login" className="cottage-tool">{t("signIn")}</Link>;
+  if (!configured || pendingInvite) return <Link href="/login" className="cottage-tool" aria-label={t("signIn")}>
+    <span className="hidden sm:inline">{t("signIn")}</span><span className="sm:hidden">{t("signInCompact")}</span>
+  </Link>;
   return <SignedOut>
     <SignInButton mode="modal" fallbackRedirectUrl="/" signUpFallbackRedirectUrl="/">
-      <button type="button" className="cottage-tool">{t("signIn")}</button>
+      <button type="button" className="cottage-tool" aria-label={t("signIn")}>
+        <span className="hidden sm:inline">{t("signIn")}</span><span className="sm:hidden">{t("signInCompact")}</span>
+      </button>
     </SignInButton>
   </SignedOut>;
 }
