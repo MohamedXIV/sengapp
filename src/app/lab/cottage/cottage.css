@@ -54,7 +54,7 @@
 /* The Phaser stage is the entire viewport, including *behind* the floating
    top controls. No extra header row shrinks the landscape world canvas. */
 @media (max-width:899px) {
-  .cottage-camera-controls { top:124px; }
+  .cottage-camera-controls { top:68px; }
 }
 
 /* Real DOM messages live within Dockview, never as Phaser textures.
@@ -192,4 +192,51 @@
 @media (max-width:599px) {
   .cottage-account-panel [data-slot="card"] form { padding:12px; }
   .cottage-account-panel [data-slot="card"] { border-radius:14px; }
+}
+
+/* Compact application chrome floating above the full-viewport Phaser canvas. */
+.cottage-toolbar { min-height:60px; background:color-mix(in srgb,var(--skin-surface) 90%,transparent); }
+.cottage-toolbar .cottage-tool { min-height:40px; padding-inline:12px; }
+.cottage-utilities { pointer-events:auto; }
+.cottage-utilities > summary { list-style:none; cursor:pointer; }
+.cottage-utilities > summary::-webkit-details-marker { display:none; }
+.cottage-utilities-trigger {
+  display:flex; align-items:center; justify-content:center;
+  height:48px; width:48px; border-radius:17px;
+  border:1px solid var(--skin-edge); color:var(--skin-ink);
+  background:var(--skin-title-panel);
+  backdrop-filter:blur(var(--skin-blur-effective));
+  -webkit-backdrop-filter:blur(var(--skin-blur-effective));
+  box-shadow:0 5px 20px #344b4130;
+}
+.cottage-utilities-trigger:hover { filter:brightness(.97); }
+.cottage-utilities-trigger:focus-visible,
+.cottage-utilities-menu :is(button,a):focus-visible {
+  outline:2px solid #41775c; outline-offset:3px;
+}
+.cottage-utilities-menu {
+  position:absolute; inset-inline-end:0; bottom:calc(100% + 10px);
+  width:min(300px,calc(100vw - 25px)); max-height:min(70dvh,525px);
+  overflow-y:auto; display:flex; flex-direction:column; gap:2px; padding:10px;
+  border:1px solid var(--skin-edge); border-radius:var(--skin-radius);
+  color:var(--skin-ink); background:var(--skin-panel);
+  backdrop-filter:blur(var(--skin-blur-effective));
+  -webkit-backdrop-filter:blur(var(--skin-blur-effective));
+  box-shadow:0 14px 35px #344b4135;
+}
+.cottage-utilities-heading {
+  margin:6px 8px 2px; font-size:11px; font-weight:750; letter-spacing:.04em; opacity:.7;
+}
+.cottage-utilities-menu button,.cottage-utilities-fallback {
+  display:flex; min-height:40px; align-items:center; gap:11px;
+  border-radius:11px; padding:9px 12px; text-align:start; font-size:13px; font-weight:600;
+}
+.cottage-utilities-menu button:hover,.cottage-utilities-fallback:hover { background:var(--skin-title-panel); }
+.cottage-utilities-fallback { border-top:1px solid var(--skin-edge); margin-top:4px; }
+@media (max-width:599px) {
+  .cottage-toolbar { padding-inline:10px; }
+  .cottage-toolbar .cottage-tool { min-height:40px; padding-inline:10px; }
+  .cottage-camera-controls { top:66px; }
+  .cottage-utilities { bottom:12px; right:12px; }
+  .cottage-stage aside { max-width:calc(100% - 85px); }
 }

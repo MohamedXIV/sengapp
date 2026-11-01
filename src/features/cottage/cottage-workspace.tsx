@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { WorkspaceAuthEntry } from "./workspace-auth-entry";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
-import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, Palette, Settings2, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2 } from "lucide-react";
+import { Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, Palette, Settings2, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2, SlidersHorizontal } from "lucide-react";
 import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
 import { RoomCanvas, type RoomCanvasHandle } from "./room-canvas";
 import { CAMERA, WORLD_CENTER, type CameraView } from "./room-camera";
@@ -77,6 +79,7 @@ function ConnectedCottageWorkspace() {
 }
 
 function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
+  const t = useTranslations("CozyShell");
   const [items, setItems] = useState<RoomItem[]>(INITIAL_ITEMS);
   const [editMode, setEditMode] = useState(false);
   const [light, setLight] = useState<LightPreset>("day");
@@ -223,27 +226,22 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
     <main data-window-material={windowStyle.material} data-window-atmosphere={windowStyle.atmosphere}
       style={{ "--window-opacity": `${windowStyle.opacity}%`, "--window-blur": `${windowStyle.blur}px` } as CSSProperties}
       className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
-    <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
-      <div className="flex items-center gap-3">
-        <Link href="/home" className="cottage-icon-button" aria-label="Back to Sengapp"><ArrowLeft className="size-4" /></Link>
-        <span className="flex size-9 items-center justify-center rounded-2xl bg-[#cfe6ce]"><Home className="size-5"/></span>
-        <div><strong className="block text-sm tracking-tight">Sengapp • Cottage Lab</strong><span className="block text-[11px] text-[#657e70]">An isolated, playable workspace experiment</span></div>
-      </div>
-      <nav aria-label="Workspace tools" className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-        <button className="cottage-tool" aria-label="Chats" onClick={() => showPanel("chats")}><MessageCircle className="size-4"/><span className="hidden sm:inline">Chats</span></button>
-        <button className="cottage-tool" aria-label="Connections" onClick={() => showPanel("connections")}><UsersRound className="size-4"/><span className="hidden sm:inline">People</span></button>
-        <button className="cottage-tool" aria-label="Notes" onClick={() => showPanel("notes")}><BookOpenText className="size-4"/><span className="hidden sm:inline">Notes</span></button>
-        <button className="cottage-tool" aria-label="Window style" onClick={() => showPanel("style")}><Palette className="size-4"/><span className="hidden sm:inline">Style</span></button>
-        <button className="cottage-tool" aria-label="Profile & privacy" onClick={() => showPanel("profile")}><Settings2 className="size-4"/><span className="hidden sm:inline">Profile</span></button>
-        <button className="cottage-tool" aria-label="Appearance" onClick={() => showPanel("appearance")}><Palette className="size-4"/><span className="hidden sm:inline">Appearance</span></button>
-        <button className="cottage-tool" aria-label="Focus" onClick={() => showPanel("focus")}><Timer className="size-4"/><span className="hidden sm:inline">Focus</span></button>
-        <span className="mx-1 hidden h-6 w-px bg-[#bdd3c4] sm:block"/>
-        <button aria-pressed={editMode} className={`cottage-tool ${editMode ? "cottage-active" : ""}`} onClick={() => setEditMode(value => !value)}>
-          {editMode ? <Check className="size-4" /> : <Armchair className="size-4"/>}<span>{editMode ? "Done" : "Edit room"}</span>
+    <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
+      <Link href="/" className="flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-2 focus-visible:outline-[#407960]" aria-label={t("home")}>
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#cfe6ce]"><Home className="size-5"/></span>
+        <span className="min-w-0">
+          <strong className="block truncate text-sm tracking-tight">Sengapp</strong>
+          <span className="hidden text-[11px] text-[#657e70] sm:block">{t("yourSpace")}</span>
+        </span>
+      </Link>
+      <nav aria-label={t("conversations")} className="flex items-center gap-1.5">
+        <button type="button" className="cottage-tool" aria-label="Chats" onClick={() => showPanel("chats")}>
+          <MessageCircle className="size-4" aria-hidden="true"/><span className="hidden sm:inline">{t("chats")}</span>
         </button>
-        <button aria-label={light === "day" ? "Evening" : "Day"} className="cottage-tool" onClick={() => setLight(value => value === "day" ? "evening" : "day")}>
-          {light === "day" ? <CloudMoon className="size-4"/> : <Sun className="size-4"/>}<span className="hidden sm:inline">{light === "day" ? "Evening" : "Day"}</span>
+        <button type="button" className="cottage-tool" aria-label="Connections" onClick={() => showPanel("connections")}>
+          <UsersRound className="size-4" aria-hidden="true"/><span className="hidden sm:inline">{t("people")}</span>
         </button>
+        <WorkspaceAuthEntry />
       </nav>
     </header>
 
@@ -253,7 +251,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
         <RoomCanvas ref={roomCamera} items={items} editing={editMode} light={light}
           onChange={changedItems} onHover={changedHover} onViewChange={setCameraView}/>
       </div>
-      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-[80px] z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-[#bbd0c1] bg-[#fffcf2eb] p-1 shadow-sm backdrop-blur-sm">
+      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-[68px] z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-[#bbd0c1] bg-[#fffcf2eb] p-1 shadow-sm backdrop-blur-sm">
         <button type="button" aria-label="Zoom out" title="Zoom out" className="cottage-camera-button" disabled={cameraView.level <= CAMERA.minLevel + .001}
           onClick={() => roomCamera.current?.zoomOut()}><ZoomOut className="size-[17px]"/></button>
         <output data-testid="room-zoom-indicator" data-camera-x={cameraView.x.toFixed(2)}
@@ -270,13 +268,45 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
           onClick={() => roomCamera.current?.fitWorld()}><Maximize2 className="size-[17px]"/></button>
       </nav>
       <aside className="pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border border-[#c3d2c2] bg-[#fffaf0ed] px-4 py-2 text-xs shadow-sm">
-        <span className="block font-bold">{hovered ?? (editMode ? "Edit mode · drag sprites to new tiles" : "Your little forest cottage")}</span>
+        <span className="block font-bold">{hovered ?? (editMode ? "Edit mode · drag sprites to new tiles" : "Your cozy space")}</span>
         <span className="block text-[#63796e]">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "16:10 world · Drag to pan · Scroll or pinch to zoom"}</span>
       </aside>
-      <div className="absolute bottom-4 right-4 z-20 flex gap-2">
-        <button className="cottage-tool bg-white/90" onClick={resetFurniture} title="Reset furniture"><RotateCcw className="size-4"/> <span className="hidden sm:inline">Reset room</span></button>
-        {desktop && <button className="cottage-tool bg-white/90" onClick={resetWindows} title="Reset Dockview windows"><LayoutPanelLeft className="size-4"/> <span className="hidden sm:inline">Reset windows</span></button>}
-      </div>
+      <details className="cottage-utilities absolute bottom-4 right-4 z-30" data-testid="workspace-utilities">
+        <summary className="cottage-utilities-trigger" aria-label={t("tools")} title={t("tools")}>
+          <SlidersHorizontal className="size-5" aria-hidden="true" />
+          <span className="sr-only">{t("tools")}</span>
+        </summary>
+        <div className="cottage-utilities-menu" aria-label={t("tools")}>
+          <p className="cottage-utilities-heading">{t("personal")}</p>
+          <button type="button" onClick={event => { showPanel("profile"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
+            <Settings2 aria-hidden="true" className="size-4" />{t("profile")}
+          </button>
+          <button type="button" onClick={event => { showPanel("appearance"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
+            <Palette aria-hidden="true" className="size-4" />{t("appearance")}
+          </button>
+          <button type="button" onClick={event => { showPanel("style"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
+            <SlidersHorizontal aria-hidden="true" className="size-4" />{t("windowStyle")}
+          </button>
+          <p className="cottage-utilities-heading">{t("roomAndTools")}</p>
+          <button type="button" onClick={event => { showPanel("notes"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
+            <BookOpenText aria-hidden="true" className="size-4" />{t("notes")}
+          </button>
+          <button type="button" onClick={event => { showPanel("focus"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
+            <Timer aria-hidden="true" className="size-4" />{t("focus")}
+          </button>
+          <button type="button" aria-pressed={editMode} onClick={() => setEditMode(value => !value)}>
+            {editMode ? <Check aria-hidden="true" className="size-4" /> : <Armchair aria-hidden="true" className="size-4" />}{editMode ? t("done") : t("editRoom")}
+          </button>
+          <button type="button" onClick={() => setLight(value => value === "day" ? "evening" : "day")}>
+            {light === "day" ? <CloudMoon aria-hidden="true" className="size-4" /> : <Sun aria-hidden="true" className="size-4" />}
+            {light === "day" ? t("evening") : t("day")}
+          </button>
+          <p className="cottage-utilities-heading">{t("reset")}</p>
+          <button type="button" onClick={resetFurniture}><RotateCcw aria-hidden="true" className="size-4" />{t("resetRoom")}</button>
+          {desktop && <button type="button" onClick={resetWindows}><LayoutPanelLeft aria-hidden="true" className="size-4" />{t("resetWindows")}</button>}
+          <Link className="cottage-utilities-fallback" href="/chats">{t("simpleChat")}</Link>
+        </div>
+      </details>
       {desktop && <div className="cottage-dock-layer absolute inset-0 z-10" aria-label="Floating workspace windows">
         <DockviewReact className="cottage-dock" theme={themeLight} components={components}
           floatingGroupDragHandle="titlebar" onReady={onDockReady}/>

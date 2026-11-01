@@ -81,11 +81,11 @@ function AppShellContent({
   const common = useTranslations("Common");
   const direction = getLocaleDirection(locale);
   const nav = [
-    { href: "/lab/cottage", icon: HeartHandshake, label: t("lounge") },
-    { href: "/lab/cottage?panel=connections", icon: UsersRound, label: t("connections") },
-    { href: "/lab/cottage?panel=chats", icon: MessageCircle, label: t("messages") },
-    { href: "/lab/cottage?panel=profile", icon: Settings2, label: t("profile") },
-    { href: "/lab/cottage?panel=appearance", icon: Palette, label: t("appearance") },
+    { href: "/", icon: HeartHandshake, label: t("lounge") },
+    { href: "/?panel=connections", icon: UsersRound, label: t("connections") },
+    { href: "/?panel=chats", icon: MessageCircle, label: t("messages") },
+    { href: "/?panel=profile", icon: Settings2, label: t("profile") },
+    { href: "/?panel=appearance", icon: Palette, label: t("appearance") },
     ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, label: t("operator") }] : []),
   ];
   const currentTitle = nav.find((item) => isNavigationItemActive(pathname, item.href))?.label ?? t("space");
@@ -96,7 +96,7 @@ function AppShellContent({
       <Sidebar dir={direction} side={getNavigationSide(locale)} variant="floating"
         collapsible="offcanvas" mobileTitle={t("primary")} aria-label={t("primary")}>
         <SidebarHeader className="px-5 pb-3 pt-6">
-          <SidebarDismissLink href="/lab/cottage" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
+          <SidebarDismissLink href="/" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
             <span aria-hidden="true" className="sengapp-logo flex size-12 shrink-0 items-center justify-center rounded-2xl">
               <CozyMark className="size-12" />
             </span>
@@ -119,7 +119,7 @@ function AppShellContent({
             <p className="text-sm font-semibold leading-relaxed">{t("noteTitle")}</p>
             <p className="text-xs leading-5 text-sidebar-foreground/75">{t("noteDescription")}</p>
             <Button asChild size="sm" variant="secondary" className="mt-2 w-full rounded-xl">
-              <SidebarDismissLink href="/connections">{t("inviteAction")}</SidebarDismissLink>
+              <SidebarDismissLink href="/?panel=connections">{t("inviteAction")}</SidebarDismissLink>
             </Button>
           </div>
         </SidebarContent>

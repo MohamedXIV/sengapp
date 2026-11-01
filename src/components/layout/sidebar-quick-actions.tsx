@@ -80,7 +80,7 @@ export function SidebarQuickActions({ locale, onSignOut }: {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button asChild size="icon" variant="ghost" className={shortcutClass} aria-label={t("settingsShortcut")}>
-            <Link href="/settings/profile" onClick={() => { if (isMobile) setOpenMobile(false); }}>
+            <Link href="/?panel=profile" onClick={() => { if (isMobile) setOpenMobile(false); }}>
               <Settings aria-hidden="true" className="size-5!" />
             </Link>
           </Button>

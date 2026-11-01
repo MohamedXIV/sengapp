@@ -23,10 +23,10 @@ export default function LoginPage() {
   );
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-5 p-6 text-center">
-      <Link href="/" className="text-4xl" aria-label={t("homeLabel")}>🐿️</Link>
-      <h1 className="text-3xl font-semibold">{t("welcome")}</h1>
-      <p className="text-sm text-muted-foreground">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[radial-gradient(ellipse_at_30%_10%,#f8eed6_0%,#d9e9df_55%,#cadfd8_100%)] p-6 text-center text-[#283f35]">
+      <Link href="/" className="flex size-14 items-center justify-center rounded-2xl border border-[#bfd4c5] bg-[#fffaf0] text-3xl shadow-sm" aria-label={t("homeLabel")}>🐿️</Link>
+      <h1 className="max-w-md text-3xl font-semibold">{t("welcome")}</h1>
+      <p className="max-w-md text-sm text-[#526f60]">
         {t("description")}
       </p>
       {configured

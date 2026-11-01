@@ -1,8 +1,12 @@
 import { test, expect } from "@playwright/test";
 
 test("isolated cottage lab renders a room and provides reachable workspace controls", async ({ page }, testInfo) => {
-  await page.goto("/lab/cottage");
-  await expect(page.getByText("Sengapp • Cottage Lab")).toBeVisible();
+  await page.goto("/");
+  await expect(page.locator(".cottage-toolbar").getByText("Sengapp", { exact: true })).toBeVisible();
+  await expect(page.getByText("Cottage Lab")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Open tools and settings" })).toHaveCount(0);
+  await expect(page.locator(".cottage-toolbar").getByRole("button")).toHaveCount(2);
+  await expect(page.getByTestId("workspace-utilities").locator("summary")).toBeVisible();
   const renderer = page.getByTestId("cottage-canvas");
   const canvas = renderer.locator("canvas");
   await expect(canvas).toBeVisible({ timeout: 20000 });
@@ -60,6 +64,7 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
   await page.getByRole("button", { name: "Fit world" }).click();
   await expect(zoom).toHaveText("1.0×");
   await expect(zoom).toHaveAttribute("data-camera-x", "450.00");
+  await page.getByTestId("workspace-utilities").locator("summary").click();
   await page.getByRole("button", { name: /Edit room/ }).click();
   await expect(page.getByRole("button", { name: /Done/ })).toBeVisible();
   await page.getByRole("button", { name: /Evening/ }).click({ force: true });
@@ -132,7 +137,8 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
 });
 
 test("workspace offers switchable glass, paper and ambient effects", async ({ page }, testInfo) => {
-  await page.goto("/lab/cottage");
+  await page.goto("/");
+  await page.getByTestId("workspace-utilities").locator("summary").click();
   await page.getByRole("button", { name: "Window style", exact: true }).click();
   const panel = page.getByTestId("window-style-panel");
   await expect(panel).toBeVisible();
@@ -153,7 +159,10 @@ test("workspace offers switchable glass, paper and ambient effects", async ({ pa
   await panel.getByRole("button", { name: "Rain" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-atmosphere", "rain");
   await page.reload();
-  if (testInfo.project.name === "mobile-chrome") await page.getByRole("button", { name: "Window style", exact: true }).click();
+  if (testInfo.project.name === "mobile-chrome") {
+    await page.getByTestId("workspace-utilities").locator("summary").click();
+    await page.getByRole("button", { name: "Window style", exact: true }).click();
+  }
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-atmosphere", "rain");
   await page.getByTestId("window-style-panel").getByRole("button", { name: "Paper" }).click();
@@ -161,13 +170,14 @@ test("workspace offers switchable glass, paper and ambient effects", async ({ pa
 });
 
 test("Profile and Appearance open as real protected windows, with direct fallback routes", async ({ page }) => {
-  await page.goto("/lab/cottage?panel=profile");
+  await page.goto("/?panel=profile");
   const profile = page.getByTestId("cottage-live-profile");
   await expect(profile).toBeVisible();
   // Guest users must never see identity/presence data or editable profile controls.
   await expect(profile.locator('a[href="/"], a[href="/login"]').first()).toBeVisible();
   await expect(profile.locator('input[id="displayName"]')).toHaveCount(0);
 
+  await page.getByTestId("workspace-utilities").locator("summary").click();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   const appearance = page.getByTestId("cottage-live-appearance");
   await expect(appearance).toBeVisible();
@@ -179,4 +189,15 @@ test("Profile and Appearance open as real protected windows, with direct fallbac
   await page.goto("/settings/appearance");
   await expect(page.locator('select[id="appearance-font"]')).toHaveCount(0);
   await expect(page.locator('a[href="/"], a[href="/login"]').first()).toBeVisible();
+});
+
+test("old room bookmarks redirect to the canonical home without losing panel selection", async ({ page }) => {
+  await page.goto("/lab/cottage?panel=connections");
+  await expect(page).toHaveURL(/\/?\?panel=connections$/);
+  await expect(page.getByTestId("cottage-live-connections")).toBeVisible();
+  await page.goto("/home");
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator(".cottage-toolbar").getByText("Sengapp", { exact: true })).toBeVisible();
+  await page.goto("/?panel=appearance");
+  await expect(page.getByTestId("cottage-live-appearance")).toBeVisible();
 });

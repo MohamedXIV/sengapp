@@ -335,5 +335,29 @@
     "savedAccount": "Saved to your account. Other devices will load your style when opened.",
     "saveFailed": "Couldn't save the style. Your changes are still available in this browser.",
     "accountNote": "Move the sliders to preview. Save to your account when you're ready; this won't change your friends' appearance."
+  },
+  "CozyShell": {
+    "home": "Sengapp home",
+    "yourSpace": "Your cozy space",
+    "conversations": "Conversations",
+    "chats": "Chats",
+    "people": "People",
+    "signIn": "Sign in or join",
+    "tools": "Open tools and settings",
+    "personal": "YOUR SPACE",
+    "profile": "Profile & privacy",
+    "appearance": "Appearance",
+    "windowStyle": "Window style",
+    "roomAndTools": "ROOM & TOOLS",
+    "notes": "Notes",
+    "focus": "Focus timer",
+    "editRoom": "Edit room",
+    "done": "Done",
+    "evening": "Evening",
+    "day": "Day",
+    "reset": "RESET",
+    "resetRoom": "Reset furniture",
+    "resetWindows": "Reset windows",
+    "simpleChat": "Open simple chat instead"
   }
 }
