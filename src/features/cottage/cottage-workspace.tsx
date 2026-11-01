@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CS
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { WorkspaceAuthEntry } from "./workspace-auth-entry";
+import { ExperienceSwitch } from "@/components/experience/experience-switch";
+import { validConversationId } from "@/lib/experience";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
@@ -108,6 +110,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   const desktop = useSyncExternalStore(subscribeDesktop, desktopSnapshot, () => false);
   const [mobilePanels, setMobilePanels] = useState<MobilePanelName[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Id<"conversations"> | null>(null);
+  const [activePanel, setActivePanel] = useState<PanelName | null>(null);
   const dockApi = useRef<DockviewApi | null>(null);
   const pendingPanels = useRef<PanelName[]>([]);
   const subscriptions = useRef<{ dispose(): void } | null>(null);
@@ -169,6 +172,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
     if (!restored) for (const name of PANEL_IDS) addFloating(api, name);
     const requested = requestedPanel();
     if (requested) {
+      setActivePanel(requested);
       const existing = api.getPanel(requested);
       if (existing) existing.api.setActive();
       else addFloating(api, requested);
@@ -186,6 +190,17 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   }, [saveLayout]);
 
   useEffect(() => {
+    const requested = requestedPanel();
+    if (requested) queueMicrotask(() => setActivePanel(requested));
+    // The deep link is a hint only: DirectThread still enforces Convex membership.
+    const params = new URLSearchParams(window.location.search);
+    const candidate = params.get("conversation");
+    if (params.get("panel") === "chats" && validConversationId(candidate)) {
+      queueMicrotask(() => setSelectedConversation(candidate as Id<"conversations">));
+    }
+  }, []);
+
+  useEffect(() => {
     if (desktop) return;
     const requested = requestedPanel();
     if (requested) queueMicrotask(() =>
@@ -193,6 +208,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   }, [desktop]);
 
   function showPanel(name: PanelName) {
+    setActivePanel(name);
     if (!desktop) { activateMobile(name); return; }
     const api = dockApi.current;
     if (!api) { pendingPanels.current.push(name); return; }
@@ -304,6 +320,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
           <p className="cottage-utilities-heading">{t("reset")}</p>
           <button type="button" onClick={resetFurniture}><RotateCcw aria-hidden="true" className="size-4" />{t("resetRoom")}</button>
           {desktop && <button type="button" onClick={resetWindows}><LayoutPanelLeft aria-hidden="true" className="size-4" />{t("resetWindows")}</button>}
+          <ExperienceSwitch to="classic" panel={activePanel} conversationId={activePanel === "chats" ? selectedConversation : null} className="cottage-utilities-fallback" />
           <Link className="cottage-utilities-fallback" href="/chats">{t("simpleChat")}</Link>
         </div>
       </details>

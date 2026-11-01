@@ -8,6 +8,7 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Doc } from "../../../convex/_generated/dataModel";
 import { AppShell } from "@/components/layout/app-shell";
+import { ExperienceSwitch } from "@/components/experience/experience-switch";
 import { AccountLocaleProvider } from "@/components/i18n/account-locale-provider";
 import { PersonalThemeProvider } from "@/components/themes/personal-theme-provider";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,6 +27,7 @@ export function BackendRequired({ children }: { children: ReactNode }) {
           {t("backendDescription")}
         </p>
         <Link href="/" className="mt-4 inline-block text-primary underline">{common("backWelcome")}</Link>
+        <div className="mt-4"><ExperienceSwitch to="cozy" /></div>
       </div>
     );
   }
@@ -67,6 +69,7 @@ function AuthenticatedMember({
         <h1 className="text-2xl font-semibold">{t("privateTitle")}</h1>
         <p className="text-muted-foreground">{t("verifyFirst")}</p>
         <Link href="/login" className="inline-flex rounded-lg bg-primary px-5 py-3 text-primary-foreground">{t("signIn")}</Link>
+        {!embedded && <div><ExperienceSwitch to="cozy" /></div>}
       </div>
     );
   }
