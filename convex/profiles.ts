@@ -200,3 +200,24 @@ export const updateUiShortcuts = mutation({
   },
 });
 
+
+// Explicit save prevents a high-frequency write for every slider move.
+// Server validates all fields and binds ownership to Clerk, never a client ID.
+export const updateWindowStyle = mutation({
+  args: {
+    material: v.union(v.literal("cozy"), v.literal("glass"), v.literal("paper")),
+    opacity: v.number(),
+    blur: v.number(),
+    atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),
+  },
+  handler: async (ctx, style) => {
+    const profile = await requireAuthorizedProfile(ctx);
+    if (!Number.isInteger(style.opacity) || style.opacity < 65 || style.opacity > 100
+      || !Number.isInteger(style.blur) || style.blur < 0 || style.blur > 28) {
+      throw new ConvexError({ code: "INVALID_WINDOW_STYLE" });
+    }
+    const updatedAt = Date.now();
+    await ctx.db.patch(profile._id, { windowStyle: style, updatedAt });
+    return { updatedAt };
+  },
+});

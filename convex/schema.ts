@@ -29,6 +29,14 @@ export default defineSchema({
       radius: v.union(v.literal("subtle"), v.literal("soft"), v.literal("round")),
       density: v.union(v.literal("comfortable"), v.literal("compact")),
     })),
+    // Optional for existing accounts. Strict, profile-owned world-window presentation;
+    // never store arbitrary CSS or an executable shader payload.
+    windowStyle: v.optional(v.object({
+      material: v.union(v.literal("cozy"), v.literal("glass"), v.literal("paper")),
+      opacity: v.number(),
+      blur: v.number(),
+      atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),
+    })),
     reducedMotion: v.boolean(),
     presencePreferences: v.object({
       onlineStatus: v.boolean(),

@@ -4,8 +4,11 @@ import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { normalizeWindowStyle, MATERIALS, ATMOSPHERES, type WindowStyle } from "./window-style";
 
-export function WindowStylePanel({ value, onChange }: {
+export function WindowStylePanel({ value, onChange, canSaveAccount = false, onSaveAccount, saveStatus = "idle" }: {
   value: WindowStyle; onChange(next: WindowStyle): void;
+  canSaveAccount?: boolean;
+  onSaveAccount?: () => Promise<void>;
+  saveStatus?: "idle" | "saving" | "saved" | "error";
 }) {
   const t = useTranslations("WindowStyle");
   const opacityId = useId();
@@ -50,6 +53,14 @@ export function WindowStylePanel({ value, onChange }: {
     </fieldset>
     <button type="button" className="cottage-mini-button justify-center"
       onClick={() => onChange(normalizeWindowStyle(null))}>{t("reset")}</button>
-    <p className="text-xs leading-relaxed opacity-70">{t("localNote")}</p>
+    {canSaveAccount && onSaveAccount ? <div className="space-y-2">
+      <button type="button" onClick={() => void onSaveAccount()}
+        disabled={saveStatus === "saving"} className="cottage-mini-button min-h-11 w-full justify-center">
+        {saveStatus === "saving" ? t("savingAccount") : t("saveAccount")}
+      </button>
+      {saveStatus === "saved" && <p role="status" className="text-xs">{t("savedAccount")}</p>}
+      {saveStatus === "error" && <p role="alert" className="text-xs">{t("saveFailed")}</p>}
+      <p className="text-xs leading-relaxed opacity-70">{t("accountNote")}</p>
+    </div> : <p className="text-xs leading-relaxed opacity-70">{t("localNote")}</p>}
   </section>;
 }

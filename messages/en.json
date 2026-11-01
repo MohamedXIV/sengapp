@@ -329,6 +329,11 @@
     "mist": "Mist",
     "rain": "Rain",
     "reset": "Restore defaults",
-    "localNote": "For now, this experiment saves your window look in this browser. Account-wide syncing comes after review."
+    "localNote": "Saved to this browser only. Sign in to sync a material across devices.",
+    "saveAccount": "Save to my account",
+    "savingAccount": "Saving…",
+    "savedAccount": "Saved to your account. Other devices will load your style when opened.",
+    "saveFailed": "Couldn't save the style. Your changes are still available in this browser.",
+    "accountNote": "Move the sliders to preview. Save to your account when you're ready; this won't change your friends' appearance."
   }
 }

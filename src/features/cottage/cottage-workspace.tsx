@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import Link from "next/link";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
 import { ArrowLeft, Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, Palette, Settings2, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2 } from "lucide-react";
 import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
@@ -51,12 +53,52 @@ function addFloating(api: DockviewApi, name: PanelName) {
   });
 }
 
+type AccountStyle = {
+  identity: string | null | undefined;
+  saved?: WindowStyle | null;
+  onSave?: (value: WindowStyle) => Promise<unknown>;
+};
+
+// The public lab must still render when Clerk/Convex environment variables
+// are absent. Only a backend-configured child may call Convex hooks.
 export function CottageWorkspace() {
+  const configured = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  return configured ? <ConnectedCottageWorkspace /> : <CottageWorkspaceContent account={{ identity: null }}/>;
+}
+
+function ConnectedCottageWorkspace() {
+  const profile = useQuery(api.profiles.getMine);
+  const save = useMutation(api.profiles.updateWindowStyle);
+  return <CottageWorkspaceContent account={{
+    identity: profile === undefined ? undefined : profile?._id ?? null,
+    saved: profile?.windowStyle ?? null,
+    ...(profile ? { onSave: (style: WindowStyle) => save(style) } : {}),
+  }} />;
+}
+
+function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   const [items, setItems] = useState<RoomItem[]>(INITIAL_ITEMS);
   const [editMode, setEditMode] = useState(false);
   const [light, setLight] = useState<LightPreset>("day");
-  const [windowStyle, setWindowStyle] = useState<WindowStyle>(DEFAULT_WINDOW_STYLE);
-  const [styleLoaded, setStyleLoaded] = useState(false);
+  const [styleRecord, setStyleRecord] = useState<{ identity: string; value: WindowStyle } | null>(null);
+  const [styleSaveStatus, setStyleSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const styleIdentity = account.identity === undefined ? "loading" : account.identity ?? "guest";
+  const windowStyle = styleRecord?.identity === styleIdentity ? styleRecord.value : DEFAULT_WINDOW_STYLE;
+  const setWindowStyle = (value: WindowStyle) => {
+    if (styleIdentity === "loading") return;
+    setStyleRecord({ identity: styleIdentity, value: normalizeWindowStyle(value) });
+    setStyleSaveStatus("idle");
+  };
+  async function saveToAccount() {
+    if (!account.onSave || styleIdentity === "loading" || styleSaveStatus === "saving") return;
+    setStyleSaveStatus("saving");
+    try {
+      await account.onSave(windowStyle);
+      setStyleSaveStatus("saved");
+    } catch {
+      setStyleSaveStatus("error");
+    }
+  }
   const [cameraView, setCameraView] = useState<CameraView>({ level: 1, ...WORLD_CENTER });
   const roomCamera = useRef<RoomCanvasHandle>(null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -71,17 +113,28 @@ export function CottageWorkspace() {
   useEffect(() => {
     queueMicrotask(() => {
       try { setItems(parseRoom(localStorage.getItem(STORAGE.furniture))); } catch { /* use defaults */ }
-      try {
-        const saved = localStorage.getItem(STYLE_STORAGE_KEY);
-        if (saved) setWindowStyle(normalizeWindowStyle(JSON.parse(saved)));
-      } catch { /* use defaults when storage is blocked */ }
-      setStyleLoaded(true);
     });
   }, []);
+
+  // One-time hydration for each signed-in account. The server's saved style
+  // wins over per-device drafts, while guest settings remain device-local.
   useEffect(() => {
-    if (!styleLoaded) return;
-    try { localStorage.setItem(STYLE_STORAGE_KEY, JSON.stringify(windowStyle)); } catch { /* session-only */ }
-  }, [windowStyle, styleLoaded]);
+    if (account.identity === undefined) return;
+    const key = account.identity ?? "guest";
+    let initial = account.saved ? normalizeWindowStyle(account.saved) : DEFAULT_WINDOW_STYLE;
+    try {
+      const stored = localStorage.getItem(`${STYLE_STORAGE_KEY}:${key}`)
+        ?? (key === "guest" ? localStorage.getItem(STYLE_STORAGE_KEY) : null);
+      if (!account.saved && stored) initial = normalizeWindowStyle(JSON.parse(stored));
+    } catch { /* keep default */ }
+    queueMicrotask(() => setStyleRecord(old => old?.identity === key ? old : { identity: key, value: initial }));
+  }, [account.identity, account.saved]);
+
+  useEffect(() => {
+    if (!styleRecord || styleRecord.identity !== styleIdentity || styleIdentity === "loading") return;
+    try { localStorage.setItem(`${STYLE_STORAGE_KEY}:${styleIdentity}`, JSON.stringify(styleRecord.value)); }
+    catch { /* session-only fallback */ }
+  }, [styleRecord, styleIdentity]);
 
   useEffect(() => () => {
     subscriptions.current?.dispose();
@@ -159,7 +212,8 @@ export function CottageWorkspace() {
   }
 
   return <WorkspaceNavigationProvider value={{ selectedConversation, openConversation, returnToConversations: () => setSelectedConversation(null) }}>
-    <WindowStyleProvider value={windowStyle} onChange={setWindowStyle}>
+    <WindowStyleProvider value={windowStyle} onChange={setWindowStyle}
+      canSaveAccount={Boolean(account.onSave)} onSaveAccount={saveToAccount} saveStatus={styleSaveStatus}>
     <main data-window-material={windowStyle.material} data-window-atmosphere={windowStyle.atmosphere}
       style={{ "--window-opacity": `${windowStyle.opacity}%`, "--window-blur": `${windowStyle.blur}px` } as CSSProperties}
       className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
