@@ -360,5 +360,9 @@
     "resetWindows": "Reset windows",
     "simpleChat": "Open simple chat instead",
     "signInCompact": "Sign in"
+  },
+  "Experience": {
+    "switchToCozy": "Switch to Cozy World",
+    "switchToClassic": "Switch to Classic"
   }
 }

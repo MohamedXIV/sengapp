@@ -360,5 +360,9 @@
     "resetWindows": "رجّع النوافذ",
     "simpleChat": "افتح الشات البسيط",
     "signInCompact": "دخول"
+  },
+  "Experience": {
+    "switchToCozy": "روح للعالم الدافي",
+    "switchToClassic": "بدّل للوضع البسيط"
   }
 }
