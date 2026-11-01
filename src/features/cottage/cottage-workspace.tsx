@@ -271,7 +271,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
         <span className="block font-bold">{hovered ?? (editMode ? "Edit mode · drag sprites to new tiles" : "Your cozy space")}</span>
         <span className="block text-[#63796e]">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "16:10 world · Drag to pan · Scroll or pinch to zoom"}</span>
       </aside>
-      <details className="cottage-utilities absolute bottom-4 right-4 z-30" data-testid="workspace-utilities">
+      <details className="cottage-utilities absolute bottom-4 right-4 z-50" data-testid="workspace-utilities">
         <summary className="cottage-utilities-trigger" aria-label={t("tools")} title={t("tools")}>
           <Settings className="size-5" aria-hidden="true" />
           <span className="sr-only">{t("tools")}</span>

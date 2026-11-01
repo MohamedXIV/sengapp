@@ -123,6 +123,7 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     await expect(page.getByLabel("A little note to yourself")).toBeVisible();
     await page.getByLabel("A little note to yourself").fill("Private lab note");
     await page.reload();
+    await page.getByTestId("workspace-utilities").locator("summary").click();
     await page.getByRole("button", { name: "Notes", exact: true }).click();
     await expect(page.getByLabel("A little note to yourself")).toHaveValue("Private lab note");
     await expect(page.getByTestId("cottage-mobile-window-notes")).toBeVisible();
