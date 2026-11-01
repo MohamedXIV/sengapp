@@ -106,6 +106,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   const [mobilePanels, setMobilePanels] = useState<MobilePanelName[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Id<"conversations"> | null>(null);
   const dockApi = useRef<DockviewApi | null>(null);
+  const pendingPanels = useRef<PanelName[]>([]);
   const subscriptions = useRef<{ dispose(): void } | null>(null);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [layoutMessage, setLayoutMessage] = useState("Move the furniture, or rearrange the windows.");
@@ -169,6 +170,11 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
       if (existing) existing.api.setActive();
       else addFloating(api, requested);
     }
+    for (const name of pendingPanels.current.splice(0)) {
+      const existing = api.getPanel(name);
+      if (existing) existing.api.setActive();
+      else addFloating(api, name);
+    }
     subscriptions.current?.dispose();
     subscriptions.current = api.onDidLayoutChange(() => {
       if (persistTimer.current) clearTimeout(persistTimer.current);
@@ -186,7 +192,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   function showPanel(name: PanelName) {
     if (!desktop) { activateMobile(name); return; }
     const api = dockApi.current;
-    if (!api) return;
+    if (!api) { pendingPanels.current.push(name); return; }
     const existing = api.getPanel(name);
     if (existing) existing.api.setActive();
     else addFloating(api, name);
