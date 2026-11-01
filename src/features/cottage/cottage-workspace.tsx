@@ -7,7 +7,7 @@ import { WorkspaceAuthEntry } from "./workspace-auth-entry";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
-import { Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, Palette, Settings2, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2, SlidersHorizontal } from "lucide-react";
+import { Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, Palette, Settings2, Settings, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2, SlidersHorizontal } from "lucide-react";
 import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
 import { RoomCanvas, type RoomCanvasHandle } from "./room-canvas";
 import { CAMERA, WORLD_CENTER, type CameraView } from "./room-camera";
@@ -273,7 +273,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
       </aside>
       <details className="cottage-utilities absolute bottom-4 right-4 z-30" data-testid="workspace-utilities">
         <summary className="cottage-utilities-trigger" aria-label={t("tools")} title={t("tools")}>
-          <SlidersHorizontal className="size-5" aria-hidden="true" />
+          <Settings className="size-5" aria-hidden="true" />
           <span className="sr-only">{t("tools")}</span>
         </summary>
         <div className="cottage-utilities-menu" aria-label={t("tools")}>
