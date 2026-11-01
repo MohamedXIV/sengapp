@@ -1,8 +1,7 @@
 "use client";
 
-import { MemberGate } from "@/components/access/member-gate";
-import { ConversationsList } from "@/features/chats/conversations-list";
+import { ChatsContent } from "@/features/chats/chats-content";
 
 export default function ChatsPage() {
-  return <MemberGate>{() => <ConversationsList />}</MemberGate>;
+  return <ChatsContent />;
 }

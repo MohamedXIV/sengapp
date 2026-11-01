@@ -19,6 +19,7 @@ import { getLocaleDirection, type AppLocale } from "@/lib/i18n/locale";
 import { getNavigationSide, isNavigationItemActive } from "@/components/layout/navigation";
 import { CozyMark } from "@/components/brand/cozy-mark";
 import { SidebarQuickActions } from "@/components/layout/sidebar-quick-actions";
+import { ExperienceSwitch } from "@/components/experience/experience-switch";
 import type { VisualPreferences } from "@/lib/themes/preferences";
 
 interface AppShellProps {
@@ -81,11 +82,11 @@ function AppShellContent({
   const common = useTranslations("Common");
   const direction = getLocaleDirection(locale);
   const nav = [
-    { href: "/", icon: HeartHandshake, label: t("lounge") },
-    { href: "/?panel=connections", icon: UsersRound, label: t("connections") },
-    { href: "/?panel=chats", icon: MessageCircle, label: t("messages") },
-    { href: "/?panel=profile", icon: Settings2, label: t("profile") },
-    { href: "/?panel=appearance", icon: Palette, label: t("appearance") },
+    { href: "/classic", icon: HeartHandshake, label: t("lounge") },
+    { href: "/connections", icon: UsersRound, label: t("connections") },
+    { href: "/chats", icon: MessageCircle, label: t("messages") },
+    { href: "/settings/profile", icon: Settings2, label: t("profile") },
+    { href: "/settings/appearance", icon: Palette, label: t("appearance") },
     ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, label: t("operator") }] : []),
   ];
   const currentTitle = nav.find((item) => isNavigationItemActive(pathname, item.href))?.label ?? t("space");
@@ -96,7 +97,7 @@ function AppShellContent({
       <Sidebar dir={direction} side={getNavigationSide(locale)} variant="floating"
         collapsible="offcanvas" mobileTitle={t("primary")} aria-label={t("primary")}>
         <SidebarHeader className="px-5 pb-3 pt-6">
-          <SidebarDismissLink href="/" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
+          <SidebarDismissLink href="/classic" className="flex items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-ring">
             <span aria-hidden="true" className="sengapp-logo flex size-12 shrink-0 items-center justify-center rounded-2xl">
               <CozyMark className="size-12" />
             </span>
@@ -119,12 +120,13 @@ function AppShellContent({
             <p className="text-sm font-semibold leading-relaxed">{t("noteTitle")}</p>
             <p className="text-xs leading-5 text-sidebar-foreground/75">{t("noteDescription")}</p>
             <Button asChild size="sm" variant="secondary" className="mt-2 w-full rounded-xl">
-              <SidebarDismissLink href="/?panel=connections">{t("inviteAction")}</SidebarDismissLink>
+              <SidebarDismissLink href="/connections">{t("inviteAction")}</SidebarDismissLink>
             </Button>
           </div>
         </SidebarContent>
 
         <SidebarFooter className="gap-3 px-5 pb-5 pt-4">
+          <ExperienceSwitch to="cozy" className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-sidebar-border bg-sidebar-accent/55 px-3 py-2 text-sm font-semibold hover:bg-sidebar-accent focus-visible:outline-2 focus-visible:outline-sidebar-ring" />
           <div className="rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-3">
             <div className="flex items-center gap-3">
               <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xl">🌰</span>

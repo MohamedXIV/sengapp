@@ -15,11 +15,7 @@ import { ConnectionsSpace } from "@/features/connections/connections-space";
 import { useWorkspaceNavigation } from "./workspace-navigation";
 
 export function ChatsPanel() {
-  const [localSelected, setLocalSelected] = useState<Id<"conversations"> | null>(null);
   const navigation = useWorkspaceNavigation();
-  const selected = navigation?.selectedConversation ?? localSelected;
-  const select = navigation?.openConversation ?? setLocalSelected;
-  const back = navigation?.returnToConversations ?? (() => setLocalSelected(null));
   const t = useTranslations("Chats");
 
   return <section data-testid="cottage-live-chats" className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-card text-card-foreground">
@@ -30,11 +26,7 @@ export function ChatsPanel() {
       </Link>
     </div>
     <div className="min-h-0 flex-1 overflow-hidden px-2 pb-2">
-      <MemberGate embedded>{profile => selected
-        ? <DirectThread key={selected} embedded conversationId={selected}
-            meProfileId={profile._id} onBack={back}/>
-        : <ConversationsList compact onSelect={select}/>}
-      </MemberGate>
+      <ChatsContent embedded navigation={navigation} />
     </div>
   </section>;
 }
