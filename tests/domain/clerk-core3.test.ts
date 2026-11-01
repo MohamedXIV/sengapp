@@ -20,7 +20,7 @@ describe("Clerk Core 3 compatibility", () => {
       const source = readFileSync(path, "utf8");
       const imports = source.matchAll(/import\s*\{([^}]+)\}\s*from\s*["']@clerk\/nextjs["']/g);
       for (const match of imports) {
-        if (obsolete.test(match[1])) offenders.push(path);
+        if (match[1] && obsolete.test(match[1])) offenders.push(path);
       }
     }
     expect(offenders).toEqual([]);
