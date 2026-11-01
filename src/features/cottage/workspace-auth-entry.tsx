@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SignedOut, SignInButton } from "@clerk/nextjs";
+import { Show, SignInButton } from "@clerk/nextjs";
 import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 
@@ -21,11 +21,11 @@ export function WorkspaceAuthEntry() {
   if (!configured || pendingInvite) return <Link href="/login" className="cottage-tool" aria-label={t("signIn")}>
     <span className="hidden sm:inline">{t("signIn")}</span><span className="sm:hidden">{t("signInCompact")}</span>
   </Link>;
-  return <SignedOut>
+  return <Show when="signed-out">
     <SignInButton mode="modal" fallbackRedirectUrl="/" signUpFallbackRedirectUrl="/">
       <button type="button" className="cottage-tool" aria-label={t("signIn")}>
         <span className="hidden sm:inline">{t("signIn")}</span><span className="sm:hidden">{t("signInCompact")}</span>
       </button>
     </SignInButton>
-  </SignedOut>;
+  </Show>;
 }
