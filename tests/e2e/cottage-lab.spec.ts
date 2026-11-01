@@ -4,7 +4,7 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
   await page.goto("/");
   await expect(page.locator(".cottage-toolbar").getByText("Sengapp", { exact: true })).toBeVisible();
   await expect(page.getByText("Cottage Lab")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Open tools and settings" })).toHaveCount(0);
+  await expect(page.getByTestId("workspace-utilities").locator("summary")).toHaveAttribute("aria-label", "Open tools and settings");
   await expect(page.locator(".cottage-toolbar").getByRole("button")).toHaveCount(2);
   await expect(page.getByTestId("workspace-utilities").locator("summary")).toBeVisible();
   const renderer = page.getByTestId("cottage-canvas");
