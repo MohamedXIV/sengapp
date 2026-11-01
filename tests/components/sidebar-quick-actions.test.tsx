@@ -26,7 +26,7 @@ describe("sidebar quick actions", () => {
     const row = screen.getByLabelText("Quick account actions");
     expect(row).toHaveClass("grid-cols-4");
     expect(row.querySelectorAll("button, a")).toHaveLength(4);
-    expect(screen.getByRole("link", { name: "Profile & privacy settings" })).toHaveAttribute("href", "/settings/profile");
+    expect(screen.getByRole("link", { name: "Profile & privacy settings" })).toHaveAttribute("href", "/?panel=profile");
     fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
     expect(onSignOut).toHaveBeenCalledOnce();
     expect(container.querySelectorAll("svg").length).toBeGreaterThanOrEqual(4);
