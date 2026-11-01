@@ -9,6 +9,8 @@ import { ConversationsList } from "@/features/chats/conversations-list";
 import { DirectThread } from "@/features/chats/direct-thread";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { STORAGE } from "./room-model";
+import { ProfileEditor } from "@/features/profile/profile-editor";
+import { AppearanceEditor } from "@/features/profile/appearance-editor";
 import { ConnectionsSpace } from "@/features/connections/connections-space";
 import { useWorkspaceNavigation } from "./workspace-navigation";
 
@@ -43,6 +45,18 @@ export function ConnectionsPanel() {
     <MemberGate embedded>{() =>
       <ConnectionsSpace compact onOpenConversation={navigation?.openConversation}/>}
     </MemberGate>
+  </section>;
+}
+
+export function ProfilePanel() {
+  return <section data-testid="cottage-live-profile" className="cottage-account-panel h-full min-h-0 overflow-y-auto overscroll-contain">
+    <MemberGate embedded>{profile => <ProfileEditor key={profile._id} compact profile={profile} />}</MemberGate>
+  </section>;
+}
+
+export function AppearancePanel() {
+  return <section data-testid="cottage-live-appearance" className="cottage-account-panel h-full min-h-0 overflow-y-auto overscroll-contain">
+    <MemberGate embedded>{profile => <AppearanceEditor key={profile._id} compact profile={profile} />}</MemberGate>
   </section>;
 }
 

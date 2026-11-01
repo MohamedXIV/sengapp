@@ -159,3 +159,22 @@ test("workspace offers switchable glass, paper and ambient effects", async ({ pa
   await page.getByTestId("window-style-panel").getByRole("button", { name: "Paper" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "paper");
 });
+
+test("Profile and Appearance open as real protected windows, with direct fallback routes", async ({ page }) => {
+  await page.goto("/lab/cottage?panel=profile");
+  const profile = page.getByTestId("cottage-live-profile");
+  await expect(profile).toBeVisible();
+  // Guest users must never see identity/presence data or editable profile controls.
+  await expect(profile.getByRole("link", { name: /Sign in/i })).toHaveAttribute("href", "/login");
+  await expect(profile.locator('input[id="displayName"]')).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Appearance", exact: true }).click();
+  const appearance = page.getByTestId("cottage-live-appearance");
+  await expect(appearance).toBeVisible();
+  await expect(appearance.getByRole("link", { name: /Sign in/i })).toHaveAttribute("href", "/login");
+  // The original routes remain usable when Phaser or window management is disabled.
+  await page.goto("/settings/profile");
+  await expect(page.getByRole("link", { name: /Sign in/i })).toBeVisible();
+  await page.goto("/settings/appearance");
+  await expect(page.getByRole("link", { name: /Sign in/i })).toBeVisible();
+});

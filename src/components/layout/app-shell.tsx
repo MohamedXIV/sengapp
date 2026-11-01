@@ -84,8 +84,8 @@ function AppShellContent({
     { href: "/lab/cottage", icon: HeartHandshake, label: t("lounge") },
     { href: "/lab/cottage?panel=connections", icon: UsersRound, label: t("connections") },
     { href: "/lab/cottage?panel=chats", icon: MessageCircle, label: t("messages") },
-    { href: "/settings/profile", icon: Settings2, label: t("profile") },
-    { href: "/settings/appearance", icon: Palette, label: t("appearance") },
+    { href: "/lab/cottage?panel=profile", icon: Settings2, label: t("profile") },
+    { href: "/lab/cottage?panel=appearance", icon: Palette, label: t("appearance") },
     ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, label: t("operator") }] : []),
   ];
   const currentTitle = nav.find((item) => isNavigationItemActive(pathname, item.href))?.label ?? t("space");

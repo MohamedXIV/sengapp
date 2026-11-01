@@ -174,3 +174,22 @@
 @media (prefers-reduced-motion:reduce) {
   .cottage-lab :is(.cottage-mobile-window,.dv-resize-container) { transition:none !important; }
 }
+
+/* Profile and Appearance reuse the original shadcn forms inside the window.
+   The profile editor scrolls independently so its save controls remain reachable. */
+.cottage-account-panel { background:transparent; color:var(--skin-ink); }
+.cottage-account-panel [data-slot="card"] {
+  background:color-mix(in srgb, var(--skin-surface) 78%, transparent);
+  border-color:var(--skin-edge);
+  box-shadow:none;
+}
+.cottage-account-panel :is(input,textarea,[role="combobox"]) {
+  background:color-mix(in srgb, #fff 85%, transparent);
+}
+.cottage-account-panel :is(input,textarea,[role="combobox"]):focus-visible {
+  outline-offset:1px;
+}
+@media (max-width:599px) {
+  .cottage-account-panel [data-slot="card"] form { padding:12px; }
+  .cottage-account-panel [data-slot="card"] { border-radius:14px; }
+}

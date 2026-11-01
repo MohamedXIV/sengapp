@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Grip, X } from "lucide-react";
-import { ChatsPanel, ConnectionsPanel, FocusPanel, NotesPanel } from "./workspace-panels";
+import { ChatsPanel, ConnectionsPanel, ProfilePanel, AppearancePanel, FocusPanel, NotesPanel } from "./workspace-panels";
 import { WindowStyleTool } from "./window-style-context";
 
-export type MobilePanelName = "chats" | "connections" | "notes" | "focus" | "style";
+export type MobilePanelName = "chats" | "connections" | "notes" | "focus" | "style" | "profile" | "appearance";
 export type MobileWindowBounds = { x: number; y: number; width: number; height: number };
 
 const STORAGE_KEY = "sengapp-lab-mobile-windows-v1";
@@ -14,12 +14,14 @@ const MIN_WIDTH = 236;
 const MIN_HEIGHT = 174;
 const DEFAULT_WIDTH = 312;
 const LABELS: Record<MobilePanelName, string> = {
-  chats: "Chats", connections: "Connections", notes: "Notes", focus: "Focus timer", style: "Window style",
+  chats: "Chats", connections: "Connections", notes: "Notes", focus: "Focus timer", style: "Window style", profile: "Profile & privacy", appearance: "Appearance",
 };
 const DEFAULTS: Record<MobilePanelName, MobileWindowBounds> = {
   chats: { x: 14, y: 45, width: DEFAULT_WIDTH, height: 290 },
   connections: { x: 24, y: 80, width: DEFAULT_WIDTH, height: 390 },
   style: { x: 28, y: 100, width: DEFAULT_WIDTH, height: 400 },
+  profile: { x: 18, y: 75, width: DEFAULT_WIDTH, height: 430 },
+  appearance: { x: 20, y: 85, width: DEFAULT_WIDTH, height: 430 },
   notes: { x: 30, y: 105, width: DEFAULT_WIDTH, height: 280 },
   focus: { x: 52, y: 170, width: 265, height: 218 },
 };
@@ -176,8 +178,8 @@ export function MobileWindowLayer({
           <button className="flex size-9 shrink-0 items-center justify-center rounded-lg hover:bg-[#c5decf] focus-visible:outline-2 focus-visible:outline-[#45785e]"
             aria-label={`Close ${LABELS[name]} window`} onClick={() => onClose(name)}><X className="size-4"/></button>
         </div>
-        <div className={name === "chats" || name === "connections" ? "min-h-0 flex-1 overflow-hidden" : "min-h-0 flex-1 overflow-auto overscroll-contain"}>
-          {name === "chats" ? <ChatsPanel /> : name === "connections" ? <ConnectionsPanel /> : name === "style" ? <WindowStyleTool /> : name === "notes" ? <NotesPanel /> : <FocusPanel />}
+        <div className={name === "chats" || name === "connections" || name === "profile" || name === "appearance" ? "min-h-0 flex-1 overflow-hidden" : "min-h-0 flex-1 overflow-auto overscroll-contain"}>
+          {name === "chats" ? <ChatsPanel /> : name === "connections" ? <ConnectionsPanel /> : name === "profile" ? <ProfilePanel /> : name === "appearance" ? <AppearancePanel /> : name === "style" ? <WindowStyleTool /> : name === "notes" ? <NotesPanel /> : <FocusPanel />}
         </div>
         <button aria-label={`Resize ${LABELS[name]} window`}
           title="Drag to resize" className="cottage-mobile-resize absolute bottom-0 right-0 flex size-9 touch-none select-none items-end justify-end rounded-br-[19px] p-1.5 text-[#71927b]"
