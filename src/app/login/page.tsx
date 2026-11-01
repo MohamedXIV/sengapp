@@ -33,8 +33,8 @@ export default function LoginPage() {
         ? <SignIn
             routing="hash"
             withSignUp
-            fallbackRedirectUrl={pendingInvite ? "/invite" : "/home"}
-            signUpFallbackRedirectUrl={pendingInvite ? "/invite" : "/home"}
+            fallbackRedirectUrl={pendingInvite ? "/invite" : "/"}
+            signUpFallbackRedirectUrl={pendingInvite ? "/invite" : "/"}
           />
         : <p role="status" className="text-sm text-muted-foreground">
             {t("unavailable")}
