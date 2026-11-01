@@ -165,16 +165,20 @@ test("Profile and Appearance open as real protected windows, with direct fallbac
   const profile = page.getByTestId("cottage-live-profile");
   await expect(profile).toBeVisible();
   // Guest users must never see identity/presence data or editable profile controls.
-  await expect(profile.getByRole("link", { name: /Sign in/i })).toHaveAttribute("href", "/login");
+  // CI may intentionally omit Clerk/Convex credentials and show Backend Required.
+  // Either route must never disclose/edit a profile for a guest.
+  await expect(profile.locator('a[href="/"], a[href="/login"]').first()).toBeVisible();
   await expect(profile.locator('input[id="displayName"]')).toHaveCount(0);
 
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   const appearance = page.getByTestId("cottage-live-appearance");
   await expect(appearance).toBeVisible();
-  await expect(appearance.getByRole("link", { name: /Sign in/i })).toHaveAttribute("href", "/login");
+  await expect(appearance.locator('a[href="/"], a[href="/login"]').first()).toBeVisible();
   // The original routes remain usable when Phaser or window management is disabled.
   await page.goto("/settings/profile");
-  await expect(page.getByRole("link", { name: /Sign in/i })).toBeVisible();
+  await expect(page.locator('input[id="displayName"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/"], a[href="/login"]').first()).toBeVisible();
   await page.goto("/settings/appearance");
-  await expect(page.getByRole("link", { name: /Sign in/i })).toBeVisible();
+  await expect(page.locator('select[id="appearance-font"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/"], a[href="/login"]').first()).toBeVisible();
 });
