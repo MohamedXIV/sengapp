@@ -201,6 +201,35 @@ export const updateUiShortcuts = mutation({
 });
 
 
+// Appearance and window material are one atomic account preference save.
+// Closed enums and bounded numeric values: no arbitrary CSS or cross-account writes.
+export const updateAppearance = mutation({
+  args: {
+    preset: v.union(v.literal("acorn"), v.literal("forest"), v.literal("dusk"), v.literal("ocean")),
+    accent: v.union(v.literal("amber"), v.literal("coral"), v.literal("sage"), v.literal("teal"), v.literal("blue"), v.literal("violet")),
+    font: v.union(v.literal("system"), v.literal("inter"), v.literal("nunito")),
+    radius: v.union(v.literal("subtle"), v.literal("soft"), v.literal("round")),
+    density: v.union(v.literal("comfortable"), v.literal("compact")),
+    themePreference: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
+    windowStyle: v.object({
+      material: v.union(v.literal("cozy"), v.literal("glass"), v.literal("paper")),
+      opacity: v.number(),
+      blur: v.number(),
+      atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),
+    }),
+  },
+  handler: async (ctx, { themePreference, windowStyle, ...visualPreferences }) => {
+    const profile = await requireAuthorizedProfile(ctx);
+    if (!Number.isInteger(windowStyle.opacity) || windowStyle.opacity < 65 || windowStyle.opacity > 100
+      || !Number.isInteger(windowStyle.blur) || windowStyle.blur < 0 || windowStyle.blur > 28) {
+      throw new ConvexError({ code: "INVALID_WINDOW_STYLE" });
+    }
+    const updatedAt = Date.now();
+    await ctx.db.patch(profile._id, { visualPreferences, themePreference, windowStyle, updatedAt });
+    return { updatedAt };
+  },
+});
+
 // Explicit save prevents a high-frequency write for every slider move.
 // Server validates all fields and binds ownership to Clerk, never a client ID.
 export const updateWindowStyle = mutation({
