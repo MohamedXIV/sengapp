@@ -60,7 +60,7 @@ function addFloating(api: DockviewApi, name: PanelName) {
 
 type AccountStyle = {
   identity: string | null | undefined;
-  saved?: WindowStyle | null;
+  saved?: unknown;
   onSave?: (value: WindowStyle) => Promise<unknown>;
 };
 

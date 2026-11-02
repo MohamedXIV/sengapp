@@ -212,7 +212,7 @@ export const updateAppearance = mutation({
     density: v.union(v.literal("comfortable"), v.literal("compact")),
     themePreference: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
     windowStyle: v.object({
-      material: v.union(v.literal("cozy"), v.literal("glass"), v.literal("paper")),
+      material: v.union(v.literal("glass"), v.literal("paper")),
       opacity: v.number(),
       blur: v.number(),
       atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),
@@ -234,7 +234,7 @@ export const updateAppearance = mutation({
 // Server validates all fields and binds ownership to Clerk, never a client ID.
 export const updateWindowStyle = mutation({
   args: {
-    material: v.union(v.literal("cozy"), v.literal("glass"), v.literal("paper")),
+    material: v.union(v.literal("glass"), v.literal("paper")),
     opacity: v.number(),
     blur: v.number(),
     atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),

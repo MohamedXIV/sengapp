@@ -17,7 +17,7 @@ export function WindowStyleFields({ value, onChange }: {
   return <div className="space-y-4 text-sm" data-testid="window-style-fields">
     <fieldset className="space-y-2">
       <legend className="font-semibold">{t("material")}</legend>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {MATERIALS.map(material => <button key={material} type="button"
           aria-pressed={value.material === material}
           className="cottage-style-choice min-h-11 rounded-xl border border-border bg-card px-2 py-2 font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-pressed:ring-2 aria-pressed:ring-ring"

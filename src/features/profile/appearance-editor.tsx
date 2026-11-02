@@ -8,7 +8,7 @@ import type { Doc } from "../../../convex/_generated/dataModel";
 import { Badge } from "@/components/ui/badge";
 import { AppearanceSettings } from "@/features/profile/appearance-settings";
 import { useWindowStyleEditor } from "@/features/cottage/window-style-context";
-import { DEFAULT_WINDOW_STYLE } from "@/features/cottage/window-style";
+import { DEFAULT_WINDOW_STYLE, normalizeWindowStyle } from "@/features/cottage/window-style";
 import { resolveVisualPreferences } from "@/lib/themes/preferences";
 
 /** Both Classic page and Cozy window render exactly the same appearance editor. */
@@ -27,7 +27,7 @@ export function AppearanceEditor({ profile, compact = false }: { profile: Doc<"p
     <AppearanceSettings
       initialPreferences={resolveVisualPreferences(profile.visualPreferences)}
       initialMode={profile.themePreference}
-      initialWindowStyle={profile.windowStyle ?? DEFAULT_WINDOW_STYLE}
+      initialWindowStyle={profile.windowStyle ? normalizeWindowStyle(profile.windowStyle) : DEFAULT_WINDOW_STYLE}
       onWindowPreview={windowPreview?.onPreview}
       onWindowCommit={windowPreview?.onCommit}
       onSave={async (data) => { await updateAppearance(data); }}
