@@ -63,64 +63,102 @@
 .cottage-dock-layer .dv-content-container > * { height:100%; min-height:0; }
 .cottage-mobile-window[data-testid="cottage-mobile-window-chats"] { min-height:0; }
 
-/* One quiet window chrome for Dockview and mobile. Surfaces always protect
-   text legibility; translucent glass is clamped to a readable minimum. */
+/* Two distinct, honest surfaces: blurred translucent glass and tactile paper.
+   The CSS skin applies to desktop Dockview AND touch-friendly mobile windows. */
 .cottage-lab {
-  --skin-surface:#fbfcf7;
-  --skin-title:#e3eee5;
-  --skin-edge:#b7cbbd;
-  --skin-ink:#263d36;
-  --skin-radius:20px;
-  --skin-blur-effective:0px;
-  --skin-panel:color-mix(in srgb,var(--skin-surface) max(91%,var(--window-opacity,94%)),transparent);
-  --skin-title-panel:color-mix(in srgb,var(--skin-title) 97%,white);
-  --skin-highlight:rgba(255,255,255,.8);
+  --skin-surface:#fffaf0;
+  --skin-title:#f1e5d1;
+  --skin-edge:#d0bb99;
+  --skin-ink:#44382c;
+  --skin-radius:17px;
+  --skin-panel:#fffaf0;
+  --skin-title-panel:#f3e7d2;
+  --skin-highlight:rgba(255,255,255,.9);
+  --skin-backdrop:none;
 }
 .cottage-lab[data-window-material="glass"] {
-  --skin-surface:#eef8f5;
-  --skin-title:#dfefeb;
-  --skin-edge:#a6c8bd;
-  --skin-ink:#223c37;
+  --skin-surface:#ecf8f4;
+  --skin-title:#e0f2ed;
+  --skin-edge:rgba(255,255,255,.8);
+  --skin-ink:#1b3933;
   --skin-radius:22px;
-  --skin-panel:color-mix(in srgb,var(--skin-surface) max(86%,var(--window-opacity,94%)),transparent);
-  --skin-blur-effective:clamp(6px,var(--window-blur,12px),20px);
+  --skin-panel:color-mix(in srgb,#e7f7f2 var(--window-opacity,74%),transparent);
+  --skin-title-panel:rgba(248,255,253,.36);
+  --skin-backdrop:blur(var(--window-blur,20px)) saturate(155%);
 }
 .cottage-lab[data-window-material="paper"] {
   --skin-surface:#fffaf0;
-  --skin-title:#f4ead7;
-  --skin-edge:#d7c4a4;
-  --skin-ink:#443a30;
+  --skin-title:#f1e4cc;
+  --skin-edge:#d1ba91;
+  --skin-ink:#4a3929;
   --skin-radius:17px;
-  --skin-panel:color-mix(in srgb,var(--skin-surface) max(94%,var(--window-opacity,94%)),transparent);
+  --skin-panel:#fffaf0;
+  --skin-title-panel:#f1e4cf;
+  --skin-backdrop:none;
 }
 .cottage-lab :is(.dv-resize-container,.cottage-mobile-window) {
   border:1px solid var(--skin-edge) !important;
   border-radius:var(--skin-radius) !important;
   color:var(--skin-ink);
   background:var(--skin-panel) !important;
-  box-shadow:0 15px 46px rgba(37,59,48,.18), inset 0 1px var(--skin-highlight) !important;
-  backdrop-filter:blur(var(--skin-blur-effective));
-  -webkit-backdrop-filter:blur(var(--skin-blur-effective));
+  backdrop-filter:var(--skin-backdrop);
+  -webkit-backdrop-filter:var(--skin-backdrop);
+  box-shadow:0 14px 42px rgba(30,55,45,.19),inset 0 1px var(--skin-highlight) !important;
   isolation:isolate;
+}
+.cottage-lab[data-window-material="glass"] :is(.dv-resize-container,.cottage-mobile-window) {
+  box-shadow:0 17px 50px rgba(23,45,54,.19),inset 0 1px rgba(255,255,255,.95),
+    inset 1px 0 rgba(255,255,255,.35),inset 0 -1px rgba(255,255,255,.18) !important;
+}
+.cottage-lab[data-window-material="paper"] :is(.dv-resize-container,.cottage-mobile-window) {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%3E%3Cfilter%20id%3D%22grain%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.72%22%20numOctaves%3D%223%22%20seed%3D%227%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20filter%3D%22url(%23grain)%22%20opacity%3D%22.12%22%2F%3E%3C%2Fsvg%3E") !important;
+  background-blend-mode:multiply;
+  box-shadow:2px 3px 0 rgba(174,139,88,.16),0 18px 35px rgba(75,52,23,.19),
+    inset 0 0 0 1px rgba(255,255,255,.52) !important;
 }
 .cottage-lab .dv-resize-container > .dv-floating-titlebar,
 .cottage-lab .dv-resize-container .dv-tabs-and-actions-container,
 .cottage-lab .cottage-mobile-titlebar {
-  min-height:42px;
   background:var(--skin-title-panel) !important;
   color:var(--skin-ink);
   border-bottom:1px solid var(--skin-edge);
 }
+.cottage-lab .dv-resize-container > .dv-floating-titlebar {
+  height:32px !important;
+  min-height:32px !important;
+  max-height:32px;
+  position:relative;
+  cursor:grab;
+}
+.cottage-lab .dv-resize-container > .dv-floating-titlebar:active {cursor:grabbing;}
+/* Dockview already sets draggable=true here; dots are a pointer-transparent
+   affordance ON the native drag surface, not a second dragging implementation. */
+.cottage-lab .dv-floating-titlebar.dv-draggable::before {
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  inset-inline-start:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:44px;
+  height:12px;
+  border-radius:9px;
+  background-image:radial-gradient(circle,var(--skin-ink) 1.5px,transparent 1.9px);
+  background-size:9px 6px;
+  background-position:center;
+  opacity:.44;
+}
 .cottage-lab .dv-resize-container .dv-tabs-and-actions-container {
-  padding-inline:6px;
+  min-height:32px !important;
+  padding-inline:5px;
   --dv-activegroup-visiblepanel-tab-background-color:var(--skin-surface);
   --dv-activegroup-visiblepanel-tab-color:var(--skin-ink);
-  --dv-inactivegroup-visiblepanel-tab-color:#66786d;
+  --dv-inactivegroup-visiblepanel-tab-color:#69766d;
 }
 .cottage-lab .dv-resize-container .dv-tab {
-  margin:4px 2px;
-  min-height:32px;
-  border-radius:11px;
+  min-height:26px;
+  margin:2px;
+  border-radius:10px;
   font-weight:650;
   transition:background-color .15s ease;
 }
@@ -128,11 +166,44 @@
   background:var(--skin-surface) !important;
   box-shadow:0 1px 3px rgba(31,58,42,.11);
 }
+.cottage-lab[data-window-material="glass"] .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
+  background:rgba(255,255,255,.47) !important;
+  border:1px solid rgba(255,255,255,.54);
+}
+.cottage-lab[data-window-material="paper"] .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
+  background:#fff8e8 !important;
+  border:1px solid #d9c5a6;
+  box-shadow:0 2px 3px rgba(103,75,40,.12);
+}
+/* Enlarge Dockview's REAL bottom-right hit area and illustrate its diagonal grip. */
+.cottage-lab .dv-resize-container > .dv-resize-handle-bottomright {
+  width:27px !important;
+  height:27px !important;
+  right:0;
+  bottom:0;
+  z-index:10;
+  cursor:nwse-resize;
+}
+.cottage-lab .dv-resize-container > .dv-resize-handle-bottomright::after {
+  content:"";
+  position:absolute;
+  width:16px;
+  height:16px;
+  right:5px;
+  bottom:5px;
+  pointer-events:none;
+  border-radius:4px;
+  background-image:radial-gradient(circle,var(--skin-ink) 1.35px,transparent 1.7px);
+  background-size:6px 6px;
+  mask-image:linear-gradient(135deg,transparent 34%,#000 35%);
+  opacity:.62;
+}
 .cottage-lab .cottage-mobile-titlebar {
+  min-height:44px; /* Retain a comfortable touch target; only desktop is 32px. */
   border-radius:calc(var(--skin-radius) - 1px) calc(var(--skin-radius) - 1px) 0 0;
 }
 .cottage-lab .cottage-mobile-titlebar :is(button:hover,button:focus-visible) {
-  background:var(--skin-surface);
+  background:color-mix(in srgb,var(--skin-surface) 65%,transparent);
 }
 .cottage-lab .dv-resize-container :is(.dv-content-container,.dv-groupview,.dv-grid-view,.dv-view),
 .cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) {
@@ -147,33 +218,41 @@
   background:var(--skin-panel) !important;
   border-color:var(--skin-edge) !important;
   color:var(--skin-ink);
-  backdrop-filter:blur(var(--skin-blur-effective));
-  -webkit-backdrop-filter:blur(var(--skin-blur-effective));
+  backdrop-filter:var(--skin-backdrop);
+  -webkit-backdrop-filter:var(--skin-backdrop);
 }
-/* Atmospheric effects belong to the scene, not the window content or forms.
-   Lightweight static gradients avoid expensive full-screen animations. */
-.cottage-stage-center::after { content:"";position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0; }
+.cottage-lab[data-window-material="glass"] .dv-content-container > section,
+.cottage-lab[data-window-material="glass"] .cottage-mobile-window > section {
+  color:var(--skin-ink);
+}
+.cottage-lab[data-window-material="paper"] .cottage-dock-layer .dv-content-container {
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(176,136,79,.035) 28px) !important;
+}
+.cottage-lab[data-window-material="paper"] .cottage-utilities-menu {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%3E%3Cfilter%20id%3D%22grain%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.72%22%20numOctaves%3D%223%22%20seed%3D%227%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20filter%3D%22url(%23grain)%22%20opacity%3D%22.12%22%2F%3E%3C%2Fsvg%3E") !important;
+  background-blend-mode:multiply;
+}
+/* Weather belongs behind actual UI controls and the content, not over text. */
+.cottage-stage-center::after {content:"";position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;}
 .cottage-lab[data-window-atmosphere="mist"] .cottage-stage-center::after {
   opacity:1;
-  background:
-    radial-gradient(ellipse 55% 40% at 8% 68%,rgba(236,248,241,.33),transparent 90%),
+  background:radial-gradient(ellipse 55% 40% at 8% 68%,rgba(236,248,241,.33),transparent 90%),
     radial-gradient(ellipse 55% 43% at 92% 23%,rgba(246,249,239,.35),transparent 90%);
 }
 .cottage-lab[data-window-atmosphere="rain"] .cottage-stage-center::after {
   opacity:.48;
-  background:
-    repeating-linear-gradient(108deg,transparent 0 31px,rgba(193,220,218,.34) 31px 32px,transparent 32px 80px),
+  background:repeating-linear-gradient(108deg,transparent 0 31px,rgba(193,220,218,.34) 31px 32px,transparent 32px 80px),
     linear-gradient(to bottom,rgba(202,222,222,.11),transparent 48%,rgba(124,175,169,.12));
 }
+.cottage-lab .cottage-style-choice {border-color:var(--skin-edge);background:var(--skin-surface);color:var(--skin-ink);}
+.cottage-lab .cottage-style-choice[aria-pressed="true"] {background:var(--skin-title-panel);}
+.cottage-style-panel {color:var(--skin-ink);}
 @media (prefers-reduced-transparency:reduce) {
-  .cottage-lab { --skin-panel:var(--skin-surface) !important;--skin-blur-effective:0px !important; }
+  .cottage-lab {--skin-panel:var(--skin-surface) !important;--skin-backdrop:none !important;}
 }
 @media (prefers-reduced-motion:reduce) {
-  .cottage-lab :is(.cottage-mobile-window,.dv-resize-container,.dv-tab) { transition:none !important; }
+  .cottage-lab :is(.cottage-mobile-window,.dv-resize-container,.dv-tab) {transition:none !important;}
 }
-.cottage-lab .cottage-style-choice { border-color:var(--skin-edge);background:var(--skin-surface);color:var(--skin-ink); }
-.cottage-lab .cottage-style-choice[aria-pressed="true"] { background:var(--skin-title-panel); }
-.cottage-style-panel { color:var(--skin-ink); }
 
 /* Profile and Appearance reuse the original shadcn forms inside the window.
    The profile editor scrolls independently so its save controls remain reachable. */
@@ -205,8 +284,8 @@
   height:48px; width:48px; border-radius:17px;
   border:1px solid var(--skin-edge); color:var(--skin-ink);
   background:var(--skin-title-panel);
-  backdrop-filter:blur(var(--skin-blur-effective));
-  -webkit-backdrop-filter:blur(var(--skin-blur-effective));
+  backdrop-filter:var(--skin-backdrop);
+  -webkit-backdrop-filter:var(--skin-backdrop);
   box-shadow:0 5px 20px #344b4130;
 }
 .cottage-utilities-trigger:hover { filter:brightness(.97); }
@@ -220,8 +299,8 @@
   overflow-y:auto; display:flex; flex-direction:column; gap:2px; padding:10px;
   border:1px solid var(--skin-edge); border-radius:var(--skin-radius);
   color:var(--skin-ink); background:var(--skin-panel);
-  backdrop-filter:blur(var(--skin-blur-effective));
-  -webkit-backdrop-filter:blur(var(--skin-blur-effective));
+  backdrop-filter:var(--skin-backdrop);
+  -webkit-backdrop-filter:var(--skin-backdrop);
   box-shadow:0 14px 35px #344b4135;
 }
 .cottage-utilities-heading {

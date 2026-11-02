@@ -219,41 +219,45 @@
 :root[data-sengapp-reduced-motion="true"] .sengapp-alert-panel,
 :root[data-sengapp-reduced-motion="true"] .sengapp-alert-overlay { animation: none !important }
 
-/* Shared sample, visible in both the lightweight Classic editor and Cozy. */
+/* Realistic material preview: actual glass blur, warm paper grain, clear controls. */
 .cottage-style-choice[aria-pressed="true"] {
-  background:var(--accent);
-  color:var(--accent-foreground);
+  background:var(--accent); color:var(--accent-foreground);
 }
 .appearance-window-preview {
-  background:linear-gradient(145deg,#d8e9db,#f3f1e0);
-  color:#263d36;
+  background:linear-gradient(135deg,#b8d5c7 0%,#e8edcc 43%,#9eb7c5 100%);
+  color:#2c403b;
 }
 .appearance-window-preview[data-window-material="glass"] {
-  background:linear-gradient(145deg,#c5e3dd,#e6f3ef);
-  color:#24473c;
+  background:linear-gradient(120deg,#d4e6ee 0%,#8ab1a7 45%,#f0d9be 100%);
 }
 .appearance-window-preview[data-window-material="paper"] {
-  background:linear-gradient(145deg,#eadac0,#f5ecd9);
-  color:#493d30;
+  background:linear-gradient(120deg,#c7b894,#e4d8bc 45%,#b9a37f);
 }
 .appearance-window-preview-card {
-  background:#fffdf5;
-  border:1px solid #bdcdbb;
-  box-shadow:0 8px 22px #2b473326;
+  border:1px solid rgba(255,255,255,.55);
+  background:rgba(236,249,246,.6);
+  backdrop-filter:blur(15px) saturate(145%);
+  -webkit-backdrop-filter:blur(15px) saturate(145%);
+  box-shadow:0 8px 25px rgba(38,70,72,.18),inset 0 1px rgba(255,255,255,.8);
 }
 .appearance-window-preview[data-window-material="glass"] .appearance-window-preview-card {
-  background:rgba(242,251,248,.9);
-  border-color:#a0c7bb;
-  backdrop-filter:blur(10px);
+  background:rgba(238,249,247,.56);
 }
 .appearance-window-preview[data-window-material="paper"] .appearance-window-preview-card {
-  background:#fffaf0;
-  border-color:#d5c09a;
+  color:#4a3929;
+  border:1px solid #d5bc96;
+  background-color:#fff8e9;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%3E%3Cfilter%20id%3D%22grain%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.72%22%20numOctaves%3D%223%22%20seed%3D%227%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20filter%3D%22url(%23grain)%22%20opacity%3D%22.12%22%2F%3E%3C%2Fsvg%3E");
+  background-blend-mode:multiply;
+  box-shadow:2px 3px 0 #9d785633,0 10px 18px #52412e30;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
 }
-.appearance-window-preview-heading { background:#deede0; border-bottom:1px solid #ccd8ca; }
-.appearance-window-preview[data-window-material="glass"] .appearance-window-preview-heading { background:#d7ece6; }
-.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-heading { background:#f2e6d0; }
-.appearance-window-preview[data-window-atmosphere="mist"] { box-shadow:inset 0 0 35px #fff9; }
+.appearance-window-preview-heading {background:rgba(255,255,255,.35);border-bottom:1px solid #ffffff80;}
+.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-heading {
+  background:#f1e3cb;border-bottom:1px solid #d3ba94;
+}
+.appearance-window-preview[data-window-atmosphere="mist"] {box-shadow:inset 0 0 40px #fffc;}
 .appearance-window-preview[data-window-atmosphere="rain"] {
-  background-image:repeating-linear-gradient(108deg,transparent 0 41px,#abc9c633 41px 42px,transparent 42px 90px),linear-gradient(145deg,#c8dedb,#f4efdf);
+  background-image:repeating-linear-gradient(108deg,transparent 0 41px,#b1d0c833 41px 42px,transparent 42px 90px),
+    linear-gradient(125deg,#a8c7c1,#e8e1d0);
 }
