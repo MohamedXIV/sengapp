@@ -20,7 +20,7 @@ export function WindowStyleFields({ value, onChange }: {
       <div className="grid grid-cols-3 gap-2">
         {MATERIALS.map(material => <button key={material} type="button"
           aria-pressed={value.material === material}
-          className="cottage-style-choice min-h-11 rounded-xl border px-2 py-2 font-semibold"
+          className="cottage-style-choice min-h-11 rounded-xl border border-border bg-card px-2 py-2 font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-pressed:ring-2 aria-pressed:ring-ring"
           onClick={() => change({ material })}>{t(material)}</button>)}
       </div>
     </fieldset>
@@ -45,7 +45,7 @@ export function WindowStyleFields({ value, onChange }: {
       <div className="grid grid-cols-3 gap-2">
         {ATMOSPHERES.map(atmosphere => <button key={atmosphere} type="button"
           aria-pressed={value.atmosphere === atmosphere}
-          className="cottage-style-choice min-h-11 rounded-xl border px-2 py-2"
+          className="cottage-style-choice min-h-11 rounded-xl border border-border bg-card px-2 py-2 text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-pressed:ring-2 aria-pressed:ring-ring"
           onClick={() => change({ atmosphere })}>{t(atmosphere)}</button>)}
       </div>
     </fieldset>

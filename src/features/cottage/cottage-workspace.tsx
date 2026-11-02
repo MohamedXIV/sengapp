@@ -9,23 +9,23 @@ import { validConversationId } from "@/lib/experience";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { DockviewReact, themeLight, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
-import { Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, Palette, Settings2, Settings, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2, SlidersHorizontal } from "lucide-react";
+import { Armchair, BookOpenText, Check, CloudMoon, Home, LayoutPanelLeft, MessageCircle, UsersRound, Palette, Settings2, Settings, RotateCcw, Sun, Timer, ZoomIn, ZoomOut, Scan, Maximize2 } from "lucide-react";
 import { MobileWindowLayer, type MobilePanelName } from "./mobile-window-layer";
 import { RoomCanvas, type RoomCanvasHandle } from "./room-canvas";
 import { CAMERA, WORLD_CENTER, type CameraView } from "./room-camera";
 import { ChatsPanel, ConnectionsPanel, ProfilePanel, AppearancePanel, NotesPanel, FocusPanel } from "./workspace-panels";
 import { WorkspaceNavigationProvider } from "./workspace-navigation";
-import { WindowStyleProvider, WindowStyleTool } from "./window-style-context";
+import { WindowStyleProvider } from "./window-style-context";
 import { DEFAULT_WINDOW_STYLE, STYLE_STORAGE_KEY, normalizeWindowStyle, type WindowStyle } from "./window-style";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { INITIAL_ITEMS, STORAGE, parseRoom, type RoomItem, type LightPreset } from "./room-model";
 
-const components = { chats: ChatsPanel, connections: ConnectionsPanel, profile: ProfilePanel, appearance: AppearancePanel, notes: NotesPanel, focus: FocusPanel, style: WindowStyleTool };
+const components = { chats: ChatsPanel, connections: ConnectionsPanel, profile: ProfilePanel, appearance: AppearancePanel, notes: NotesPanel, focus: FocusPanel, style: AppearancePanel };
 type PanelName = keyof typeof components;
 const PANELS: Record<PanelName, {title:string; width:number;height:number;left?:number;right?:number;top?:number;bottom?:number}> = {
   chats: { title: "Chats", width: 390, height: 490, left: 16, top: 82 },
   connections: { title: "Connections", width: 380, height: 475, right: 18, top: 82 },
-  style: { title: "Window style", width: 340, height: 440, right: 25, top: 135 },
+  style: { title: "Appearance", width: 520, height: 550, right: 25, top: 105 },
   profile: { title: "Profile & privacy", width: 540, height: 560, right: 28, top: 100 },
   appearance: { title: "Appearance", width: 520, height: 550, right: 32, top: 105 },
   notes: { title: "Notes", width: 270, height: 285, right: 18, top: 82 },
@@ -43,6 +43,7 @@ function desktopSnapshot() { return window.matchMedia(desktopQuery).matches; }
 function requestedPanel(): PanelName | null {
   if (typeof window === "undefined") return null;
   const name = new URLSearchParams(window.location.search).get("panel");
+  if (name === "style") return "appearance"; // Old bookmarks resolve to the unified editor.
   return name && Object.hasOwn(PANELS, name) ? name as PanelName : null;
 }
 
@@ -300,9 +301,6 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
           </button>
           <button type="button" onClick={event => { showPanel("appearance"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
             <Palette aria-hidden="true" className="size-4" />{t("appearance")}
-          </button>
-          <button type="button" onClick={event => { showPanel("style"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>
-            <SlidersHorizontal aria-hidden="true" className="size-4" />{t("windowStyle")}
           </button>
           <p className="cottage-utilities-heading">{t("roomAndTools")}</p>
           <button type="button" onClick={event => { showPanel("notes"); event.currentTarget.closest("details")?.removeAttribute("open"); }}>

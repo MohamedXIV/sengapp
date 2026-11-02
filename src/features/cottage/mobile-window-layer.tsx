@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Grip, X } from "lucide-react";
 import { ChatsPanel, ConnectionsPanel, ProfilePanel, AppearancePanel, FocusPanel, NotesPanel } from "./workspace-panels";
-import { WindowStyleTool } from "./window-style-context";
 
 export type MobilePanelName = "chats" | "connections" | "notes" | "focus" | "style" | "profile" | "appearance";
 export type MobileWindowBounds = { x: number; y: number; width: number; height: number };
@@ -14,7 +13,7 @@ const MIN_WIDTH = 236;
 const MIN_HEIGHT = 174;
 const DEFAULT_WIDTH = 312;
 const LABELS: Record<MobilePanelName, string> = {
-  chats: "Chats", connections: "Connections", notes: "Notes", focus: "Focus timer", style: "Window style", profile: "Profile & privacy", appearance: "Appearance",
+  chats: "Chats", connections: "Connections", notes: "Notes", focus: "Focus timer", style: "Appearance", profile: "Profile & privacy", appearance: "Appearance",
 };
 const DEFAULTS: Record<MobilePanelName, MobileWindowBounds> = {
   chats: { x: 14, y: 45, width: DEFAULT_WIDTH, height: 290 },
@@ -179,7 +178,7 @@ export function MobileWindowLayer({
             aria-label={`Close ${LABELS[name]} window`} onClick={() => onClose(name)}><X className="size-4"/></button>
         </div>
         <div className={name === "chats" || name === "connections" || name === "profile" || name === "appearance" ? "min-h-0 flex-1 overflow-hidden" : "min-h-0 flex-1 overflow-auto overscroll-contain"}>
-          {name === "chats" ? <ChatsPanel /> : name === "connections" ? <ConnectionsPanel /> : name === "profile" ? <ProfilePanel /> : name === "appearance" ? <AppearancePanel /> : name === "style" ? <WindowStyleTool /> : name === "notes" ? <NotesPanel /> : <FocusPanel />}
+          {name === "chats" ? <ChatsPanel /> : name === "connections" ? <ConnectionsPanel /> : name === "profile" ? <ProfilePanel /> : name === "appearance" ? <AppearancePanel /> : name === "style" ? <AppearancePanel /> : name === "notes" ? <NotesPanel /> : <FocusPanel />}
         </div>
         <button aria-label={`Resize ${LABELS[name]} window`}
           title="Drag to resize" className="cottage-mobile-resize absolute bottom-0 right-0 flex size-9 touch-none select-none items-end justify-end rounded-br-[19px] p-1.5 text-[#71927b]"
