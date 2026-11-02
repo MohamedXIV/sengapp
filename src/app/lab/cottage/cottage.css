@@ -63,39 +63,42 @@
 .cottage-dock-layer .dv-content-container > * { height:100%; min-height:0; }
 .cottage-mobile-window[data-testid="cottage-mobile-window-chats"] { min-height:0; }
 
-/* A single material system for toolbar, docked windows and touch windows.
-   These layers stay DOM text/forms; all textures are non-interactive CSS. */
+/* One quiet window chrome for Dockview and mobile. Surfaces always protect
+   text legibility; translucent glass is clamped to a readable minimum. */
 .cottage-lab {
-  --skin-surface: #fffbf2;
-  --skin-title: #d4e8da;
-  --skin-edge: #c9d6c5;
-  --skin-ink: #263d36;
-  --skin-radius: 18px;
-  --skin-blur-effective: 0px;
-  --skin-panel: color-mix(in srgb, var(--skin-surface) var(--window-opacity, 94%), transparent);
-  --skin-title-panel: color-mix(in srgb, var(--skin-title) var(--window-opacity, 94%), transparent);
+  --skin-surface:#fbfcf7;
+  --skin-title:#e3eee5;
+  --skin-edge:#b7cbbd;
+  --skin-ink:#263d36;
+  --skin-radius:20px;
+  --skin-blur-effective:0px;
+  --skin-panel:color-mix(in srgb,var(--skin-surface) max(91%,var(--window-opacity,94%)),transparent);
+  --skin-title-panel:color-mix(in srgb,var(--skin-title) 97%,white);
+  --skin-highlight:rgba(255,255,255,.8);
 }
 .cottage-lab[data-window-material="glass"] {
-  --skin-surface: #e8f7f3;
-  --skin-title: #d9eff2;
-  --skin-edge: #b0d5d7;
-  --skin-blur-effective: var(--window-blur, 12px);
-  --skin-radius: 22px;
-  --skin-ink: #172f31;
+  --skin-surface:#eef8f5;
+  --skin-title:#dfefeb;
+  --skin-edge:#a6c8bd;
+  --skin-ink:#223c37;
+  --skin-radius:22px;
+  --skin-panel:color-mix(in srgb,var(--skin-surface) max(86%,var(--window-opacity,94%)),transparent);
+  --skin-blur-effective:clamp(6px,var(--window-blur,12px),20px);
 }
 .cottage-lab[data-window-material="paper"] {
-  --skin-surface: #fff2d3;
-  --skin-title: #f3dfb6;
-  --skin-edge: #c7ad82;
-  --skin-radius: 12px;
-  --skin-ink: #493b30;
+  --skin-surface:#fffaf0;
+  --skin-title:#f4ead7;
+  --skin-edge:#d7c4a4;
+  --skin-ink:#443a30;
+  --skin-radius:17px;
+  --skin-panel:color-mix(in srgb,var(--skin-surface) max(94%,var(--window-opacity,94%)),transparent);
 }
-.cottage-lab .dv-resize-container,
-.cottage-lab .cottage-mobile-window {
-  border:1px solid var(--skin-edge);
-  border-radius: var(--skin-radius);
-  background:var(--skin-panel) !important;
+.cottage-lab :is(.dv-resize-container,.cottage-mobile-window) {
+  border:1px solid var(--skin-edge) !important;
+  border-radius:var(--skin-radius) !important;
   color:var(--skin-ink);
+  background:var(--skin-panel) !important;
+  box-shadow:0 15px 46px rgba(37,59,48,.18), inset 0 1px var(--skin-highlight) !important;
   backdrop-filter:blur(var(--skin-blur-effective));
   -webkit-backdrop-filter:blur(var(--skin-blur-effective));
   isolation:isolate;
@@ -103,77 +106,74 @@
 .cottage-lab .dv-resize-container > .dv-floating-titlebar,
 .cottage-lab .dv-resize-container .dv-tabs-and-actions-container,
 .cottage-lab .cottage-mobile-titlebar {
+  min-height:42px;
   background:var(--skin-title-panel) !important;
   color:var(--skin-ink);
+  border-bottom:1px solid var(--skin-edge);
 }
-.cottage-lab .dv-resize-container .dv-content-container,
-.cottage-lab .dv-resize-container .dv-groupview,
-.cottage-lab .dv-resize-container .dv-grid-view,
-.cottage-lab .dv-resize-container .dv-view,
+.cottage-lab .dv-resize-container .dv-tabs-and-actions-container {
+  padding-inline:6px;
+  --dv-activegroup-visiblepanel-tab-background-color:var(--skin-surface);
+  --dv-activegroup-visiblepanel-tab-color:var(--skin-ink);
+  --dv-inactivegroup-visiblepanel-tab-color:#66786d;
+}
+.cottage-lab .dv-resize-container .dv-tab {
+  margin:4px 2px;
+  min-height:32px;
+  border-radius:11px;
+  font-weight:650;
+  transition:background-color .15s ease;
+}
+.cottage-lab .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
+  background:var(--skin-surface) !important;
+  box-shadow:0 1px 3px rgba(31,58,42,.11);
+}
+.cottage-lab .cottage-mobile-titlebar {
+  border-radius:calc(var(--skin-radius) - 1px) calc(var(--skin-radius) - 1px) 0 0;
+}
+.cottage-lab .cottage-mobile-titlebar :is(button:hover,button:focus-visible) {
+  background:var(--skin-surface);
+}
+.cottage-lab .dv-resize-container :is(.dv-content-container,.dv-groupview,.dv-grid-view,.dv-view),
 .cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) {
   background:transparent !important;
 }
 .cottage-lab .cottage-dock-layer .dv-content-container > .cottage-panel-body,
 .cottage-lab .cottage-dock-layer .dv-content-container > section,
-.cottage-lab .cottage-mobile-window .cottage-panel-body,
-.cottage-lab .cottage-mobile-window [data-testid="cottage-live-chats"],
-.cottage-lab .cottage-mobile-window [data-testid="cottage-live-connections"] {
+.cottage-lab .cottage-mobile-window :is(.cottage-panel-body,[data-testid="cottage-live-chats"],[data-testid="cottage-live-connections"]) {
   background:transparent !important;
 }
-.cottage-lab[data-window-material="glass"] :is(.cottage-toolbar,.cottage-camera-controls) {
-  background:rgba(225,245,244,.72);
+.cottage-lab :is(.cottage-toolbar,.cottage-camera-controls) {
+  background:var(--skin-panel) !important;
+  border-color:var(--skin-edge) !important;
+  color:var(--skin-ink);
   backdrop-filter:blur(var(--skin-blur-effective));
+  -webkit-backdrop-filter:blur(var(--skin-blur-effective));
 }
-.cottage-lab[data-window-material="paper"] :is(.cottage-toolbar,.cottage-camera-controls) {
-  background:#fcf0d9;
-  border-color:#d1b98f;
-  font-family:var(--font-nunito, system-ui),sans-serif;
-}
-.cottage-lab[data-window-material="paper"] .cottage-dock-layer .dv-content-container {
-  background-image:repeating-linear-gradient(0deg,transparent 0px,transparent 31px,rgba(150,108,58,.04) 32px) !important;
-}
-.cottage-style-choice { border-color:var(--skin-edge); background:var(--skin-panel); }
-.cottage-style-choice[aria-pressed="true"] {
-  outline:2px solid #477d67;
-  outline-offset:1px;
-  background:var(--skin-title-panel);
-}
-.cottage-style-panel { color:var(--skin-ink); }
-.cottage-lab[data-window-material="paper"] .cottage-style-panel h2,
-.cottage-lab[data-window-material="paper"] .cottage-panel-body strong {
-  font-family:Georgia,serif;
-  letter-spacing:.01em;
-}
-/* Optional decorative rain droplets and soft condensation, never over text.
-   A real refractive wet-glass shader is intentionally NOT used here. */
-.cottage-lab[data-window-atmosphere="mist"] :is(.cottage-mobile-window,.dv-resize-container)::after,
-.cottage-lab[data-window-atmosphere="rain"] :is(.cottage-mobile-window,.dv-resize-container)::after {
-  content:"";
-  pointer-events:none;
-  position:absolute;
-  inset:0;
-  z-index:6;
-  border-radius:inherit;
-  opacity:.23;
+/* Atmospheric effects belong to the scene, not the window content or forms.
+   Lightweight static gradients avoid expensive full-screen animations. */
+.cottage-stage-center::after { content:"";position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0; }
+.cottage-lab[data-window-atmosphere="mist"] .cottage-stage-center::after {
+  opacity:1;
   background:
-    radial-gradient(ellipse 28px 48px at 9% 6%,rgba(255,255,255,.7),transparent),
-    radial-gradient(ellipse 45px 60px at 92% 94%,rgba(242,255,254,.6),transparent);
-  mask-image:linear-gradient(to bottom,#000,transparent 30%,transparent 70%,#000);
+    radial-gradient(ellipse 55% 40% at 8% 68%,rgba(236,248,241,.33),transparent 90%),
+    radial-gradient(ellipse 55% 43% at 92% 23%,rgba(246,249,239,.35),transparent 90%);
 }
-.cottage-lab[data-window-atmosphere="rain"] :is(.cottage-mobile-window,.dv-resize-container)::after {
-  opacity:.4;
+.cottage-lab[data-window-atmosphere="rain"] .cottage-stage-center::after {
+  opacity:.48;
   background:
-    radial-gradient(ellipse 2px 7px at 15% 6%,rgba(255,255,255,.95) 55%,transparent 60%),
-    radial-gradient(ellipse 3px 12px at 77% 12%,rgba(255,255,255,.92) 55%,transparent 60%),
-    radial-gradient(ellipse 2px 9px at 90% 88%,rgba(255,255,255,.95) 55%,transparent 60%),
-    linear-gradient(120deg,transparent 40%,rgba(255,255,255,.16),transparent 60%);
+    repeating-linear-gradient(108deg,transparent 0 31px,rgba(193,220,218,.34) 31px 32px,transparent 32px 80px),
+    linear-gradient(to bottom,rgba(202,222,222,.11),transparent 48%,rgba(124,175,169,.12));
 }
 @media (prefers-reduced-transparency:reduce) {
-  .cottage-lab { --window-opacity:100% !important; --skin-blur-effective:0px !important; }
+  .cottage-lab { --skin-panel:var(--skin-surface) !important;--skin-blur-effective:0px !important; }
 }
 @media (prefers-reduced-motion:reduce) {
-  .cottage-lab :is(.cottage-mobile-window,.dv-resize-container) { transition:none !important; }
+  .cottage-lab :is(.cottage-mobile-window,.dv-resize-container,.dv-tab) { transition:none !important; }
 }
+.cottage-lab .cottage-style-choice { border-color:var(--skin-edge);background:var(--skin-surface);color:var(--skin-ink); }
+.cottage-lab .cottage-style-choice[aria-pressed="true"] { background:var(--skin-title-panel); }
+.cottage-style-panel { color:var(--skin-ink); }
 
 /* Profile and Appearance reuse the original shadcn forms inside the window.
    The profile editor scrolls independently so its save controls remain reachable. */
@@ -239,4 +239,42 @@
   .cottage-camera-controls { top:66px; }
   .cottage-utilities { bottom:12px; right:12px; }
   .cottage-stage aside { max-width:calc(100% - 85px); }
+}
+
+/* The tools popover and windows now share readable surfaces, edge and radius.
+   No ghosted translucency behind menu labels. */
+.cottage-lab .cottage-utilities-trigger {
+  background:var(--skin-surface);
+  border-color:var(--skin-edge);
+  color:var(--skin-ink);
+  border-radius:15px;
+  box-shadow:0 6px 18px rgba(35,64,48,.16);
+}
+.cottage-lab .cottage-utilities-menu {
+  background:var(--skin-surface);
+  border:1px solid var(--skin-edge);
+  border-radius:18px;
+  box-shadow:0 18px 48px rgba(35,64,48,.21);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  padding:9px;
+  gap:3px;
+}
+.cottage-lab .cottage-utilities-heading {
+  margin:12px 9px 4px;
+  color:#557165;
+  opacity:1;
+  letter-spacing:.08em;
+}
+.cottage-lab .cottage-utilities-menu :is(button,a) {
+  border-radius:11px;
+  min-height:44px;
+  color:var(--skin-ink);
+}
+.cottage-lab .cottage-utilities-menu :is(button,a):hover {
+  background:var(--skin-title-panel);
+}
+.cottage-lab .cottage-utilities-fallback {
+  border-top:1px solid var(--skin-edge);
+  margin-top:7px;
 }
