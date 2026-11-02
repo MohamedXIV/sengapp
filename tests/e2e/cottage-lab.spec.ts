@@ -137,12 +137,13 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
   }
 });
 
-test("workspace offers switchable glass, paper and ambient effects", async ({ page }, testInfo) => {
+test("unified Appearance offers readable glass, paper and atmospheric effects", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.getByTestId("workspace-utilities").locator("summary").click();
-  await page.getByRole("button", { name: "Window style", exact: true }).click();
+  await page.getByRole("button", { name: "Appearance", exact: true }).click();
   const panel = page.getByTestId("window-style-panel");
   await expect(panel).toBeVisible();
+  await expect(page.getByTestId("workspace-utilities").getByRole("button", { name: "Window style" })).toHaveCount(0);
   await panel.getByRole("button", { name: "Glass" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
   const setRange = async (label: string, value: string) => {
@@ -162,7 +163,7 @@ test("workspace offers switchable glass, paper and ambient effects", async ({ pa
   await page.reload();
   if (testInfo.project.name === "mobile-chrome") {
     await page.getByTestId("workspace-utilities").locator("summary").click();
-    await page.getByRole("button", { name: "Window style", exact: true }).click();
+    await page.getByRole("button", { name: "Appearance", exact: true }).click();
   }
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-atmosphere", "rain");
@@ -182,7 +183,8 @@ test("Profile and Appearance open as real protected windows, with direct fallbac
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   const appearance = page.getByTestId("cottage-live-appearance");
   await expect(appearance).toBeVisible();
-  await expect(appearance.locator('a[href="/"], a[href="/login"]').first()).toBeVisible();
+  await expect(appearance.getByRole("link", { name: "Sign in to save all appearance" })).toBeVisible();
+  await expect(appearance.getByTestId("window-style-fields")).toBeVisible();
   // The original routes remain usable when Phaser or window management is disabled.
   await page.goto("/settings/profile");
   await expect(page.locator('input[id="displayName"]')).toHaveCount(0);

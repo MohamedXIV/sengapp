@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { AppearanceSettings } from "@/features/profile/appearance-settings";
 import { DEFAULT_VISUAL_PREFERENCES } from "@/lib/themes/preferences";
+import { DEFAULT_WINDOW_STYLE } from "@/features/cottage/window-style";
 import { EnglishTestProvider } from "../helpers/intl";
 
 const setPreview = vi.fn();
@@ -35,7 +36,7 @@ describe("personal appearance settings", () => {
     expect(setPreview).toHaveBeenLastCalledWith(expect.objectContaining({ preset: "forest", accent: "violet" }));
     fireEvent.click(screen.getByRole("button", { name: "Save appearance" }));
     await waitFor(() => expect(onSave).toHaveBeenCalledWith({
-      ...DEFAULT_VISUAL_PREFERENCES, preset: "forest", accent: "violet", themePreference: "system",
+      ...DEFAULT_VISUAL_PREFERENCES, preset: "forest", accent: "violet", themePreference: "system", windowStyle: DEFAULT_WINDOW_STYLE,
     }));
     expect(screen.getByRole("status")).toHaveTextContent("saved");
   });
@@ -47,6 +48,32 @@ describe("personal appearance settings", () => {
     expect(cancelPreview).toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Reset to defaults" }));
     expect(setPreview).toHaveBeenLastCalledWith(DEFAULT_VISUAL_PREFERENCES);
+  });
+
+  it("sends theme and window material in ONE atomic save and cancels unsaved window previews", async () => {
+    const onSave = vi.fn(async () => {});
+    const onWindowPreview = vi.fn();
+    const onWindowCommit = vi.fn();
+    const { unmount } = render(<EnglishTestProvider><AppearanceSettings
+      initialPreferences={DEFAULT_VISUAL_PREFERENCES} initialMode="light"
+      initialWindowStyle={DEFAULT_WINDOW_STYLE} onSave={onSave}
+      onWindowPreview={onWindowPreview} onWindowCommit={onWindowCommit}
+    /></EnglishTestProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Glass" }));
+    fireEvent.click(screen.getByRole("button", { name: "Rain" }));
+    expect(onWindowPreview).toHaveBeenLastCalledWith(expect.objectContaining({
+      material: "glass", atmosphere: "rain",
+    }));
+    expect(screen.getByTestId("window-material-preview")).toHaveAttribute("data-window-material", "glass");
+    fireEvent.click(screen.getByRole("button", { name: "Save appearance" }));
+    await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
+    expect(onSave).toHaveBeenCalledWith({
+      ...DEFAULT_VISUAL_PREFERENCES, themePreference: "light",
+      windowStyle: { ...DEFAULT_WINDOW_STYLE, material: "glass", atmosphere: "rain" },
+    });
+    expect(onWindowCommit).toHaveBeenCalledWith(expect.objectContaining({ material: "glass" }));
+    unmount();
+    expect(onWindowPreview).toHaveBeenLastCalledWith(null);
   });
 
   it("restores saved appearance after a failed save", async () => {

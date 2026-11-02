@@ -298,7 +298,9 @@
     "discarded": "Unsaved changes discarded.",
     "resetPreview": "Defaults previewed. Save to keep them.",
     "saved": "Appearance saved for your account.",
-    "saveFailed": "Could not save appearance settings."
+    "saveFailed": "Could not save appearance settings.",
+    "guestPreview": "Preview window styles locally",
+    "guestSignIn": "Sign in to save all appearance"
   },
   "Operator": {
     "title": "Operator tools",
@@ -334,7 +336,8 @@
     "savingAccount": "Saving…",
     "savedAccount": "Saved to your account. Other devices will load your style when opened.",
     "saveFailed": "Couldn't save the style. Your changes are still available in this browser.",
-    "accountNote": "Move the sliders to preview. Save to your account when you're ready; this won't change your friends' appearance."
+    "accountNote": "Move the sliders to preview. Save to your account when you're ready; this won't change your friends' appearance.",
+    "sampleTitle": "A little chat"
   },
   "CozyShell": {
     "home": "Sengapp home",

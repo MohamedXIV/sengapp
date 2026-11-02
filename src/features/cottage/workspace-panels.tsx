@@ -47,17 +47,28 @@ export function ProfilePanel() {
 }
 
 /** Guests may still try materials locally; members get the unified account editor. */
+function GuestAppearanceContent() {
+  const t = useTranslations("Appearance");
+  return <>
+    <div className="mx-4 mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 bg-card/85 p-3 text-xs">
+      <span>{t("guestPreview")}</span>
+      <Link className="font-semibold text-primary underline underline-offset-2" href="/login">{t("guestSignIn")}</Link>
+    </div>
+    <WindowStyleTool />
+  </>;
+}
+
 function ConnectedAppearanceContent() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   if (isLoading) return <p role="status" className="p-4 text-sm">…</p>;
-  if (!isAuthenticated) return <WindowStyleTool />;
+  if (!isAuthenticated) return <GuestAppearanceContent />;
   return <MemberGate embedded>{profile => <AppearanceEditor key={profile._id} compact profile={profile} />}</MemberGate>;
 }
 
 export function AppearancePanel() {
   const configured = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
   return <section data-testid="cottage-live-appearance" className="cottage-account-panel h-full min-h-0 overflow-y-auto overscroll-contain">
-    {configured ? <ConnectedAppearanceContent /> : <WindowStyleTool />}
+    {configured ? <ConnectedAppearanceContent /> : <GuestAppearanceContent />}
   </section>;
 }
 
