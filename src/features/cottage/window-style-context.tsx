@@ -5,6 +5,7 @@ import type { WindowStyle } from "./window-style";
 type WindowStyleContextValue = {
   value: WindowStyle;
   onChange(value: WindowStyle): void;
+  onPreview(value: WindowStyle | null): void;
   canSaveAccount: boolean;
   onSaveAccount(): Promise<void>;
   saveStatus: "idle" | "saving" | "saved" | "error";
@@ -18,4 +19,10 @@ export function WindowStyleTool() {
   if (!state) return null;
   return <WindowStylePanel value={state.value} onChange={state.onChange}
     canSaveAccount={state.canSaveAccount} onSaveAccount={state.onSaveAccount} saveStatus={state.saveStatus} />;
+}
+
+/** Optional: Classic keeps the same feature editor without a Cozy scene. */
+export function useWindowStyleEditor() {
+  const state = useContext(Context);
+  return state ? { onPreview: state.onPreview, onCommit: state.onChange } : null;
 }

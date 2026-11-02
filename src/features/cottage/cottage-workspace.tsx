@@ -87,6 +87,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   const [light, setLight] = useState<LightPreset>("day");
   const [styleRecord, setStyleRecord] = useState<{ identity: string; value: WindowStyle } | null>(null);
   const [styleSaveStatus, setStyleSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [windowStylePreview, setWindowStylePreview] = useState<WindowStyle | null>(null);
   const styleIdentity = account.identity === undefined ? "loading" : account.identity ?? "guest";
   const windowStyle = styleRecord?.identity === styleIdentity ? styleRecord.value : DEFAULT_WINDOW_STYLE;
   const setWindowStyle = (value: WindowStyle) => {
@@ -237,10 +238,10 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   }
 
   return <WorkspaceNavigationProvider value={{ selectedConversation, openConversation, returnToConversations: () => setSelectedConversation(null) }}>
-    <WindowStyleProvider value={windowStyle} onChange={setWindowStyle}
+    <WindowStyleProvider value={windowStyle} onChange={setWindowStyle} onPreview={setWindowStylePreview}
       canSaveAccount={Boolean(account.onSave)} onSaveAccount={saveToAccount} saveStatus={styleSaveStatus}>
-    <main data-window-material={windowStyle.material} data-window-atmosphere={windowStyle.atmosphere}
-      style={{ "--window-opacity": `${windowStyle.opacity}%`, "--window-blur": `${windowStyle.blur}px` } as CSSProperties}
+    <main data-window-material={(windowStylePreview ?? windowStyle).material} data-window-atmosphere={(windowStylePreview ?? windowStyle).atmosphere}
+      style={{ "--window-opacity": `${(windowStylePreview ?? windowStyle).opacity}%`, "--window-blur": `${(windowStylePreview ?? windowStyle).blur}px` } as CSSProperties}
       className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
     <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
       <Link href="/" className="flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-2 focus-visible:outline-[#407960]" aria-label={t("home")}>

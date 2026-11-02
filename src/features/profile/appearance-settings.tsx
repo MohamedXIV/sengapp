@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { WindowStyleFields } from "@/features/cottage/window-style-fields";
+import { DEFAULT_WINDOW_STYLE, normalizeWindowStyle, type WindowStyle } from "@/features/cottage/window-style";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,20 +15,25 @@ import {
 } from "@/lib/themes/preferences";
 
 type Mode = "light" | "dark" | "system";
-type AppearanceInput = VisualPreferences & { themePreference: Mode };
+type AppearanceInput = VisualPreferences & { themePreference: Mode; windowStyle: WindowStyle };
 
 const accentColors = { amber: "#ad651a", coral: "#b74735", sage: "#357a57", teal: "#168c91", blue: "#2c68bf", violet: "#7045b5" };
 
-export function AppearanceSettings({ initialPreferences, initialMode, onSave }: {
+export function AppearanceSettings({ initialPreferences, initialMode, initialWindowStyle = DEFAULT_WINDOW_STYLE, onWindowPreview, onWindowCommit, onSave }: {
   initialPreferences: VisualPreferences;
   initialMode: Mode;
-  onSave: (data: AppearanceInput) => Promise<void>;
+  initialWindowStyle?: WindowStyle;
+  onWindowPreview?: (value: WindowStyle | null) => void;
+  onWindowCommit?: (value: WindowStyle) => void;
+  onSave: (data: AppearanceInput) => Promise<void;
 }) {
   const t = useTranslations("Appearance");
   const common = useTranslations("Common");
+  const materials = useTranslations("WindowStyle");
   const locale = useLocale();
   const { setPreview, previewMode, cancelPreview } = usePersonalTheme();
   const [draft, setDraft] = useState(initialPreferences);
+  const [styleDraft, setStyleDraft] = useState<WindowStyle>(initialWindowStyle);
   const [modeDraft, setModeDraft] = useState<{ base: Mode; value: Mode }>({
     base: initialMode, value: initialMode,
   });
@@ -37,6 +44,14 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
 
   // Preview is never an implicit save; leaving Settings discards it.
   useEffect(() => () => cancelPreview(), [cancelPreview]);
+  useEffect(() => () => onWindowPreview?.(null), [onWindowPreview]);
+
+  function changeWindowStyle(value: WindowStyle) {
+    setStyleDraft(value);
+    onWindowPreview?.(value);
+    setError("");
+    setStatus("");
+  }
 
   function change<K extends keyof VisualPreferences>(key: K, value: VisualPreferences[K]) {
     const updated = { ...draft, [key]: value };
@@ -55,6 +70,8 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
 
   function cancel() {
     setDraft(initialPreferences);
+    setStyleDraft(initialWindowStyle);
+    onWindowPreview?.(null);
     setModeDraft({ base: initialMode, value: initialMode });
     setError("");
     setStatus(t("discarded"));
@@ -63,6 +80,7 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
 
   function reset() {
     setDraft(DEFAULT_VISUAL_PREFERENCES);
+    changeWindowStyle(normalizeWindowStyle(null));
     setModeDraft({ base: initialMode, value: "system" });
     setPreview(DEFAULT_VISUAL_PREFERENCES);
     previewMode("system");
@@ -76,11 +94,15 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
     setError("");
     setStatus("");
     try {
-      await onSave({ ...draft, themePreference: mode });
+      await onSave({ ...draft, themePreference: mode, windowStyle: styleDraft });
+      onWindowCommit?.(styleDraft);
+      onWindowPreview?.(null);
       setStatus(t("saved"));
     } catch (reason) {
       cancelPreview();
       setDraft(initialPreferences);
+      setStyleDraft(initialWindowStyle);
+      onWindowPreview?.(null);
       setModeDraft({ base: initialMode, value: initialMode });
       setError(locale === "en" && reason instanceof Error ? reason.message : t("saveFailed"));
     } finally {
@@ -176,6 +198,14 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
         <p className="mt-1 text-sm">{t("previewDescription")}</p>
         <span className="mt-3 inline-flex rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground">{t("hello")}</span>
       </div>
+
+      <section className="space-y-4 border-t border-border/70 pt-5" aria-label={materials("heading")}>
+        <div className="space-y-1">
+          <h3 className="text-base font-bold">{materials("heading")}</h3>
+          <p className="text-sm text-muted-foreground">{materials("description")}</p>
+        </div>
+        <WindowStyleFields value={styleDraft} onChange={changeWindowStyle} />
+      </section>
 
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {status && <p role="status" className="text-sm text-muted-foreground">{status}</p>}
