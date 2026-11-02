@@ -175,7 +175,10 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
   await panel.getByRole("button", { name: "Glass" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
   await expect(page.getByTestId("window-style-fields").getByRole("button", { name: "Cozy" })).toHaveCount(0);
-  await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("backdrop-filter", /blur/);
+  const targetWindow = testInfo.project.name === "mobile-chrome"
+    ? page.getByTestId("cottage-mobile-window-appearance")
+    : page.locator(".cottage-dock-layer .dv-resize-container").first();
+  await expect(targetWindow).toHaveCSS("backdrop-filter", /blur/);
   const setRange = async (label: string, value: string) => {
     await panel.getByLabel(label).evaluate((el, next) => {
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
@@ -200,7 +203,7 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
   await page.getByTestId("window-style-panel").getByRole("button", { name: "Paper" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "paper");
   await expect(panel.getByLabel("Glass blur")).toHaveCount(0);
-  await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("background-image", /data:image/);
+  await expect(targetWindow).toHaveCSS("background-image", /data:image/);
 });
 
 test("Profile and Appearance open as real protected windows, with direct fallback routes", async ({ page }) => {

@@ -107,6 +107,9 @@
   isolation:isolate;
 }
 .cottage-lab[data-window-material="glass"] :is(.dv-resize-container,.cottage-mobile-window) {
+  /* Explicit blur on the window itself, independent of inherited material tokens. */
+  backdrop-filter:blur(var(--window-blur,20px)) saturate(155%) !important;
+  -webkit-backdrop-filter:blur(var(--window-blur,20px)) saturate(155%) !important;
   box-shadow:0 17px 50px rgba(23,45,54,.19),inset 0 1px rgba(255,255,255,.95),
     inset 1px 0 rgba(255,255,255,.35),inset 0 -1px rgba(255,255,255,.18) !important;
 }
