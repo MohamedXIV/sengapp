@@ -25,7 +25,7 @@ export function AppearanceSettings({ initialPreferences, initialMode, initialWin
   initialWindowStyle?: WindowStyle;
   onWindowPreview?: (value: WindowStyle | null) => void;
   onWindowCommit?: (value: WindowStyle) => void;
-  onSave: (data: AppearanceInput) => Promise<void;
+  onSave: (data: AppearanceInput) => Promise<void>;
 }) {
   const t = useTranslations("Appearance");
   const common = useTranslations("Common");
