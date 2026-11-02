@@ -38,7 +38,7 @@ describe("personal appearance settings", () => {
     await waitFor(() => expect(onSave).toHaveBeenCalledWith({
       ...DEFAULT_VISUAL_PREFERENCES, preset: "forest", accent: "violet", themePreference: "system", windowStyle: DEFAULT_WINDOW_STYLE,
     }));
-    expect(screen.getByRole("status")).toHaveTextContent("saved");
+    expect(screen.getByText("Appearance saved for your account.")).toBeVisible();
   });
 
   it("cancel discards unsaved preview and reset previews safe defaults", () => {
