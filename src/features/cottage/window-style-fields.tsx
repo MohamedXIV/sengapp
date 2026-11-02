@@ -21,10 +21,12 @@ export function WindowStyleFields({ value, onChange }: {
         {MATERIALS.map(material => <button key={material} type="button"
           aria-pressed={value.material === material}
           className="cottage-style-choice min-h-11 rounded-xl border border-border bg-card px-2 py-2 font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-pressed:ring-2 aria-pressed:ring-ring"
-          onClick={() => change({ material })}>{t(material)}</button>)}
+          onClick={() => change(material === "glass"
+            ? { material, opacity: 74, blur: 20 }
+            : { material, opacity: 98, blur: 0 })}>{t(material)}</button>)}
       </div>
     </fieldset>
-    <div className="grid gap-4 sm:grid-cols-2">
+    {value.material === "glass" && <div className="grid gap-4 sm:grid-cols-2">
       <div className="space-y-2">
         <label className="flex justify-between gap-2 font-semibold" htmlFor={opacityId}>
           {t("opacity")} <output>{value.opacity}%</output>
@@ -39,7 +41,7 @@ export function WindowStyleFields({ value, onChange }: {
         <input className="w-full accent-[#3d755d]" id={blurId} type="range" min="0" max="28" step="2"
           value={value.blur} onChange={event => change({ blur: Number(event.target.value) })}/>
       </div>
-    </div>
+    </div>}
     <fieldset className="space-y-2">
       <legend className="font-semibold">{t("atmosphere")}</legend>
       <div className="grid grid-cols-3 gap-2">

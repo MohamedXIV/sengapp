@@ -133,7 +133,35 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     // render fabricated chat history or silently authorize the lab visitor.
     await expect(page.getByTestId("cottage-live-chats").getByText("Private conversations")).toHaveCount(0);
     await expect(page.getByText("Your focus moment")).toBeVisible();
-    await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", "20px");
+    await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", "17px");
+  }
+});
+
+test("desktop Dockview titlebar has visible native drag and resize grips", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "mobile-chrome", "Dockview handles apply on desktop only");
+  await page.goto("/");
+  const win = page.locator(".cottage-dock-layer .dv-resize-container").first();
+  await expect(win).toBeVisible();
+  const drag = win.locator(".dv-floating-titlebar.dv-draggable");
+  await expect(drag).toHaveCSS("height", "32px");
+  await expect(drag).toHaveCSS("cursor", "grab");
+  const grip = drag;
+  expect(await grip.evaluate(el => getComputedStyle(el, "::before").backgroundImage)).toContain("radial-gradient");
+
+  const handle = win.locator(".dv-resize-handle-bottomright");
+  await expect(handle).toHaveCSS("width", "27px");
+  await expect(handle).toHaveCSS("cursor", "nwse-resize");
+  expect(await handle.evaluate(el => getComputedStyle(el, "::after").backgroundImage)).toContain("radial-gradient");
+  const before = await win.boundingBox();
+  const gripBounds = await handle.boundingBox();
+  expect(before && gripBounds).toBeTruthy();
+  if (before && gripBounds) {
+    await page.mouse.move(gripBounds.x + gripBounds.width / 2, gripBounds.y + gripBounds.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(gripBounds.x + gripBounds.width / 2 + 36, gripBounds.y + gripBounds.height / 2 + 25, { steps: 8 });
+    await page.mouse.up();
+    const after = await win.boundingBox();
+    expect(after && after.width).toBeGreaterThan(before.width);
   }
 });
 
@@ -146,6 +174,8 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
   await expect(page.getByTestId("workspace-utilities").getByRole("button", { name: "Window style" })).toHaveCount(0);
   await panel.getByRole("button", { name: "Glass" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
+  await expect(page.getByTestId("window-style-fields").getByRole("button", { name: "Cozy" })).toHaveCount(0);
+  await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("backdrop-filter", /blur/);
   const setRange = async (label: string, value: string) => {
     await panel.getByLabel(label).evaluate((el, next) => {
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
@@ -169,6 +199,8 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-atmosphere", "rain");
   await page.getByTestId("window-style-panel").getByRole("button", { name: "Paper" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "paper");
+  await expect(panel.getByLabel("Glass blur")).toHaveCount(0);
+  await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("background-image", /data:image/);
 });
 
 test("Profile and Appearance open as real protected windows, with direct fallback routes", async ({ page }) => {
