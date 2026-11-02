@@ -11,8 +11,8 @@ type WindowStyleContextValue = {
   saveStatus: "idle" | "saving" | "saved" | "error";
 };
 const Context = createContext<WindowStyleContextValue | null>(null);
-export function WindowStyleProvider({ value, onChange, canSaveAccount, onSaveAccount, saveStatus, children }: WindowStyleContextValue & { children: ReactNode }) {
-  return <Context.Provider value={{ value, onChange, canSaveAccount, onSaveAccount, saveStatus }}>{children}</Context.Provider>;
+export function WindowStyleProvider({ value, onChange, onPreview, canSaveAccount, onSaveAccount, saveStatus, children }: WindowStyleContextValue & { children: ReactNode }) {
+  return <Context.Provider value={{ value, onChange, onPreview, canSaveAccount, onSaveAccount, saveStatus }}>{children}</Context.Provider>;
 }
 export function WindowStyleTool() {
   const state = useContext(Context);
