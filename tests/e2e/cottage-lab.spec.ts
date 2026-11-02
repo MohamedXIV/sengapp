@@ -133,7 +133,7 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     // render fabricated chat history or silently authorize the lab visitor.
     await expect(page.getByTestId("cottage-live-chats").getByText("Private conversations")).toHaveCount(0);
     await expect(page.getByText("Your focus moment")).toBeVisible();
-    await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", "18px");
+    await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", "20px");
   }
 });
 
