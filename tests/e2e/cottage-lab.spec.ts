@@ -178,23 +178,6 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
   const targetWindow = testInfo.project.name === "mobile-chrome"
     ? page.getByTestId("cottage-mobile-window-appearance")
     : page.locator(".cottage-dock-layer .dv-resize-container").first();
-  const materialDebug = await targetWindow.evaluate(el => {
-    const closest = el.closest<HTMLElement>(".cottage-lab");
-    const styles = getComputedStyle(el);
-    const rootStyles = closest ? getComputedStyle(closest) : null;
-    return {
-      element: el.className, withinSkin: Boolean(closest),
-      matchesGlassRule: el.matches('.cottage-lab[data-window-material="glass"] .dv-resize-container, .cottage-lab[data-window-material="glass"] .cottage-mobile-window'),
-      rootMaterial: closest?.dataset.windowMaterial ?? null,
-      rootBlur: rootStyles?.getPropertyValue("--window-blur") ?? null,
-      rootBackdrop: rootStyles?.getPropertyValue("--skin-backdrop") ?? null,
-      elementBackdrop: styles.getPropertyValue("--skin-backdrop"),
-      elementBlur: styles.getPropertyValue("--window-blur"),
-      computedBackdrop: styles.backdropFilter,
-      reducedTransparency: matchMedia("(prefers-reduced-transparency: reduce)").matches,
-    };
-  });
-  console.log("WINDOW_MATERIAL_DEBUG", JSON.stringify(materialDebug));
   await expect(targetWindow).toHaveCSS("backdrop-filter", /blur/);
   const setRange = async (label: string, value: string) => {
     await panel.getByLabel(label).evaluate((el, next) => {
