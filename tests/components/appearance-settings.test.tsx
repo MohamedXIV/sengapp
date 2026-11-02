@@ -69,7 +69,7 @@ describe("personal appearance settings", () => {
     await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
     expect(onSave).toHaveBeenCalledWith({
       ...DEFAULT_VISUAL_PREFERENCES, themePreference: "light",
-      windowStyle: { ...DEFAULT_WINDOW_STYLE, material: "glass", atmosphere: "rain" },
+      windowStyle: { ...DEFAULT_WINDOW_STYLE, material: "glass", opacity: 74, blur: 20, atmosphere: "rain" },
     });
     expect(onWindowCommit).toHaveBeenCalledWith(expect.objectContaining({ material: "glass" }));
     unmount();

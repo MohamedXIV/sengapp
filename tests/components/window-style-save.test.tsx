@@ -13,7 +13,7 @@ describe("account window style save boundary", () => {
         canSaveAccount onSaveAccount={save} />
     </EnglishTestProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Glass" }));
-    expect(changed).toHaveBeenCalledWith({ ...DEFAULT_WINDOW_STYLE, material: "glass" });
+    expect(changed).toHaveBeenCalledWith({ ...DEFAULT_WINDOW_STYLE, material: "glass", opacity: 74, blur: 20 });
     expect(save).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: /Save to my account/i }));
     expect(save).toHaveBeenCalledTimes(1);
