@@ -203,7 +203,7 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
   await page.getByTestId("window-style-panel").getByRole("button", { name: "Paper" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "paper");
   await expect(panel.getByLabel("Glass blur")).toHaveCount(0);
-  await expect(targetWindow).toHaveCSS("background-image", /data:image/);
+  // A clean baseline intentionally uses no simulated paper grain.\n  await expect(targetWindow).toHaveCSS("background-image", "none");
 });
 
 test("Profile and Appearance open as real protected windows, with direct fallback routes", async ({ page }) => {

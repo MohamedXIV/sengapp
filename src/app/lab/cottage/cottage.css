@@ -1,362 +1,318 @@
-.cottage-lab { font-family: var(--font-nunito, "Nunito Variable"), system-ui, sans-serif; color-scheme: light; }
-.cottage-toolbar { background: #fffcf2df; backdrop-filter: blur(10px);  }
-.cottage-stage { isolation: isolate; }
-.cottage-stage-background { background: radial-gradient(ellipse at 50% 25%,#fbf4d8 0%,#e5efe5 55%,#d4e6dd 100%); }
-.cottage-renderer { width:100%; height:100%; background:transparent; filter:none; }
-.cottage-renderer canvas { width:100%; height:100%; display:block; background:transparent; touch-action:none; }
-.cottage-renderer[data-error="true"]::after { content: "The 2D renderer did not start. The rest of Sengapp remains available."; display:block; padding:1rem; border-radius:12px; background:#fff9e9; text-align:center; }
-.cottage-tool,.cottage-icon-button { display:inline-flex;min-height:36px;align-items:center;justify-content:center;gap:6px;border:1px solid #d4dfd0;background:#fffdf7;border-radius:12px;padding:7px 10px;font-size:12px;font-weight:700;transition:background .15s; }
-.cottage-tool:hover,.cottage-icon-button:hover { background:#e6f3e9; }
-.cottage-tool:focus-visible,.cottage-icon-button:focus-visible,.cottage-link:focus-visible { outline:2px solid #407960; outline-offset:2px; }
-.cottage-active { background:#c3e4d3;border-color:#9bc9ad; }
-.cottage-panel-body { padding:14px; font-size:13px; color:#324638; }
-.cottage-panel-body p { line-height:1.55; }
-.cottage-link { display:inline-flex;align-items:center;gap:7px;width:fit-content;border-radius:9px;background:#d8ebe0;padding:9px 11px;font-size:12px;font-weight:700;color:#315b47; }
-.cottage-note { border-radius:12px;border:1px solid #e6d8b8;background:#fff6df;padding:12px;line-height:1.5;outline-offset:3px; }
-.cottage-mini-button { display:inline-flex;align-items:center;gap:5px;border-radius:9px;border:1px solid #c2d1c1;background:#edf3e9;padding:8px 12px;font-size:12px;font-weight:700; }
-.cottage-dock-layer { pointer-events:none; }
-.cottage-dock-layer .dockview-theme-light,.cottage-dock-layer .dv-dockview { width:100%;height:100%;background:transparent !important;pointer-events:none; }
-.cottage-dock-layer .dv-resize-container { pointer-events:auto; border:1px solid #c9d6c5; border-radius:18px; background:#fffbf2; box-shadow:0 14px 35px #344b4140; }
-.cottage-dock-layer .dv-resize-container > .dv-floating-titlebar { border-radius:17px 17px 0 0; background:#d4e8da; }
-.cottage-dock-layer .dv-resize-container > .dv-grid-view { overflow:hidden; border-radius:0 0 17px 17px; }
-.cottage-dock-layer .dv-resize-container:not(.dv-resize-container-with-titlebar) > .dv-grid-view { border-radius:17px; }
-.cottage-dock-layer .dv-resize-container .dv-tabs-and-actions-container { background:#e6efe6; }
-.cottage-dock-layer .dv-resize-container .dv-groupview { overflow:hidden; }
-.cottage-dock-layer .dv-resize-container .dv-content-container { min-width:0; }
-.cottage-dock-layer .dv-groupview,.cottage-dock-layer .dv-tabs-and-actions-container { --dv-background-color: #fffbf2; --dv-group-view-background-color:#fffbf2; --dv-tabs-and-actions-container-background-color:#e4efe5; --dv-activegroup-visiblepanel-tab-background-color:#d4e8da; --dv-activegroup-visiblepanel-tab-color:#294a38; --dv-inactivegroup-visiblepanel-tab-color:#5b7065; }
-.cottage-dock-layer .dv-content-container { background:#fffbf2; }
-.cottage-dock-layer .dv-floating-titlebar { background:#c2dac8; }
-@media (max-width:899px) { .cottage-toolbar { gap:7px; } .cottage-tool { min-height:38px; } }
-@media (prefers-reduced-motion:reduce) { .cottage-tool { transition:none; } }
+/* Sengapp Cozy baseline — rebuilt in one pass, not layered over old skins.
+   This file owns layout and surfaces for Dockview and touch windows.
+   No raster/noise effects, refraction facsimiles, decorative overlays or
+   duplicated !important override stacks. Visual redesign remains open. */
 
-/* Mobile uses real touch-draggable React windows instead of a fixed bottom sheet.
-   The header and resize grip own touch gestures; panel bodies retain scrolling. */
-.cottage-mobile-titlebar { user-select:none; -webkit-user-select:none; }
-.cottage-mobile-drag { cursor:grab; -webkit-user-select:none; touch-action:none; }
-.cottage-mobile-drag:active { cursor:grabbing; }
-.cottage-mobile-resize { cursor:nwse-resize; touch-action:none; }
-.cottage-mobile-window { color:#263d36; overscroll-behavior:contain; }
-.cottage-mobile-window:focus-within { outline-color:#85b79b; }
-.cottage-mobile-drag:focus-visible, .cottage-mobile-resize:focus-visible {
-  outline:2px solid #45785e; outline-offset:-2px;
-}
-@media (pointer:coarse) {
-  .cottage-mobile-resize { width:44px; height:44px; }
-}
-
-/* Scene navigation: compact, touch-sized controls above the world canvas. */
-.cottage-camera-button { display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:12px; color:#315742; }
-.cottage-camera-button:hover:not(:disabled) { background:#d7ecdc; }
-.cottage-camera-button:disabled { opacity:.3; cursor:not-allowed; }
-.cottage-camera-button:focus-visible { outline:2px solid #45785e; outline-offset:1px; }
-@media (pointer:coarse) { .cottage-camera-button { width:42px; height:42px; } }
-
-/* The Phaser stage is the entire viewport, including *behind* the floating
-   top controls. No extra header row shrinks the landscape world canvas. */
-@media (max-width:899px) {
-  .cottage-camera-controls { top:68px; }
-}
-
-/* Real DOM messages live within Dockview, never as Phaser textures.
-   Keep the composer and subscribed history in the panel's own flex layout. */
-.cottage-dock-layer .dv-content-container { min-height:0; overflow:hidden; }
-.cottage-dock-layer .dv-content-container > * { height:100%; min-height:0; }
-.cottage-mobile-window[data-testid="cottage-mobile-window-chats"] { min-height:0; }
-
-/* Two distinct, honest surfaces: blurred translucent glass and tactile paper.
-   The CSS skin applies to desktop Dockview AND touch-friendly mobile windows. */
+/* World and canvas */
 .cottage-lab {
-  --skin-surface:#fffaf0;
-  --skin-title:#f1e5d1;
-  --skin-edge:#d0bb99;
-  --skin-ink:#44382c;
-  --skin-radius:17px;
-  --skin-panel:#fffaf0;
-  --skin-title-panel:#f3e7d2;
-  --skin-highlight:rgba(255,255,255,.9);
-  --skin-backdrop:none;
+  --window-bg: #fbfaf5;
+  --window-header: #f0f3ec;
+  --window-border: #bfcfc3;
+  --window-ink: #283c32;
+  --window-muted: #62786c;
+  --window-accent: #dcece1;
+  --window-radius: 17px;
+  --window-filter: none;
+  --window-shadow: 0 12px 32px rgba(42,63,49,.19);
+  font-family: var(--font-nunito, "Nunito Variable"), system-ui, sans-serif;
+  color-scheme: light;
 }
 .cottage-lab[data-window-material="glass"] {
-  --skin-surface:#ecf8f4;
-  --skin-title:#e0f2ed;
-  --skin-edge:rgba(255,255,255,.8);
-  --skin-ink:#1b3933;
-  --skin-radius:22px;
-  --skin-panel:color-mix(in srgb,#e7f7f2 var(--window-opacity,74%),transparent);
-  --skin-title-panel:rgba(248,255,253,.36);
-  --skin-backdrop:blur(var(--window-blur,20px)) saturate(155%);
+  --window-bg: color-mix(in srgb,#edf8f4 var(--window-opacity,74%),transparent);
+  --window-header: rgba(225,241,233,.82);
+  --window-border: rgba(155,193,180,.8);
+  --window-filter: blur(var(--window-blur,20px)) saturate(125%);
 }
 .cottage-lab[data-window-material="paper"] {
-  --skin-surface:#fffaf0;
-  --skin-title:#f1e4cc;
-  --skin-edge:#d1ba91;
-  --skin-ink:#4a3929;
-  --skin-radius:17px;
-  --skin-panel:#fffaf0;
-  --skin-title-panel:#f1e4cf;
-  --skin-backdrop:none;
+  --window-bg: #faf7f1;
+  --window-header: #f1e9da;
+  --window-border: #d4c6b2;
+  --window-ink: #3b342c;
+  --window-muted: #756a5a;
+  --window-accent: #f2e9d8;
+}
+.cottage-stage { isolation: isolate; }
+.cottage-stage-background { background: radial-gradient(ellipse at 50% 25%,#fbf4d8 0%,#e5efe5 55%,#d4e6dd 100%); }
+.cottage-renderer { width: 100%; height: 100%; background: transparent; filter: none; }
+.cottage-renderer canvas { display: block; width: 100%; height: 100%; background: transparent; touch-action: none; }
+.cottage-renderer[data-error="true"]::after {
+  content: "The 2D renderer did not start. The rest of Sengapp remains available.";
+  display: block; padding: 1rem; background: #fff9e9; text-align: center;
+}
+
+/* Window shell — shared by Dockview and mobile; only one material owner */
+.cottage-dock-layer { pointer-events: none; }
+.cottage-dock-layer :is(.dockview-theme-light,.dv-dockview) {
+  width: 100%; height: 100%; background: transparent !important; pointer-events: none;
 }
 .cottage-lab :is(.dv-resize-container,.cottage-mobile-window) {
-  border:1px solid var(--skin-edge) !important;
-  border-radius:var(--skin-radius) !important;
-  color:var(--skin-ink);
-  background:var(--skin-panel) !important;
-  backdrop-filter:var(--skin-backdrop);
-  
-  box-shadow:0 14px 42px rgba(30,55,45,.19),inset 0 1px var(--skin-highlight) !important;
-  isolation:isolate;
+  pointer-events: auto;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--window-ink);
+  background: var(--window-bg) !important;
+  background-image: none !important;
+  border: 1px solid var(--window-border) !important;
+  border-radius: var(--window-radius) !important;
+  box-shadow: var(--window-shadow) !important;
+  backdrop-filter: var(--window-filter);
 }
-.cottage-lab[data-window-material="glass"] :is(.dv-resize-container,.cottage-mobile-window) {
-  /* Explicit blur on the window itself, independent of inherited material tokens. */
-  backdrop-filter:blur(var(--window-blur,20px)) saturate(155%) !important;
-  
-  box-shadow:0 17px 50px rgba(23,45,54,.19),inset 0 1px rgba(255,255,255,.95),
-    inset 1px 0 rgba(255,255,255,.35),inset 0 -1px rgba(255,255,255,.18) !important;
+.cottage-lab .dv-resize-container > .dv-grid-view {
+  overflow: hidden;
+  border-radius: 0 0 calc(var(--window-radius) - 1px) calc(var(--window-radius) - 1px);
 }
-.cottage-lab[data-window-material="paper"] :is(.dv-resize-container,.cottage-mobile-window) {
-  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%3E%3Cfilter%20id%3D%22grain%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.72%22%20numOctaves%3D%223%22%20seed%3D%227%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20filter%3D%22url(%23grain)%22%20opacity%3D%22.12%22%2F%3E%3C%2Fsvg%3E") !important;
-  background-blend-mode:multiply;
-  box-shadow:2px 3px 0 rgba(174,139,88,.16),0 18px 35px rgba(75,52,23,.19),
-    inset 0 0 0 1px rgba(255,255,255,.52) !important;
+.cottage-lab .dv-resize-container:not(.dv-resize-container-with-titlebar) > .dv-grid-view {
+  border-radius: calc(var(--window-radius) - 1px);
 }
-.cottage-lab .dv-resize-container > .dv-floating-titlebar,
-.cottage-lab .dv-resize-container .dv-tabs-and-actions-container,
-.cottage-lab .cottage-mobile-titlebar {
-  background:var(--skin-title-panel) !important;
-  color:var(--skin-ink);
-  border-bottom:1px solid var(--skin-edge);
+.cottage-dock-layer .dv-resize-container :is(.dv-groupview,.dv-content-container) { min-width: 0; min-height: 0; overflow: hidden; }
+.cottage-dock-layer .dv-content-container > * { height: 100%; min-height: 0; }
+.cottage-lab .dv-resize-container :is(.dv-grid-view,.dv-groupview,.dv-view,.dv-content-container),
+.cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) { background: transparent !important; }
+.cottage-lab .cottage-dock-layer .dv-content-container > :is(section,.cottage-panel-body),
+.cottage-lab .cottage-mobile-window :is(.cottage-panel-body,[data-testid="cottage-live-chats"],[data-testid="cottage-live-connections"]) { background: transparent !important; }
+.cottage-lab .dv-groupview,.cottage-lab .dv-tabs-and-actions-container {
+  --dv-background-color: transparent;
+  --dv-group-view-background-color: transparent;
+  --dv-tabs-and-actions-container-background-color: transparent;
+  --dv-activegroup-visiblepanel-tab-background-color: var(--window-accent);
+  --dv-activegroup-visiblepanel-tab-color: var(--window-ink);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--window-muted);
 }
+
+/* Compact, unambiguous desktop chrome and accessible touch chrome */
 .cottage-lab .dv-resize-container > .dv-floating-titlebar {
-  height:32px !important;
-  min-height:32px !important;
-  max-height:32px;
-  position:relative;
-  cursor:grab;
+  position: relative;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px;
+  border-radius: calc(var(--window-radius) - 1px) calc(var(--window-radius) - 1px) 0 0;
+  cursor: grab;
 }
-.cottage-lab .dv-resize-container > .dv-floating-titlebar:active {cursor:grabbing;}
-/* Dockview already sets draggable=true here; dots are a pointer-transparent
-   affordance ON the native drag surface, not a second dragging implementation. */
-.cottage-lab .dv-floating-titlebar.dv-draggable::before {
-  content:"";
-  pointer-events:none;
-  position:absolute;
-  inset-inline-start:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:44px;
-  height:12px;
-  border-radius:9px;
-  background-image:radial-gradient(circle,var(--skin-ink) 1.5px,transparent 1.9px);
-  background-size:9px 6px;
-  background-position:center;
-  opacity:.44;
+.cottage-lab .dv-resize-container > .dv-floating-titlebar:active { cursor: grabbing; }
+.cottage-lab .dv-resize-container :is(.dv-floating-titlebar,.dv-tabs-and-actions-container),
+.cottage-lab .cottage-mobile-titlebar {
+  background: var(--window-header) !important;
+  border-bottom: 1px solid var(--window-border);
+  color: var(--window-ink);
 }
-.cottage-lab .dv-resize-container .dv-tabs-and-actions-container {
-  min-height:32px !important;
-  padding-inline:5px;
-  --dv-activegroup-visiblepanel-tab-background-color:var(--skin-surface);
-  --dv-activegroup-visiblepanel-tab-color:var(--skin-ink);
-  --dv-inactivegroup-visiblepanel-tab-color:#69766d;
-}
+.cottage-lab .dv-resize-container .dv-tabs-and-actions-container { min-height: 32px !important; padding-inline: 5px; }
 .cottage-lab .dv-resize-container .dv-tab {
-  min-height:26px;
-  margin:2px;
-  border-radius:10px;
-  font-weight:650;
-  transition:background-color .15s ease;
+  margin: 2px;
+  min-height: 26px;
+  border-radius: 8px;
+  font-weight: 650;
 }
 .cottage-lab .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
-  background:var(--skin-surface) !important;
-  box-shadow:0 1px 3px rgba(31,58,42,.11);
+  background: var(--window-accent) !important;
 }
-.cottage-lab[data-window-material="glass"] .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
-  background:rgba(255,255,255,.47) !important;
-  border:1px solid rgba(255,255,255,.54);
+.cottage-lab .dv-floating-titlebar.dv-draggable::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 20px);
+  top: 11px;
+  width: 40px;
+  height: 11px;
+  pointer-events: none;
+  background: radial-gradient(circle,var(--window-muted) 1.2px,transparent 1.7px) 0 0 / 8px 6px;
+  opacity: .56;
 }
-.cottage-lab[data-window-material="paper"] .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
-  background:#fff8e8 !important;
-  border:1px solid #d9c5a6;
-  box-shadow:0 2px 3px rgba(103,75,40,.12);
-}
-/* Enlarge Dockview's REAL bottom-right hit area and illustrate its diagonal grip. */
 .cottage-lab .dv-resize-container > .dv-resize-handle-bottomright {
-  width:27px !important;
-  height:27px !important;
-  right:0;
-  bottom:0;
-  z-index:10;
-  cursor:nwse-resize;
+  width: 27px !important;
+  height: 27px !important;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  cursor: nwse-resize;
 }
 .cottage-lab .dv-resize-container > .dv-resize-handle-bottomright::after {
-  content:"";
-  position:absolute;
-  width:16px;
-  height:16px;
-  right:5px;
-  bottom:5px;
-  pointer-events:none;
-  border-radius:4px;
-  background-image:radial-gradient(circle,var(--skin-ink) 1.35px,transparent 1.7px);
-  background-size:6px 6px;
-  mask-image:linear-gradient(135deg,transparent 34%,#000 35%);
-  opacity:.62;
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  right: 5px;
+  bottom: 5px;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle,var(--window-muted) 1.2px,transparent 1.7px) 0 0 / 6px 6px;
+  mask-image: linear-gradient(135deg,transparent 34%,#000 35%);
+  opacity: .64;
 }
-.cottage-lab .cottage-mobile-titlebar {
-  min-height:44px; /* Retain a comfortable touch target; only desktop is 32px. */
-  border-radius:calc(var(--skin-radius) - 1px) calc(var(--skin-radius) - 1px) 0 0;
+.cottage-mobile-titlebar { min-height: 44px; user-select: none; -webkit-user-select: none; }
+.cottage-mobile-drag { cursor: grab; touch-action: none; user-select: none; }
+.cottage-mobile-drag:active { cursor: grabbing; }
+.cottage-mobile-resize { cursor: nwse-resize; touch-action: none; }
+.cottage-mobile-window { overscroll-behavior: contain; }
+.cottage-mobile-window[data-testid="cottage-mobile-window-chats"] { min-height: 0; }
+.cottage-lab .cottage-mobile-titlebar button:hover { background: var(--window-accent); }
+.cottage-mobile-drag:focus-visible,.cottage-mobile-resize:focus-visible {
+  outline: 2px solid #45785e; outline-offset: -2px;
 }
-.cottage-lab .cottage-mobile-titlebar :is(button:hover,button:focus-visible) {
-  background:color-mix(in srgb,var(--skin-surface) 65%,transparent);
-}
-.cottage-lab .dv-resize-container :is(.dv-content-container,.dv-groupview,.dv-grid-view,.dv-view),
-.cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) {
-  background:transparent !important;
-}
-.cottage-lab .cottage-dock-layer .dv-content-container > .cottage-panel-body,
-.cottage-lab .cottage-dock-layer .dv-content-container > section,
-.cottage-lab .cottage-mobile-window :is(.cottage-panel-body,[data-testid="cottage-live-chats"],[data-testid="cottage-live-connections"]) {
-  background:transparent !important;
-}
-.cottage-lab :is(.cottage-toolbar,.cottage-camera-controls) {
-  background:var(--skin-panel) !important;
-  border-color:var(--skin-edge) !important;
-  color:var(--skin-ink);
-  backdrop-filter:var(--skin-backdrop);
-  
-}
-.cottage-lab[data-window-material="glass"] .dv-content-container > section,
-.cottage-lab[data-window-material="glass"] .cottage-mobile-window > section {
-  color:var(--skin-ink);
-}
-.cottage-lab[data-window-material="paper"] .cottage-dock-layer .dv-content-container {
-  background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(176,136,79,.035) 28px) !important;
-}
-.cottage-lab[data-window-material="paper"] .cottage-utilities-menu {
-  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%3E%3Cfilter%20id%3D%22grain%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.72%22%20numOctaves%3D%223%22%20seed%3D%227%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20filter%3D%22url(%23grain)%22%20opacity%3D%22.12%22%2F%3E%3C%2Fsvg%3E") !important;
-  background-blend-mode:multiply;
-}
-/* Weather belongs behind actual UI controls and the content, not over text. */
-.cottage-stage-center::after {content:"";position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;}
-.cottage-lab[data-window-atmosphere="mist"] .cottage-stage-center::after {
-  opacity:1;
-  background:radial-gradient(ellipse 55% 40% at 8% 68%,rgba(236,248,241,.33),transparent 90%),
-    radial-gradient(ellipse 55% 43% at 92% 23%,rgba(246,249,239,.35),transparent 90%);
-}
-.cottage-lab[data-window-atmosphere="rain"] .cottage-stage-center::after {
-  opacity:.48;
-  background:repeating-linear-gradient(108deg,transparent 0 31px,rgba(193,220,218,.34) 31px 32px,transparent 32px 80px),
-    linear-gradient(to bottom,rgba(202,222,222,.11),transparent 48%,rgba(124,175,169,.12));
-}
-.cottage-lab .cottage-style-choice {border-color:var(--skin-edge);background:var(--skin-surface);color:var(--skin-ink);}
-.cottage-lab .cottage-style-choice[aria-pressed="true"] {background:var(--skin-title-panel);}
-.cottage-style-panel {color:var(--skin-ink);}
-@media (prefers-reduced-transparency:reduce) {
-  .cottage-lab {--skin-panel:var(--skin-surface) !important;--skin-backdrop:none !important;}
-}
-@media (prefers-reduced-motion:reduce) {
-  .cottage-lab :is(.cottage-mobile-window,.dv-resize-container,.dv-tab) {transition:none !important;}
-}
+@media (pointer: coarse) { .cottage-mobile-resize { width: 44px; height: 44px; } }
 
-/* Profile and Appearance reuse the original shadcn forms inside the window.
-   The profile editor scrolls independently so its save controls remain reachable. */
-.cottage-account-panel { background:transparent; color:var(--skin-ink); }
+/* Functional content — deliberately neutral, no decorations */
+.cottage-panel-body { padding: 14px; font-size: 13px; color: var(--window-ink); }
+.cottage-panel-body p { line-height: 1.55; }
+.cottage-note {
+  border-radius: 11px;
+  border: 1px solid var(--window-border);
+  background: #fffdf8;
+  color: var(--window-ink);
+  padding: 12px;
+  line-height: 1.5;
+  outline-offset: 3px;
+}
+.cottage-link,.cottage-mini-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 7px; border-radius: 9px; padding: 8px 12px;
+  font-size: 12px; font-weight: 700;
+  border: 1px solid var(--window-border);
+  background: #fffdf7;
+  color: var(--window-ink);
+}
+.cottage-link { width: fit-content; background: var(--window-accent); }
+.cottage-tool,.cottage-icon-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; min-height: 36px; padding: 7px 10px;
+  border: 1px solid var(--window-border);
+  border-radius: 11px;
+  background: #fffdf7;
+  font-size: 12px; font-weight: 700;
+  transition: background .15s;
+}
+.cottage-tool:hover,.cottage-icon-button:hover,.cottage-mini-button:hover { background: var(--window-accent); }
+.cottage-tool:focus-visible,.cottage-icon-button:focus-visible,.cottage-link:focus-visible {
+  outline: 2px solid #407960; outline-offset: 2px;
+}
+.cottage-active { background: var(--window-accent); }
+
+/* Protected forms reuse the same shadcn controls, without glass/paper overlays */
+.cottage-account-panel { color: var(--window-ink); background: transparent; }
 .cottage-account-panel [data-slot="card"] {
-  background:color-mix(in srgb, var(--skin-surface) 78%, transparent);
-  border-color:var(--skin-edge);
-  box-shadow:none;
+  background: #fffdf8;
+  border-color: var(--window-border);
+  box-shadow: none;
 }
-.cottage-account-panel :is(input,textarea,[role="combobox"]) {
-  background:color-mix(in srgb, #fff 85%, transparent);
-}
-.cottage-account-panel :is(input,textarea,[role="combobox"]):focus-visible {
-  outline-offset:1px;
-}
-@media (max-width:599px) {
-  .cottage-account-panel [data-slot="card"] form { padding:12px; }
-  .cottage-account-panel [data-slot="card"] { border-radius:14px; }
-}
+.cottage-account-panel :is(input,textarea,[role="combobox"]) { background: #fff; }
+.cottage-account-panel :is(input,textarea,[role="combobox"]):focus-visible { outline-offset: 1px; }
 
-/* Compact application chrome floating above the full-viewport Phaser canvas. */
-.cottage-toolbar { min-height:60px; background:color-mix(in srgb,var(--skin-surface) 90%,transparent); }
-.cottage-toolbar .cottage-tool { min-height:40px; padding-inline:12px; }
-.cottage-utilities { pointer-events:auto; }
-.cottage-utilities > summary { list-style:none; cursor:pointer; }
-.cottage-utilities > summary::-webkit-details-marker { display:none; }
+/* Room controls and compact utilities */
+.cottage-toolbar {
+  position: relative;
+  min-height: 60px;
+  background: #fffdf8ed;
+  backdrop-filter: blur(8px);
+  color: var(--window-ink);
+  border-color: var(--window-border);
+}
+.cottage-toolbar .cottage-tool { min-height: 40px; padding-inline: 12px; }
+.cottage-camera-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: 11px; color: #315742;
+}
+.cottage-camera-button:hover:not(:disabled) { background: var(--window-accent); }
+.cottage-camera-button:disabled { opacity: .3; cursor: not-allowed; }
+.cottage-camera-button:focus-visible { outline: 2px solid #45785e; outline-offset: 1px; }
+.cottage-camera-controls {
+  background: #fffdf8ef;
+  border-color: var(--window-border);
+}
+.cottage-utilities { pointer-events: auto; }
+.cottage-utilities > summary { list-style: none; cursor: pointer; }
+.cottage-utilities > summary::-webkit-details-marker { display: none; }
 .cottage-utilities-trigger {
-  display:flex; align-items:center; justify-content:center;
-  height:48px; width:48px; border-radius:17px;
-  border:1px solid var(--skin-edge); color:var(--skin-ink);
-  background:var(--skin-title-panel);
-  backdrop-filter:var(--skin-backdrop);
-  
-  box-shadow:0 5px 20px #344b4130;
+  display: flex; align-items: center; justify-content: center;
+  height: 48px; width: 48px; border-radius: 13px;
+  border: 1px solid var(--window-border);
+  color: var(--window-ink);
+  background: #fffdf8;
+  box-shadow: 0 5px 18px rgba(40,63,48,.14);
 }
-.cottage-utilities-trigger:hover { filter:brightness(.97); }
-.cottage-utilities-trigger:focus-visible,
-.cottage-utilities-menu :is(button,a):focus-visible {
-  outline:2px solid #41775c; outline-offset:3px;
-}
+.cottage-utilities-trigger:hover { background: var(--window-accent); }
 .cottage-utilities-menu {
-  position:absolute; inset-inline-end:0; bottom:calc(100% + 10px);
-  width:min(300px,calc(100vw - 25px)); max-height:min(70dvh,525px);
-  overflow-y:auto; display:flex; flex-direction:column; gap:2px; padding:10px;
-  border:1px solid var(--skin-edge); border-radius:var(--skin-radius);
-  color:var(--skin-ink); background:var(--skin-panel);
-  backdrop-filter:var(--skin-backdrop);
-  
-  box-shadow:0 14px 35px #344b4135;
+  position: absolute;
+  inset-inline-end: 0;
+  bottom: calc(100% + 10px);
+  display: flex; flex-direction: column; gap: 2px;
+  width: min(300px,calc(100vw - 25px));
+  max-height: min(70dvh,525px);
+  padding: 9px;
+  overflow-y: auto;
+  color: var(--window-ink);
+  background: #fffdf8;
+  border: 1px solid var(--window-border);
+  border-radius: 13px;
+  box-shadow: 0 14px 35px rgba(40,63,48,.2);
 }
 .cottage-utilities-heading {
-  margin:6px 8px 2px; font-size:11px; font-weight:750; letter-spacing:.04em; opacity:.7;
+  margin: 12px 9px 4px;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .04em;
+  color: var(--window-muted);
 }
 .cottage-utilities-menu button,.cottage-utilities-fallback {
-  display:flex; min-height:40px; align-items:center; gap:11px;
-  border-radius:11px; padding:9px 12px; text-align:start; font-size:13px; font-weight:600;
+  display: flex; align-items: center; gap: 11px;
+  min-height: 44px; padding: 9px 12px;
+  border-radius: 10px; text-align: start;
+  font-size: 13px; font-weight: 600;
 }
-.cottage-utilities-menu button:hover,.cottage-utilities-fallback:hover { background:var(--skin-title-panel); }
-.cottage-utilities-fallback { border-top:1px solid var(--skin-edge); margin-top:4px; }
-@media (max-width:599px) {
-  .cottage-toolbar { padding-inline:10px; }
-  .cottage-toolbar .cottage-tool { min-height:40px; padding-inline:10px; }
-  .cottage-camera-controls { top:66px; }
-  .cottage-utilities { bottom:12px; right:12px; }
-  .cottage-stage aside { max-width:calc(100% - 85px); }
+.cottage-utilities-menu :is(button,a):hover { background: var(--window-accent); }
+.cottage-utilities-fallback { border-top: 1px solid var(--window-border); margin-top: 5px; }
+.cottage-utilities-trigger:focus-visible,.cottage-utilities-menu :is(button,a):focus-visible {
+  outline: 2px solid #41775c; outline-offset: 2px;
 }
+.cottage-style-choice {
+  background: #fffdf8;
+  border-color: var(--window-border);
+  color: var(--window-ink);
+}
+.cottage-style-choice[aria-pressed="true"] { background: var(--window-accent); }
+.cottage-style-panel { color: var(--window-ink); }
 
-/* The tools popover and windows now share readable surfaces, edge and radius.
-   No ghosted translucency behind menu labels. */
-.cottage-lab .cottage-utilities-trigger {
-  background:var(--skin-surface);
-  border-color:var(--skin-edge);
-  color:var(--skin-ink);
-  border-radius:15px;
-  box-shadow:0 6px 18px rgba(35,64,48,.16);
+/* Atmosphere affects the *room*, never text or window material */
+.cottage-stage-center::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
 }
-.cottage-lab .cottage-utilities-menu {
-  background:var(--skin-surface);
-  border:1px solid var(--skin-edge);
-  border-radius:18px;
-  box-shadow:0 18px 48px rgba(35,64,48,.21);
-  backdrop-filter:none;
-  
-  padding:9px;
-  gap:3px;
+.cottage-lab[data-window-atmosphere="mist"] .cottage-stage-center::after {
+  opacity: .5;
+  background: linear-gradient(180deg,rgba(235,247,239,.22),transparent 68%);
 }
-.cottage-lab .cottage-utilities-heading {
-  margin:12px 9px 4px;
-  color:#557165;
-  opacity:1;
-  letter-spacing:.08em;
+.cottage-lab[data-window-atmosphere="rain"] .cottage-stage-center::after {
+  opacity: .24;
+  background: repeating-linear-gradient(106deg,transparent 0 49px,rgba(195,218,220,.36) 49px 50px,transparent 50px 95px);
 }
-.cottage-lab .cottage-utilities-menu :is(button,a) {
-  border-radius:11px;
-  min-height:44px;
-  color:var(--skin-ink);
+@media (max-width: 899px) {
+  .cottage-toolbar { gap: 7px; }
+  .cottage-tool { min-height: 38px; }
+  .cottage-camera-controls { top: 68px; }
 }
-.cottage-lab .cottage-utilities-menu :is(button,a):hover {
-  background:var(--skin-title-panel);
+@media (max-width: 599px) {
+  .cottage-toolbar { padding-inline: 10px; }
+  .cottage-toolbar .cottage-tool { min-height: 40px; padding-inline: 10px; }
+  .cottage-camera-controls { top: 66px; }
+  .cottage-utilities { bottom: 12px; right: 12px; }
+  .cottage-stage aside { max-width: calc(100% - 85px); }
+  .cottage-account-panel [data-slot="card"] form { padding: 12px; }
 }
-.cottage-lab .cottage-utilities-fallback {
-  border-top:1px solid var(--skin-edge);
-  margin-top:7px;
+@media (pointer: coarse) { .cottage-camera-button { width: 42px; height: 42px; } }
+@media (prefers-reduced-transparency: reduce) {
+  .cottage-lab[data-window-material="glass"] {
+    --window-bg: #edf8f4;
+    --window-filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cottage-tool,.cottage-icon-button,.cottage-mobile-window,.dv-resize-container { transition: none; }
+}
+@media (forced-colors: active) {
+  .cottage-lab :is(.dv-resize-container,.cottage-mobile-window,.cottage-utilities-menu) {
+    border: 1px solid CanvasText !important;
+    background: Canvas !important;
+    color: CanvasText;
+  }
 }
