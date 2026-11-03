@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { MATERIALS, ATMOSPHERES, normalizeWindowStyle, type WindowStyle } from "./window-style";
 
@@ -18,7 +18,7 @@ export function WindowStyleFields({ value, onChange }: {
     <fieldset className="space-y-2">
       <legend className="font-semibold">{t("material")}</legend>
       <div className="grid grid-cols-2 gap-2">
-        {MATERIALS.map(material => <button key={material} type="button"
+        {MATERIALS.map(material => <button key={material} type="button" data-style-material={material}
           aria-pressed={value.material === material}
           className="cottage-style-choice min-h-11 rounded-xl border border-border bg-card px-2 py-2 font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-pressed:ring-2 aria-pressed:ring-ring"
           onClick={() => change(material === "glass"
@@ -53,8 +53,9 @@ export function WindowStyleFields({ value, onChange }: {
     </fieldset>
     <div data-testid="window-material-preview" data-window-material={value.material}
         data-window-atmosphere={value.atmosphere}
+        style={{ "--window-opacity": `${value.opacity}%`, "--window-blur": `${value.blur}px` } as CSSProperties}
         className="appearance-window-preview rounded-2xl p-4">
-      <div className="appearance-window-preview-card mx-auto max-w-64 overflow-hidden rounded-xl">
+      <div className="appearance-window-preview-card mx-auto max-w-64 rounded-xl">
         <div className="appearance-window-preview-heading h-8 px-3 py-2 text-xs font-semibold">
           {t("sampleTitle")}
         </div>

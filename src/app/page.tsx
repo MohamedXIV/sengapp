@@ -5,6 +5,7 @@ import { EXPERIENCE_COOKIE, preferredExperience } from "@/lib/experience";
 import { CottageWorkspace } from "@/features/cottage/cottage-workspace";
 import "dockview-react/dist/styles/dockview.css";
 import "./lab/cottage/cottage.css";
+import "./lab/cottage/surface-materials.css";
 
 export const metadata: Metadata = {
   title: "Sengapp — Your cozy space",

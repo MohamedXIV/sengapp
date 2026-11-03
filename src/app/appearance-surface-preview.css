@@ -1,0 +1,92 @@
+/* Small, live material swatches. Preview uses the same optical grammar
+   as the real room without importing the room's layout or demo content. */
+.cottage-style-choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+.cottage-style-choice[data-style-material]::before {
+  content: "";
+  display: block;
+  width: 31px;
+  height: 25px;
+  flex: 0 0 auto;
+  border-radius: 7px;
+}
+.cottage-style-choice[data-style-material="glass"]::before {
+  background: linear-gradient(135deg,rgba(255,255,255,.8),rgba(113,170,183,.47) 70%,rgba(45,80,114,.38));
+  border: 1px solid rgba(255,255,255,.85);
+  box-shadow: 0 3px 8px #376c7840,inset 0 1px rgba(255,255,255,.95);
+}
+.cottage-style-choice[data-style-material="paper"]::before {
+  background: linear-gradient(155deg,#fffdf3,#e6d0af);
+  border: 1px solid #c6a77c;
+  box-shadow: 2px 2px 0 #d9c3a3,3px 3px 0 #a98e6c;
+}
+.appearance-window-preview {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.appearance-window-preview[data-window-material="glass"] {
+  background:
+    radial-gradient(circle at 16% 14%,rgba(75,163,203,.8),transparent 49%),
+    radial-gradient(circle at 92% 82%,rgba(235,151,99,.82),transparent 46%),
+    linear-gradient(140deg,#b0d6d3,#d7d9e3 46%,#bda8ba);
+}
+.appearance-window-preview[data-window-material="paper"] {
+  background: linear-gradient(140deg,#c1ad8b,#e7d8bd 45%,#b9a07a);
+}
+.appearance-window-preview .appearance-window-preview-card {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+.appearance-window-preview[data-window-material="glass"] .appearance-window-preview-card {
+  background: color-mix(in srgb,rgba(233,246,244,.78) var(--window-opacity,74%),transparent);
+  background-image: radial-gradient(ellipse at 9% 0%,rgba(255,255,255,.64),transparent 65%),
+    linear-gradient(137deg,rgba(255,255,255,.32),rgba(62,91,112,.22));
+  border: 1px solid rgba(255,255,255,.85);
+  backdrop-filter: blur(var(--window-blur,20px)) saturate(185%) contrast(104%);
+  box-shadow: 0 13px 29px rgba(32,45,64,.38),inset 0 1px rgba(255,255,255,.95),inset 0 -1px rgba(40,74,86,.25);
+}
+.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-card {
+  background: #f6efe2;
+  background-image: radial-gradient(ellipse at center,rgba(255,253,246,.68),rgba(183,149,101,.24)),
+    repeating-linear-gradient(to bottom,transparent 0 27px,rgba(114,154,179,.15) 27px 28px);
+  border: 1px solid #cbb596;
+  backdrop-filter: none;
+  box-shadow: 3px 4px 0 #e8dac4,4px 5px 0 #c5b299,7px 11px 20px rgba(71,49,23,.35),inset 0 0 24px rgba(167,133,83,.19);
+  color: #3f3026;
+}
+.appearance-window-preview[data-window-material="glass"] .appearance-window-preview-heading {
+  background: linear-gradient(160deg,rgba(255,255,255,.54),rgba(211,239,237,.18));
+  border-bottom: 1px solid rgba(255,255,255,.73);
+  border-radius: 11px 11px 0 0;
+  color: #23444b;
+}
+.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-heading {
+  border-radius: 11px 11px 0 0;
+  background: linear-gradient(#faf1df,#e6d2b3);
+}
+.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-card::before {
+  content:"";
+  position:absolute;
+  z-index:3;
+  pointer-events:none;
+  width:75px;
+  height:17px;
+  top:-8px;
+  left:calc(50% - 37px);
+  transform:rotate(-4deg);
+  clip-path:polygon(2% 0,98% 0,100% 90%,96% 100%,3% 100%,0 80%);
+  background:linear-gradient(90deg,rgba(244,223,174,.65),rgba(247,231,191,.9),rgba(238,209,160,.7));
+  box-shadow:0 2px 4px rgba(82,61,36,.13);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .appearance-window-preview[data-window-material="glass"] .appearance-window-preview-card {
+    backdrop-filter:none;
+    background:#e9f5f3;
+  }
+}

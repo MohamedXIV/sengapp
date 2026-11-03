@@ -85,7 +85,7 @@ export function NotesPanel() {
     if (!loaded) return;
     try { localStorage.setItem(STORAGE.notes, note); } catch { /* keep notes usable in memory */ }
   }, [note, loaded]);
-  return <section className="cottage-panel-body flex h-full flex-col gap-2">
+  return <section data-surface-content="notebook" className="cottage-panel-body flex h-full flex-col gap-2">
     <label className="flex items-center gap-2 font-semibold text-[#496758]" htmlFor="cottage-note">
       <StickyNote className="size-5" /> A little note to yourself
     </label>
@@ -109,7 +109,7 @@ export function FocusPanel() {
     return () => clearInterval(interval);
   }, [running]);
   const clock = `${Math.floor(remaining / 60).toString().padStart(2, "0")}:${(remaining % 60).toString().padStart(2, "0")}`;
-  return <section className="cottage-panel-body flex flex-col items-center gap-3 text-center">
+  return <section data-surface-content="graph" className="cottage-panel-body flex flex-col items-center gap-3 text-center">
     <span className="flex items-center gap-2 text-sm font-semibold"><Timer className="size-4" /> Your focus moment</span>
     <strong className="text-4xl font-semibold tabular-nums tracking-widest" aria-live="off">{clock}</strong>
     <div className="flex gap-2">

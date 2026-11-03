@@ -179,6 +179,10 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
     ? page.getByTestId("cottage-mobile-window-appearance")
     : page.locator(".cottage-dock-layer .dv-resize-container").first();
   await expect(targetWindow).toHaveCSS("backdrop-filter", /blur/);
+  await expect(targetWindow).toHaveCSS("background-image", /linear-gradient/);
+  await expect(targetWindow).toHaveCSS("box-shadow", /inset/);
+  await expect(page.getByTestId("window-material-preview").locator(".appearance-window-preview-card"))
+    .toHaveCSS("backdrop-filter", /blur/);
   const setRange = async (label: string, value: string) => {
     await panel.getByLabel(label).evaluate((el, next) => {
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
@@ -204,6 +208,9 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "paper");
   await expect(panel.getByLabel("Glass blur")).toHaveCount(0);
   await expect(targetWindow).toHaveCSS("background-image", /data:image/);
+  await expect(targetWindow).toHaveCSS("box-shadow", /3px 4px/);
+  await expect(page.getByTestId("window-material-preview").locator(".appearance-window-preview-card"))
+    .toHaveCSS("backdrop-filter", "none");
 });
 
 test("Profile and Appearance open as real protected windows, with direct fallback routes", async ({ page }) => {

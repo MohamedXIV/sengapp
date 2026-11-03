@@ -1,0 +1,223 @@
+/* Material surfaces adapted from the supplied Sengapp Gemini concept.
+   Only presentation is transferred: actual chats, auth, and Dockview remain untouched.
+   Loaded AFTER cottage.css so one material system owns the final optical rendering. */
+.cottage-lab {
+  --surface-paper-fiber: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%3E%3Cfilter%20id%3D%22f%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.78%22%20numOctaves%3D%223%22%20seed%3D%2214%22%20stitchTiles%3D%22stitch%22%20result%3D%22n%22%2F%3E%3CfeColorMatrix%20in%3D%22n%22%20type%3D%22matrix%22%20values%3D%220%200%200%200%20.43%200%200%200%200%20.33%200%200%200%200%20.21%200%200%200%20.16%200%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22128%22%20height%3D%22128%22%20filter%3D%22url(%23f)%22%20opacity%3D%22.7%22%2F%3E%3C%2Fsvg%3E");
+  --surface-acrylic-noise: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2296%22%20height%3D%2296%22%3E%3Cfilter%20id%3D%22n%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%221.15%22%20numOctaves%3D%222%22%20seed%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22matrix%22%20values%3D%220%200%200%200%201%200%200%200%200%201%200%200%200%200%201%200%200%200%20.04%200%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20filter%3D%22url(%23n)%22%2F%3E%3C%2Fsvg%3E");
+  --skin-layer: none;
+  --skin-background-size: auto;
+  --skin-background-repeat: repeat;
+  --skin-background-blend: normal;
+}
+.cottage-lab[data-window-material="glass"] {
+  --skin-surface: #eaf4f2;
+  --skin-edge: rgba(255,255,255,.78);
+  --skin-ink: #213e40;
+  --skin-panel: color-mix(in srgb,rgba(228,242,241,.78) var(--window-opacity,74%),transparent);
+  --skin-title-panel: linear-gradient(170deg,rgba(255,255,255,.66),rgba(221,244,241,.38) 54%,rgba(74,121,134,.24));
+  --skin-backdrop: blur(var(--window-blur,20px)) saturate(185%) contrast(104%);
+  --skin-layer: var(--surface-acrylic-noise),
+    radial-gradient(ellipse at 9% 0%,rgba(255,255,255,.46),transparent 62%),
+    linear-gradient(132deg,rgba(255,255,255,.36),rgba(228,245,240,.06) 48%,rgba(54,82,104,.27));
+  --skin-background-size: 96px 96px,auto,auto;
+  --skin-background-repeat: repeat,no-repeat,no-repeat;
+  --skin-background-blend: screen,normal,normal;
+}
+.cottage-lab[data-window-material="paper"] {
+  --skin-surface: #faf1df;
+  --skin-edge: #cdb89a;
+  --skin-ink: #3f3026;
+  --skin-panel: #f6efe2;
+  --skin-title-panel: linear-gradient(180deg,#f8ecd8,#e9d7bb);
+  --skin-backdrop: none;
+  --skin-layer: var(--surface-paper-fiber),
+    radial-gradient(ellipse at 46% 39%,rgba(255,253,245,.55),rgba(177,133,84,.25) 100%),
+    linear-gradient(135deg,rgba(255,255,255,.26),rgba(226,203,171,.15));
+  --skin-background-size: 128px 128px,auto,auto;
+  --skin-background-repeat: repeat,no-repeat,no-repeat;
+  --skin-background-blend: multiply,normal,normal;
+}
+/* Keep content and resize targets native. Do not add an overlay above the
+   Dockview drag region or the mobile pointer-capture buttons. */
+.cottage-lab :is(.dv-resize-container,.cottage-mobile-window) {
+  background: var(--skin-panel) !important;
+  background-image: var(--skin-layer) !important;
+  background-size: var(--skin-background-size) !important;
+  background-repeat: var(--skin-background-repeat) !important;
+  background-blend-mode: var(--skin-background-blend) !important;
+  border-color: var(--skin-edge) !important;
+  color: var(--skin-ink);
+}
+.cottage-lab[data-window-material="glass"] :is(.dv-resize-container,.cottage-mobile-window) {
+  backdrop-filter: var(--skin-backdrop) !important;
+  box-shadow:
+    0 27px 64px -15px rgba(18,42,53,.48),
+    0 6px 20px -5px rgba(25,54,57,.25),
+    inset 0 1px 0 rgba(255,255,255,.92),
+    inset 1px 0 0 rgba(255,255,255,.45),
+    inset 0 -1px 0 rgba(48,82,92,.24) !important;
+}
+.cottage-lab[data-window-material="paper"] :is(.dv-resize-container,.cottage-mobile-window) {
+  backdrop-filter: none !important;
+  box-shadow:
+    0 2px 2px rgba(67,45,23,.1),
+    3px 4px 0 #e8dac5,
+    4px 5px 0 #c8b69b,
+    7px 11px 31px rgba(64,42,23,.3),
+    inset 0 0 33px rgba(166,130,84,.20),
+    inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+/* The short, 32px Dockview drag bar is deliberately preserved. */
+.cottage-lab .dv-resize-container > .dv-floating-titlebar,
+.cottage-lab .dv-resize-container .dv-tabs-and-actions-container,
+.cottage-lab .cottage-mobile-titlebar {
+  background: var(--skin-title-panel) !important;
+  color: var(--skin-ink);
+}
+.cottage-lab[data-window-material="glass"] :is(
+  .dv-floating-titlebar,.dv-tabs-and-actions-container,.cottage-mobile-titlebar
+) {
+  border-bottom-color: rgba(255,255,255,.55) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78), inset 0 -1px 0 rgba(32,87,100,.14);
+}
+.cottage-lab[data-window-material="paper"] :is(
+  .dv-floating-titlebar,.dv-tabs-and-actions-container,.cottage-mobile-titlebar
+) {
+  border-bottom-color: #c4a77d !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(162,122,74,.09);
+}
+.cottage-lab[data-window-material="glass"] .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
+  background: linear-gradient(145deg,rgba(255,255,255,.83),rgba(220,239,242,.42)) !important;
+  border: 1px solid rgba(255,255,255,.79);
+  box-shadow: 0 2px 6px rgba(37,74,80,.12),inset 0 1px 0 rgba(255,255,255,.9);
+}
+.cottage-lab[data-window-material="paper"] .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
+  background: linear-gradient(#fffbf0,#f2e3ce) !important;
+  border: 1px solid #cdb38a;
+  border-bottom-color: #eedfc8;
+  border-radius: 9px 9px 4px 4px;
+  box-shadow: 1px 2px 0 rgba(117,81,43,.12),inset 0 1px rgba(255,255,255,.84);
+}
+/* The room itself remains a Phaser scene. Ambient lighting sits behind windows
+   and never intercepts pan/zoom or window interactions. */
+.cottage-lab[data-window-material="glass"] .cottage-stage-center::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 42% 56% at 5% 13%,rgba(126,187,206,.16),transparent 86%),
+    radial-gradient(ellipse 38% 52% at 95% 76%,rgba(247,190,125,.15),transparent 85%);
+  mix-blend-mode: soft-light;
+}
+/* Surrounding floating controls belong to the same physical material family. */
+.cottage-lab[data-window-material="glass"] :is(.cottage-toolbar,.cottage-camera-controls) {
+  background: linear-gradient(150deg,rgba(255,255,255,.72),rgba(203,236,234,.52) 55%,rgba(116,169,173,.38)) !important;
+  backdrop-filter: blur(18px) saturate(180%) contrast(103%);
+  border-color: rgba(255,255,255,.77) !important;
+  box-shadow: 0 7px 25px rgba(21,52,54,.14),inset 0 1px rgba(255,255,255,.9);
+}
+.cottage-lab[data-window-material="paper"] :is(.cottage-toolbar,.cottage-camera-controls) {
+  background: linear-gradient(160deg,#f8edda,#e9d8be) !important;
+  backdrop-filter: none;
+  border-color: #cdb89a !important;
+  box-shadow: 0 4px 13px rgba(78,54,25,.16),inset 0 1px rgba(255,255,255,.82);
+}
+.cottage-lab[data-window-material="glass"] :is(.cottage-tool,.cottage-mini-button,.cottage-utilities-trigger) {
+  background: linear-gradient(155deg,rgba(255,255,255,.74),rgba(222,245,238,.36)) !important;
+  border: 1px solid rgba(255,255,255,.82) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.92),0 3px 10px rgba(34,82,86,.12);
+}
+.cottage-lab[data-window-material="paper"] :is(.cottage-tool,.cottage-mini-button,.cottage-utilities-trigger) {
+  background: linear-gradient(#fff9ed,#ebdcc4) !important;
+  border: 1px solid #c9ad84 !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.85),0 2px 3px rgba(99,68,38,.1);
+}
+/* Menus need greater opacity than free-floating glass panes for reading. */
+.cottage-lab[data-window-material="glass"] .cottage-utilities-menu {
+  background: linear-gradient(150deg,rgba(246,252,251,.95),rgba(207,231,229,.9)) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  border-color: rgba(255,255,255,.88);
+  box-shadow: 0 22px 52px rgba(16,44,52,.29),inset 0 1px rgba(255,255,255,.9);
+}
+.cottage-lab[data-window-material="paper"] .cottage-utilities-menu {
+  background: #f6ead5 !important;
+  background-image: var(--surface-paper-fiber),radial-gradient(ellipse at center,#fffaf0,#dec7a4) !important;
+  background-blend-mode: multiply,normal;
+  backdrop-filter: none !important;
+  border-color: #c8ab80;
+  box-shadow: 3px 4px 0 #d9c8aa,0 14px 36px rgba(58,38,20,.27);
+}
+.cottage-lab[data-window-material="glass"] .cottage-account-panel [data-slot="card"] {
+  background: rgba(251,254,252,.62);
+  border-color: rgba(255,255,255,.85);
+  box-shadow: inset 0 1px rgba(255,255,255,.8);
+}
+.cottage-lab[data-window-material="paper"] .cottage-account-panel [data-slot="card"] {
+  background: rgba(255,250,239,.83);
+  border-color: #d8c2a0;
+  box-shadow: 2px 3px 0 rgba(182,155,119,.26);
+}
+/* Paper becomes tactile where it has meaning: notebook notes and graph-paper
+   focus timer. Human conversations remain clean and legible, not lined. */
+.cottage-lab[data-window-material="paper"] [data-surface-content="notebook"] {
+  position: relative;
+  padding-inline-start: 38px;
+}
+.cottage-lab[data-window-material="paper"] [data-surface-content="notebook"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 20px 16px;
+  inset-inline-start: 11px;
+  width: 14px;
+  pointer-events: none;
+  background: radial-gradient(circle at 7px 7px,#aa987b 0 4px,#fffbf2 4.5px 5.4px,transparent 5.7px);
+  background-size: 14px 63px;
+  opacity: .76;
+}
+.cottage-lab[data-window-material="paper"] [data-surface-content="notebook"] .cottage-note {
+  background-color: #fffbf1;
+  background-image:
+    linear-gradient(to right,transparent 27px,rgba(192,95,82,.39) 27px 29px,transparent 29px),
+    repeating-linear-gradient(to bottom,transparent 0 27px,rgba(111,149,173,.22) 27px 28px);
+  background-attachment: local;
+  padding: 12px 14px 12px 40px;
+  line-height: 28px;
+  border-color: #d8c5a6;
+  box-shadow: inset 0 0 25px rgba(185,151,103,.12),2px 3px 0 rgba(183,155,120,.19);
+}
+.cottage-lab[data-window-material="paper"] [data-surface-content="graph"] {
+  background-color: rgba(255,250,241,.43) !important;
+  background-image:
+    linear-gradient(to right,rgba(111,154,181,.13) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(111,154,181,.13) 1px,transparent 1px),
+    radial-gradient(ellipse at center,rgba(255,255,255,.45),rgba(187,159,122,.07)) !important;
+  background-size: 20px 20px,20px 20px,auto;
+}
+.cottage-lab[data-window-material="paper"] [data-surface-content="notebook"] > label {
+  color: #755338;
+}
+.cottage-lab :is(.cottage-tool,.cottage-mini-button,.cottage-utilities-trigger):focus-visible {
+  outline: 2px solid #336f6a;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cottage-lab[data-window-material="glass"] :is(.dv-resize-container,.cottage-mobile-window) {
+    background: #eaf4f2 !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+  }
+  .cottage-lab[data-window-material="glass"] :is(.cottage-toolbar,.cottage-camera-controls,.cottage-utilities-menu) {
+    backdrop-filter: none !important;
+    background: #eaf4f2 !important;
+  }
+}
+@media (forced-colors: active) {
+  .cottage-lab :is(.dv-resize-container,.cottage-mobile-window,.cottage-utilities-menu) {
+    border: 1px solid CanvasText !important;
+    background: Canvas !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+}

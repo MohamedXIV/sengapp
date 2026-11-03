@@ -7,6 +7,7 @@ import { getLocaleDirection, type AppLocale } from "@/lib/i18n/locale";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/nunito";
 import "./globals.css";
+import "./appearance-surface-preview.css";
 
 export const metadata: Metadata = {
   title: "Sengapp",
