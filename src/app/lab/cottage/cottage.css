@@ -196,7 +196,6 @@
 
 /* Room controls and compact utilities */
 .cottage-toolbar {
-  position: relative;
   min-height: 60px;
   background: #fffdf8ed;
   backdrop-filter: blur(8px);
