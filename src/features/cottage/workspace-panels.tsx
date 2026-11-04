@@ -1,0 +1,125 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useConvexAuth } from "convex/react";
+import { WindowStyleTool } from "./window-style-context";
+import Link from "next/link";
+import { StickyNote, Timer, Play, Pause, RotateCcw, ArrowUpRight } from "lucide-react";
+import { MemberGate } from "@/components/access/member-gate";
+import { ChatsContent } from "@/features/chats/chats-content";
+import { STORAGE } from "./room-model";
+import { ProfileEditor } from "@/features/profile/profile-editor";
+import { AppearanceEditor } from "@/features/profile/appearance-editor";
+import { ConnectionsSpace } from "@/features/connections/connections-space";
+import { useWorkspaceNavigation } from "./workspace-navigation";
+
+export function ChatsPanel() {
+  const navigation = useWorkspaceNavigation();
+  const t = useTranslations("Chats");
+
+  return <section data-testid="cottage-live-chats" className="flex h-full min-h-0 flex-col gap-2 overflow-hidden bg-card text-card-foreground">
+    <div className="flex shrink-0 items-center justify-between gap-2 px-3 pt-3">
+      <h2 className="text-sm font-semibold">{t("title")}</h2>
+      <Link href="/chats" className="flex min-h-9 items-center gap-1 rounded-xl px-2 text-xs text-primary underline-offset-2 hover:underline">
+        {t("title")} <ArrowUpRight className="size-3.5" aria-hidden="true" />
+      </Link>
+    </div>
+    <div className="min-h-0 flex-1 overflow-hidden px-2 pb-2">
+      <ChatsContent embedded navigation={navigation} />
+    </div>
+  </section>;
+}
+
+export function ConnectionsPanel() {
+  const navigation = useWorkspaceNavigation();
+  return <section data-testid="cottage-live-connections" className="h-full min-h-0 overflow-hidden bg-card text-card-foreground">
+    <MemberGate embedded>{() =>
+      <ConnectionsSpace compact onOpenConversation={navigation?.openConversation}/>}
+    </MemberGate>
+  </section>;
+}
+
+export function ProfilePanel() {
+  return <section data-testid="cottage-live-profile" className="cottage-account-panel h-full min-h-0 overflow-y-auto overscroll-contain">
+    <MemberGate embedded>{profile => <ProfileEditor key={profile._id} compact profile={profile} />}</MemberGate>
+  </section>;
+}
+
+/** Guests may still try materials locally; members get the unified account editor. */
+function GuestAppearanceContent() {
+  const t = useTranslations("Appearance");
+  return <>
+    <div className="mx-4 mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 bg-card/85 p-3 text-xs">
+      <span>{t("guestPreview")}</span>
+      <Link className="font-semibold text-primary underline underline-offset-2" href="/login">{t("guestSignIn")}</Link>
+    </div>
+    <WindowStyleTool />
+  </>;
+}
+
+function ConnectedAppearanceContent() {
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  if (isLoading) return <p role="status" className="p-4 text-sm">…</p>;
+  if (!isAuthenticated) return <GuestAppearanceContent />;
+  return <MemberGate embedded>{profile => <AppearanceEditor key={profile._id} compact profile={profile} />}</MemberGate>;
+}
+
+export function AppearancePanel() {
+  const configured = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  return <section data-testid="cottage-live-appearance" className="cottage-account-panel h-full min-h-0 overflow-y-auto overscroll-contain">
+    {configured ? <ConnectedAppearanceContent /> : <GuestAppearanceContent />}
+  </section>;
+}
+
+export function NotesPanel() {
+  const [note, setNote] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    queueMicrotask(() => {
+      try { setNote(localStorage.getItem(STORAGE.notes) ?? "Sketch the next cozy room ✨"); } catch { /* storage can be blocked */ }
+      setLoaded(true);
+    });
+  }, []);
+  useEffect(() => {
+    if (!loaded) return;
+    try { localStorage.setItem(STORAGE.notes, note); } catch { /* keep notes usable in memory */ }
+  }, [note, loaded]);
+  return <section className="cottage-panel-body flex h-full flex-col gap-2">
+    <label className="flex items-center gap-2 font-semibold text-[#496758]" htmlFor="cottage-note">
+      <StickyNote className="size-5" /> A little note to yourself
+    </label>
+    <textarea id="cottage-note" className="cottage-note min-h-24 w-full flex-1 resize-none"
+      placeholder="Write something small..." value={note} onChange={event => setNote(event.target.value)}
+      maxLength={6000}/>
+    <p className="text-xs opacity-70">Private to this browser · {note.length}/6000</p>
+  </section>;
+}
+
+const FOCUS_SECONDS = 25 * 60;
+export function FocusPanel() {
+  const [remaining, setRemaining] = useState(FOCUS_SECONDS);
+  const [running, setRunning] = useState(false);
+  useEffect(() => {
+    if (!running) return;
+    const interval = window.setInterval(() => setRemaining(value => {
+      if (value <= 1) { setRunning(false); return 0; }
+      return value - 1;
+    }), 1000);
+    return () => clearInterval(interval);
+  }, [running]);
+  const clock = `${Math.floor(remaining / 60).toString().padStart(2, "0")}:${(remaining % 60).toString().padStart(2, "0")}`;
+  return <section className="cottage-panel-body flex flex-col items-center gap-3 text-center">
+    <span className="flex items-center gap-2 text-sm font-semibold"><Timer className="size-4" /> Your focus moment</span>
+    <strong className="text-4xl font-semibold tabular-nums tracking-widest" aria-live="off">{clock}</strong>
+    <div className="flex gap-2">
+      <button className="cottage-mini-button" onClick={() => { if (remaining === 0) setRemaining(FOCUS_SECONDS); setRunning(value => !value); }}>
+        {running ? <Pause className="size-4"/> : <Play className="size-4"/>}{running ? "Pause" : "Start"}
+      </button>
+      <button className="cottage-mini-button" onClick={() => {setRunning(false);setRemaining(FOCUS_SECONDS);}}>
+        <RotateCcw className="size-4"/> Reset
+      </button>
+    </div>
+    <p className="text-xs opacity-70">A simple 25-minute timer. It runs only while this panel is open.</p>
+  </section>;
+}
