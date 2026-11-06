@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type Keyb
 import Link from "next/link";
 import { useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowLeft, MessageCircle, SendHorizontal, UsersRound } from "lucide-react";
+import { ArrowLeft, MessageCircle, SendHorizontal, UsersRound, X } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { GroupPanel } from "@/features/chats/group-panel";
-import { ChatMessageTimeline } from "@/features/chats/chat-message-timeline";
+import { ChatMessageTimeline, type TimelineMessage } from "@/features/chats/chat-message-timeline";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { isPeerOnline, nextSignalExpiry } from "@/lib/presence/session";
 
-interface PendingMessage { body: string; clientNonce: string }
+interface PendingMessage { body: string; clientNonce: string; replyToMessageId?: Id<"messages"> }
 
 export function DirectThread({ conversationId, meProfileId, embedded = false, onBack }: {
   conversationId: Id<"conversations">; meProfileId: Id<"profiles">;
@@ -29,6 +30,9 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
   const group = useQuery(api.groups.getDetails, info?.kind === "group" ? { conversationId } : "skip");
   const { results, status, loadMore } = usePaginatedQuery(api.messages.list, { conversationId }, { initialNumItems: 25 });
   const send = useMutation(api.messages.send);
+  const editMessage = useMutation(api.messages.edit);
+  const removeMessage = useMutation(api.messages.remove);
+  const toggleReaction = useMutation(api.messages.toggleReaction);
   const setTyping = useMutation(api.activity.setTyping);
   const markRead = useMutation(api.activity.markRead);
   const myProfile = useQuery(api.profiles.getMine);
@@ -40,6 +44,10 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
   const lastMarkedReadId = useRef<string | null>(null);
   const [readScrollRevision, setReadScrollRevision] = useState(0);
   const [draft, setDraft] = useState("");
+  const [replyingTo, setReplyingTo] = useState<TimelineMessage | null>(null);
+  const [editingMessage, setEditingMessage] = useState<TimelineMessage | null>(null);
+  const [deletingMessage, setDeletingMessage] = useState<TimelineMessage | null>(null);
+  const [actionError, setActionError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<PendingMessage | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -67,6 +75,12 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
     initialized.current = null;
     restoreOlder.current = null;
     stickToBottom.current = true;
+    setReplyingTo(null);
+    setEditingMessage(null);
+    setDeletingMessage(null);
+    setDraft("");
+    setFailed(null);
+    setActionError(false);
   }, [conversationId]);
 
   useEffect(() => {
@@ -153,12 +167,30 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
     event?.preventDefault();
     const body = draft.trim();
     if (busy || !body || body.length > 2_000) return;
-    const message = failed?.body === body ? failed : { body, clientNonce: crypto.randomUUID() };
+    setActionError(false);
+    if (editingMessage) {
+      setBusy(true);
+      try {
+        await editMessage({ messageId: editingMessage._id, body });
+        setEditingMessage(null);
+        setDraft("");
+      } catch {
+        setActionError(true);
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+    const replyToMessageId = replyingTo?._id;
+    const message: PendingMessage = failed?.body === body && failed.replyToMessageId === replyToMessageId
+      ? failed
+      : { body, clientNonce: crypto.randomUUID(), ...(replyToMessageId ? { replyToMessageId } : {}) };
     setBusy(true);
     setFailed(null);
     try {
       await send({ conversationId, ...message });
       setDraft("");
+      setReplyingTo(null);
       broadcastTyping("");
       stickToBottom.current = true;
     } catch {
@@ -166,6 +198,46 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
     } finally {
       setBusy(false);
     }
+  }
+
+  function startReply(message: TimelineMessage) {
+    setReplyingTo(message);
+    setEditingMessage(null);
+    setActionError(false);
+    setFailed(null);
+  }
+
+  function startEdit(message: TimelineMessage) {
+    setEditingMessage(message);
+    setReplyingTo(null);
+    setDraft(message.body);
+    setActionError(false);
+    setFailed(null);
+    broadcastTyping("");
+  }
+
+  function cancelEdit() {
+    setEditingMessage(null);
+    setDraft("");
+    setFailed(null);
+    setActionError(false);
+  }
+
+  async function deleteSelectedMessage() {
+    const selected = deletingMessage;
+    setDeletingMessage(null);
+    if (!selected) return;
+    try {
+      await removeMessage({ messageId: selected._id });
+      if (editingMessage?._id === selected._id) cancelEdit();
+      if (replyingTo?._id === selected._id) setReplyingTo(null);
+    } catch {
+      setActionError(true);
+    }
+  }
+
+  function reactTo(message: TimelineMessage, emoji: string) {
+    void toggleReaction({ messageId: message._id, emoji }).catch(() => setActionError(true));
   }
 
   function composerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -252,7 +324,11 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
           </div>}
           <ChatMessageTimeline messages={results} meProfileId={meProfileId} locale={locale}
             participantNames={info?.kind === "group" ? participantNames ?? {} : undefined}
-            readBy={signals?.readBy ?? []} />
+            readBy={signals?.readBy ?? []}
+            onReply={startReply}
+            onEdit={startEdit}
+            onDelete={setDeletingMessage}
+            onReact={reactTo} />
           {typingNames.length > 0 && <p role="status" className="mt-3 px-3 text-xs text-muted-foreground">
             {typingNames.length === 1
               ? t("typingSingle", { name: typingNames[0] ?? "" })
@@ -261,23 +337,49 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
         </div>
       </div>
       <form onSubmit={(event) => void submit(event)} className="shrink-0 border-t border-border/70 bg-card/95 p-3 sm:p-4">
+        {(replyingTo || editingMessage) && <div className="mb-2 flex items-center gap-2 rounded-xl border-s-2 border-primary/60 bg-secondary/45 px-3 py-2 text-xs">
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">{editingMessage ? t("editing") : t("replying")}</p>
+            <p className="truncate text-muted-foreground" dir="auto">{(editingMessage ?? replyingTo)?.body}</p>
+          </div>
+          <Button type="button" variant="ghost" size="icon" className="size-8 shrink-0"
+            aria-label={t(editingMessage ? "cancelEdit" : "cancelReply")}
+            onClick={() => editingMessage ? cancelEdit() : setReplyingTo(null)}>
+            <X className="size-4" aria-hidden="true" />
+          </Button>
+        </div>}
         <div className="flex items-end gap-2">
           <Textarea aria-label={t("messageInput")} aria-describedby="chat-compose-hint" value={draft} maxLength={2000} rows={1}
             className="max-h-36 min-h-11 flex-1 resize-none rounded-2xl bg-background/75 px-4 py-3 shadow-none"
-            placeholder={t("messagePlaceholder")} onChange={event => { setDraft(event.target.value); setFailed(null); broadcastTyping(event.target.value); }}
+            placeholder={editingMessage ? t("editing") : t("messagePlaceholder")} onChange={event => { setDraft(event.target.value); setFailed(null); if (!editingMessage) broadcastTyping(event.target.value); }}
             onBlur={() => broadcastTyping("")}
             onKeyDown={composerKeyDown} />
           <Button type="submit" size="icon" className="size-11 shrink-0 rounded-2xl" disabled={busy || !draft.trim()}
-            aria-label={busy ? t("sending") : t("send")}>
+            aria-label={editingMessage ? (busy ? t("savingEdit") : t("saveEdit")) : (busy ? t("sending") : t("send"))}>
             <SendHorizontal className="size-5 rtl:rotate-180" aria-hidden="true" />
           </Button>
         </div>
         <p id="chat-compose-hint" className="mt-2 hidden text-xs text-muted-foreground sm:block">{t("composerHint")}</p>
+        {actionError && <p role="alert" className="mt-2 text-sm text-destructive">{t("actionFailed")}</p>}
         {failed && <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 text-sm text-destructive">
           <span>{t("sendFailed")}</span>
           <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void submit()}>{t("retry")}</Button>
         </div>}
       </form>
     </Card>
+    <AlertDialog open={deletingMessage !== null} onOpenChange={open => { if (!open) setDeletingMessage(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
+          <AlertDialogDescription>{t("deleteDescription")}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t("dialogCancel")}</AlertDialogCancel>
+          <AlertDialogAction onClick={() => void deleteSelectedMessage()} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            {t("confirmDelete")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>;
 }
