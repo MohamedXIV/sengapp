@@ -47,6 +47,8 @@ describe("personal appearance settings", () => {
     expect(cancelPreview).toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Reset to defaults" }));
     expect(setPreview).toHaveBeenLastCalledWith(DEFAULT_VISUAL_PREFERENCES);
+    expect(previewMode).toHaveBeenLastCalledWith("light");
+    expect(screen.getByRole("combobox", { name: "Light / dark" })).toHaveTextContent("Light");
   });
 
   it("saves a unified shadow preference without exposing retired glass/paper material controls", async () => {
