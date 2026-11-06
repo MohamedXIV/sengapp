@@ -153,6 +153,6 @@ describe("privacy-enforced private presence, typing and read acknowledgements", 
     await expect(bob.mutation(api.activity.setTyping, { conversationId: group, isTyping: true })).rejects.toThrow();
     await expect(bob.mutation(api.activity.markRead, { conversationId: group, messageId: fresh })).rejects.toThrow();
     expect((await t.run(ctx => ctx.db.query("conversationMembers").withIndex("by_conversation_profile",
-      q => q.eq("conversationId", group)).collect())).toHaveLength(1);
+      q => q.eq("conversationId", group)).collect()))).toHaveLength(1);
   });
 });

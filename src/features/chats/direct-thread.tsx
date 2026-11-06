@@ -83,6 +83,10 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
     const latest = results[0];
     if (!latest || status === "LoadingFirstPage" || !myProfile?.presencePreferences.readReceipts) return;
     const read = () => {
+      const viewport = scroller.current?.getBoundingClientRect();
+      if (!viewport || viewport.width <= 0 || viewport.height <= 0
+        || viewport.bottom <= 0 || viewport.right <= 0
+        || viewport.top >= window.innerHeight || viewport.left >= window.innerWidth) return;
       if (document.visibilityState !== "visible" || !stickToBottom.current || lastMarkedReadId.current === latest._id) return;
       lastMarkedReadId.current = latest._id;
       void markRead({ conversationId, messageId: latest._id }).catch(() => {
@@ -90,8 +94,16 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
       });
     };
     read();
+    // Dockview can keep inactive panels mounted; only count a receipt after
+    // the actual scroll container enters the viewport again.
+    const observer = typeof IntersectionObserver !== "undefined"
+      ? new IntersectionObserver(() => read(), { threshold: 0.1 }) : null;
+    if (scroller.current) observer?.observe(scroller.current);
     document.addEventListener("visibilitychange", read);
-    return () => document.removeEventListener("visibilitychange", read);
+    return () => {
+      observer?.disconnect();
+      document.removeEventListener("visibilitychange", read);
+    };
   }, [conversationId, results, status, myProfile?.presencePreferences.readReceipts, markRead, readScrollRevision]);
 
   function broadcastTyping(value: string) {
