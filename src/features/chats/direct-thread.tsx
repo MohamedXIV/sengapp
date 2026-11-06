@@ -9,7 +9,8 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } from "@/components/ui/input-group";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { GroupPanel } from "@/features/chats/group-panel";
@@ -270,9 +271,15 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
         : <Button asChild variant="ghost" size="icon" aria-label={t("backToChats")} className="size-11 shrink-0 rounded-xl">
             <Link href="/chats"><ArrowLeft className="rtl:rotate-180" aria-hidden="true" /></Link>
           </Button>}
-      <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        {info?.kind === "group" ? <UsersRound className="size-5" /> : <MessageCircle className="size-5" />}
-      </span>
+      {info?.kind === "group"
+        ? <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <UsersRound className="size-5" />
+          </span>
+        : <Avatar size="lg" className="size-11">
+            <AvatarFallback className="bg-primary/10 font-semibold text-primary">
+              {info?.displayName?.trim().charAt(0)?.toLocaleUpperCase(locale) || "?"}
+            </AvatarFallback>
+          </Avatar>}
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-lg font-bold sm:text-xl" dir="auto">{info?.displayName ?? t("loadingConversation")}</h1>
         {info?.kind === "direct" && info.handle && <p dir="ltr" className="text-xs text-muted-foreground">@{info.handle}</p>}
@@ -349,17 +356,20 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
             <X className="size-4" aria-hidden="true" />
           </Button>
         </div>}
-        <div className="flex items-end gap-2">
-          <Textarea aria-label={t("messageInput")} aria-describedby="chat-compose-hint" value={draft} maxLength={2000} rows={1}
-            className="max-h-36 min-h-11 flex-1 resize-none rounded-2xl bg-background/75 px-4 py-3 shadow-none"
+        <InputGroup className="min-h-11 items-end rounded-2xl border-border/70 bg-background/75 shadow-none">
+          <InputGroupTextarea aria-label={t("messageInput")} aria-describedby="chat-compose-hint" value={draft} maxLength={2000} rows={1}
+            className="max-h-36 min-h-11 resize-none px-4 py-3"
             placeholder={editingMessage ? t("editing") : t("messagePlaceholder")} onChange={event => { setDraft(event.target.value); setFailed(null); if (!editingMessage) broadcastTyping(event.target.value); }}
             onBlur={() => broadcastTyping("")}
             onKeyDown={composerKeyDown} />
-          <Button type="submit" size="icon" className="size-11 shrink-0 rounded-2xl" disabled={busy || !draft.trim()}
-            aria-label={editingMessage ? (busy ? t("savingEdit") : t("saveEdit")) : (busy ? t("sending") : t("send"))}>
-            <SendHorizontal className="size-5 rtl:rotate-180" aria-hidden="true" />
-          </Button>
-        </div>
+          <InputGroupAddon align="inline-end" className="self-end p-1.5">
+            <InputGroupButton type="submit" variant="default" size="icon-sm" className="size-10 rounded-xl"
+              disabled={busy || !draft.trim()}
+              aria-label={editingMessage ? (busy ? t("savingEdit") : t("saveEdit")) : (busy ? t("sending") : t("send"))}>
+              <SendHorizontal className="size-5 rtl:rotate-180" aria-hidden="true" />
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
         <p id="chat-compose-hint" className="mt-2 hidden text-xs text-muted-foreground sm:block">{t("composerHint")}</p>
         {actionError && <p role="alert" className="mt-2 text-sm text-destructive">{t("actionFailed")}</p>}
         {failed && <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 text-sm text-destructive">

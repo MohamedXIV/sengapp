@@ -23,6 +23,9 @@ describe("cozy chat timeline", () => {
     expect(log.querySelectorAll("time")).toHaveLength(3);
     expect(log.querySelectorAll('[data-slot="marker"][data-variant="separator"]')).toHaveLength(1);
     expect(log.querySelectorAll('[data-slot="bubble"]')).toHaveLength(3);
+    expect(log.querySelectorAll('[data-slot="message"]')).toHaveLength(3);
+    expect(log.querySelectorAll('[data-slot="message-footer"]')).toHaveLength(3);
+    expect(log.querySelectorAll('[data-slot="avatar"]')).toHaveLength(2);
   });
 
   it("shows a receipt only on the latest own message and only from consenting readers", () => {

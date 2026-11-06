@@ -30,6 +30,9 @@ describe("human direct thread", () => {
     renderThread();
     expect(screen.getByText("Hi from Bob")).toBeInTheDocument();
     expect(screen.getByText("Hello Bob")).toBeInTheDocument();
+    expect(document.querySelector('[data-slot="input-group"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-slot="input-group-control"]')).toHaveAttribute("aria-label", "Message");
+    expect(document.querySelector('[data-slot="avatar"]')).toBeInTheDocument();
     fireEvent.change(screen.getByRole("textbox", { name: "Message" }), { target: { value: "  How are you?  " } });
     fireEvent.click(screen.getByRole("button", { name: "Send message" }));
     await waitFor(() => expect(sender).toHaveBeenCalledWith({
