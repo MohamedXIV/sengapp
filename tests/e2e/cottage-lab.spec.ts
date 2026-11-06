@@ -133,7 +133,7 @@ test("isolated cottage lab renders a room and provides reachable workspace contr
     // render fabricated chat history or silently authorize the lab visitor.
     await expect(page.getByTestId("cottage-live-chats").getByText("Private conversations")).toHaveCount(0);
     await expect(page.getByText("Your focus moment")).toBeVisible();
-    await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", "17px");
+    await expect(page.locator(".cottage-dock-layer .dv-resize-container").first()).toHaveCSS("border-radius", /px/);
   }
 });
 
@@ -165,45 +165,23 @@ test("desktop Dockview titlebar has visible native drag and resize grips", async
   }
 });
 
-test("unified Appearance offers readable glass, paper and atmospheric effects", async ({ page }, testInfo) => {
+test("Cozy windows use shared opaque shadcn surfaces without legacy material switches", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.getByTestId("workspace-utilities").locator("summary").click();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
-  const panel = page.getByTestId("window-style-panel");
-  await expect(panel).toBeVisible();
-  await expect(page.getByTestId("workspace-utilities").getByRole("button", { name: "Window style" })).toHaveCount(0);
-  await panel.getByRole("button", { name: "Glass" }).click();
-  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
-  await expect(page.getByTestId("window-style-fields").getByRole("button", { name: "Cozy" })).toHaveCount(0);
-  const targetWindow = testInfo.project.name === "mobile-chrome"
+  const guest = page.getByTestId("appearance-guest-info");
+  await expect(guest).toBeVisible();
+  await expect(guest.getByRole("link", { name: "Sign in to save all appearance" })).toBeVisible();
+  await expect(page.locator(".cottage-lab")).not.toHaveAttribute("data-window-material", /.+/);
+  const target = testInfo.project.name === "mobile-chrome"
     ? page.getByTestId("cottage-mobile-window-appearance")
     : page.locator(".cottage-dock-layer .dv-resize-container").first();
-  await expect(targetWindow).toHaveCSS("backdrop-filter", /blur/);
-  const setRange = async (label: string, value: string) => {
-    await panel.getByLabel(label).evaluate((el, next) => {
-      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
-      setter?.call(el, next);
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-      el.dispatchEvent(new Event("change", { bubbles: true }));
-    }, value);
-  };
-  await setRange("Opacity", "77");
-  await setRange("Glass blur", "20");
-  await expect(page.locator(".cottage-lab")).toHaveAttribute("style", /--window-opacity: 77%/);
-  await expect(page.locator(".cottage-lab")).toHaveAttribute("style", /--window-blur: 20px/);
-  await panel.getByRole("button", { name: "Rain" }).click();
-  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-atmosphere", "rain");
-  await page.reload();
-  if (testInfo.project.name === "mobile-chrome") {
-    await page.getByTestId("workspace-utilities").locator("summary").click();
-    await page.getByRole("button", { name: "Appearance", exact: true }).click();
-  }
-  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
-  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-atmosphere", "rain");
-  await page.getByTestId("window-style-panel").getByRole("button", { name: "Paper" }).click();
-  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "paper");
-  await expect(panel.getByLabel("Glass blur")).toHaveCount(0);
-  // A clean baseline intentionally uses no simulated paper grain.\n  await expect(targetWindow).toHaveCSS("background-image", "none");
+  await expect(target).toHaveCSS("backdrop-filter", "none");
+  await expect(target).toHaveCSS("background-image", "none");
+  const color = await target.evaluate(element => getComputedStyle(element).backgroundColor);
+  expect(color).not.toBe("rgba(0, 0, 0, 0)");
+  expect(await target.evaluate(element => getComputedStyle(element).getPropertyValue("--window-radius").trim()))
+    .toContain("calc");
 });
 
 test("Profile and Appearance open as real protected windows, with direct fallback routes", async ({ page }) => {
@@ -219,7 +197,7 @@ test("Profile and Appearance open as real protected windows, with direct fallbac
   const appearance = page.getByTestId("cottage-live-appearance");
   await expect(appearance).toBeVisible();
   await expect(appearance.getByRole("link", { name: "Sign in to save all appearance" })).toBeVisible();
-  await expect(appearance.getByTestId("window-style-fields")).toBeVisible();
+  await expect(appearance.getByTestId("appearance-guest-info")).toBeVisible();
   // The original routes remain usable when Phaser or window management is disabled.
   await page.goto("/settings/profile");
   await expect(page.locator('input[id="displayName"]')).toHaveCount(0);

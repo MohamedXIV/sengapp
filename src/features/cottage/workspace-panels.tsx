@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useConvexAuth } from "convex/react";
-import { WindowStyleTool } from "./window-style-context";
 import Link from "next/link";
 import { StickyNote, Timer, Play, Pause, RotateCcw, ArrowUpRight } from "lucide-react";
 import { MemberGate } from "@/components/access/member-gate";
@@ -46,16 +45,16 @@ export function ProfilePanel() {
   </section>;
 }
 
-/** Guests may still try materials locally; members get the unified account editor. */
+/** Guests can browse the same shell. Private appearance settings require an account. */
 function GuestAppearanceContent() {
   const t = useTranslations("Appearance");
-  return <>
-    <div className="mx-4 mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 bg-card/85 p-3 text-xs">
-      <span>{t("guestPreview")}</span>
-      <Link className="font-semibold text-primary underline underline-offset-2" href="/login">{t("guestSignIn")}</Link>
-    </div>
-    <WindowStyleTool />
-  </>;
+  return <div data-testid="appearance-guest-info"
+    className="m-4 space-y-3 rounded-[var(--radius)] border border-border bg-card p-5 [box-shadow:var(--sengapp-shadow-card)]">
+    <h2 className="text-base font-semibold">{t("title")}</h2>
+    <p className="text-sm text-muted-foreground">{t("sharedPreviewNote")}</p>
+    <Link className="inline-flex min-h-11 items-center rounded-[var(--radius)] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+      href="/login">{t("guestSignIn")}</Link>
+  </div>;
 }
 
 function ConnectedAppearanceContent() {

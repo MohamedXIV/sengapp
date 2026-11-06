@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { WorkspaceAuthEntry } from "./workspace-auth-entry";
@@ -241,15 +241,14 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   return <WorkspaceNavigationProvider value={{ selectedConversation, openConversation, returnToConversations: () => setSelectedConversation(null) }}>
     <WindowStyleProvider value={windowStyle} onChange={setWindowStyle} onPreview={setWindowStylePreview}
       canSaveAccount={Boolean(account.onSave)} onSaveAccount={saveToAccount} saveStatus={styleSaveStatus}>
-    <main data-window-material={(windowStylePreview ?? windowStyle).material} data-window-atmosphere={(windowStylePreview ?? windowStyle).atmosphere}
-      style={{ "--window-opacity": `${(windowStylePreview ?? windowStyle).opacity}%`, "--window-blur": `${(windowStylePreview ?? windowStyle).blur}px` } as CSSProperties}
-      className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
-    <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
+    <main data-window-atmosphere={(windowStylePreview ?? windowStyle).atmosphere}
+      className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-background text-foreground">
+    <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 border-b border-border px-3 py-2 sm:px-5">
       <Link href="/" className="flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-2 focus-visible:outline-[#407960]" aria-label={t("home")}>
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#cfe6ce]"><Home className="size-5"/></span>
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent"><Home className="size-5"/></span>
         <span className="min-w-0">
           <strong className="block truncate text-sm tracking-tight">Sengapp</strong>
-          <span className="hidden text-[11px] text-[#657e70] sm:block">{t("yourSpace")}</span>
+          <span className="hidden text-[11px] text-muted-foreground sm:block">{t("yourSpace")}</span>
         </span>
       </Link>
       <nav aria-label={t("conversations")} className="flex items-center gap-1.5">
@@ -269,7 +268,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
         <RoomCanvas ref={roomCamera} items={items} editing={editMode} light={light}
           onChange={changedItems} onHover={changedHover} onViewChange={setCameraView}/>
       </div>
-      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-[68px] z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-[#bbd0c1] bg-[#fffcf2eb] p-1 shadow-sm backdrop-blur-sm">
+      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-[68px] z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-border bg-card p-1 [box-shadow:var(--sengapp-shadow-card)]">
         <button type="button" aria-label="Zoom out" title="Zoom out" className="cottage-camera-button" disabled={cameraView.level <= CAMERA.minLevel + .001}
           onClick={() => roomCamera.current?.zoomOut()}><ZoomOut className="size-[17px]"/></button>
         <output data-testid="room-zoom-indicator" data-camera-x={cameraView.x.toFixed(2)}
@@ -279,15 +278,15 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
         </output>
         <button type="button" aria-label="Zoom in" title="Zoom in" className="cottage-camera-button" disabled={cameraView.level >= CAMERA.maxLevel - .001}
           onClick={() => roomCamera.current?.zoomIn()}><ZoomIn className="size-[17px]"/></button>
-        <span className="mx-1 h-5 w-px bg-[#c4d7c7]" aria-hidden="true"/>
+        <span className="mx-1 h-5 w-px bg-border" aria-hidden="true"/>
         <button type="button" aria-label="Fit room" title="Focus on the cottage" className="cottage-camera-button"
           onClick={() => roomCamera.current?.fit()}><Scan className="size-[17px]"/></button>
         <button type="button" aria-label="Fit world" title="Show the 16:10 world" className="cottage-camera-button"
           onClick={() => roomCamera.current?.fitWorld()}><Maximize2 className="size-[17px]"/></button>
       </nav>
-      <aside className="pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border border-[#c3d2c2] bg-[#fffaf0ed] px-4 py-2 text-xs shadow-sm">
+      <aside className="pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border border-border bg-card px-4 py-2 text-xs [box-shadow:var(--sengapp-shadow-card)]">
         <span className="block font-bold">{hovered ?? (editMode ? "Edit mode · drag sprites to new tiles" : "Your cozy space")}</span>
-        <span className="block text-[#63796e]">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "16:10 world · Drag to pan · Scroll or pinch to zoom"}</span>
+        <span className="block text-muted-foreground">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "16:10 world · Drag to pan · Scroll or pinch to zoom"}</span>
       </aside>
       <details className="cottage-utilities absolute bottom-4 right-4 z-50" data-testid="workspace-utilities">
         <summary className="cottage-utilities-trigger" aria-label={t("tools")} title={t("tools")}>

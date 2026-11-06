@@ -10,7 +10,6 @@ import { existingPresenceSessionId } from "@/lib/presence/session";
 import { useTranslations } from "next-intl";
 import { HeartHandshake, MessageCircle, Palette, Settings2, Shield, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton,
