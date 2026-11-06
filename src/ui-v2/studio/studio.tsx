@@ -144,7 +144,7 @@ export function SengappStudio() {
     if (mobileView === "thread") endOfThread.current?.scrollIntoView?.({ block: "nearest" });
   }, [mobileView, selectedId, threads]);
 
-  const selected = demoConversations.find(conversation => conversation.id === selectedId) ?? demoConversations[0];
+  const selected = demoConversations.find(conversation => conversation.id === selectedId) ?? demoConversations[0]!;
   const messages = threads[selected.id] ?? [];
   const visibleChats = useMemo(() => demoConversations.filter(conversation => {
     if (filter === "unread" && conversation.unread === 0) return false;
@@ -176,7 +176,7 @@ export function SengappStudio() {
     const message: DemoMessage = {
       id: "local-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
       sender: "You", time: "Now", text: value, own: true,
-      ...(reply ? { reply: { sender: reply.sender, text: reply.text.split("\n")[0] } } : {}),
+      ...(reply ? { reply: { sender: reply.sender, text: (reply.text.split("\n")[0] ?? "") } } : {}),
     };
     setThreads(previous => ({ ...previous, [selectedId]: [...(previous[selectedId] ?? []), message] }));
     setDraft("");
@@ -200,7 +200,7 @@ export function SengappStudio() {
         const index = reactions.findIndex(item => item.emoji === emoji);
         if (index === -1) reactions.push({ emoji, count: 1 });
         else {
-          const count = Math.max(0, reactions[index].count + (had ? -1 : 1));
+          const count = Math.max(0, reactions[index]!.count + (had ? -1 : 1));
           if (count === 0) reactions.splice(index, 1);
           else reactions[index] = { emoji, count };
         }
@@ -322,7 +322,7 @@ export function SengappStudio() {
             </div>
           </div>
           <div className="s2-composer-shell">
-            {reply && <div className="s2-composer-reply"><span>Replying to <strong>{reply.sender}</strong><small>{reply.text.split("\n")[0]}</small></span>
+            {reply && <div className="s2-composer-reply"><span>Replying to <strong>{reply.sender}</strong><small>{(reply.text.split("\n")[0] ?? "")}</small></span>
               <Action label="Cancel reply" onClick={() => setReply(null)}><X size={16}/></Action></div>}
             <form className="s2-composer" onSubmit={sendMessage}>
               <Action label="Add a heart to your draft" onClick={() => setDraft(value => value + " 💜")}><Smile size={20}/></Action>
