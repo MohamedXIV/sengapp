@@ -56,7 +56,8 @@ export const send = mutation({
     const recent = await ctx.db.query("messages")
       .withIndex("by_sender_time", q => q.eq("senderProfileId", senderId).gte("createdAt", now - 60_000)).take(MAX_MESSAGES_PER_MINUTE);
     if (recent.length >= MAX_MESSAGES_PER_MINUTE) throw new ConvexError({ code: "MESSAGE_RATE_LIMIT" });
-    const messageTime = conversation?.kind === "group" ? Math.max(now, conversation.updatedAt + 1) : now;
+    // Strict timestamp ordering is required for read-through receipts in direct and group chats.
+    const messageTime = Math.max(now, (conversation?.updatedAt ?? now) + 1);
     const id = await ctx.db.insert("messages", {
       conversationId, senderProfileId: senderId, body: normalized, clientNonce, createdAt: messageTime,
     });

@@ -103,7 +103,7 @@ describe("privacy-enforced private presence, typing and read acknowledgements", 
     });
     await bob.mutation(api.activity.markRead, { conversationId, messageId: second });
     await bob.mutation(api.activity.markRead, { conversationId, messageId: first });
-    const expected = (await t.run(ctx => ctx.db.query("messages").get(second)))?.createdAt;
+    const expected = (await t.run(ctx => ctx.db.get(second)))?.createdAt;
     expect((await alice.query(api.activity.getConversationSignals, signal(conversationId))).readBy)
       .toMatchObject([{ readThroughAt: expected }]);
     await bob.mutation(api.profiles.updatePresencePreferences, presence({ readReceipts: false }));
