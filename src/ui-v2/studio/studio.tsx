@@ -141,7 +141,7 @@ export function SengappStudio() {
     try { window.localStorage.setItem(APPEARANCE_KEY, JSON.stringify(appearance)); } catch { /* browser storage can be blocked */ }
   }, [appearance]);
   useEffect(() => {
-    if (mobileView === "thread") endOfThread.current?.scrollIntoView({ block: "nearest" });
+    if (mobileView === "thread") endOfThread.current?.scrollIntoView?.({ block: "nearest" });
   }, [mobileView, selectedId, threads]);
 
   const selected = demoConversations.find(conversation => conversation.id === selectedId) ?? demoConversations[0];
@@ -166,7 +166,7 @@ export function SengappStudio() {
   function changeSection(next: MainSection) {
     setSection(next);
     setAppearanceOpen(false);
-    setMobileView("list");
+    setMobileView(next === "chats" ? "list" : "thread");
   }
 
   function sendMessage(event?: FormEvent) {
