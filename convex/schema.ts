@@ -119,6 +119,14 @@ export default defineSchema({
     body: v.string(),
     clientNonce: v.string(),
     createdAt: v.number(),
+    replyToMessageId: v.optional(v.id("messages")),
+    editedAt: v.optional(v.number()),
+    deletedAt: v.optional(v.number()),
+    // Bounded one-reaction-per-member list avoids a separate query per message.
+    reactions: v.optional(v.array(v.object({
+      profileId: v.id("profiles"),
+      emoji: v.string(),
+    }))),
   })
     .index("by_conversation_time", ["conversationId", "createdAt"])
     .index("by_sender_nonce", ["senderProfileId", "clientNonce"])
