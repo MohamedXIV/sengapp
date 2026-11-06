@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { GroupPanel } from "@/features/chats/group-panel";
 import { ChatMessageTimeline } from "@/features/chats/chat-message-timeline";
+import { isPeerOnline, nextSignalExpiry } from "@/lib/presence/session";
 
 interface PendingMessage { body: string; clientNonce: string }
 
@@ -28,6 +29,16 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
   const group = useQuery(api.groups.getDetails, info?.kind === "group" ? { conversationId } : "skip");
   const { results, status, loadMore } = usePaginatedQuery(api.messages.list, { conversationId }, { initialNumItems: 25 });
   const send = useMutation(api.messages.send);
+  const setTyping = useMutation(api.activity.setTyping);
+  const markRead = useMutation(api.activity.markRead);
+  const myProfile = useQuery(api.profiles.getMine);
+  // A stable reactive subscription; local time handles lease expiry.
+  const signals = useQuery(api.activity.getConversationSignals, { conversationId });
+  const [clock, setClock] = useState(() => Date.now());
+  const typingLastSent = useRef(0);
+  const typingActive = useRef(false);
+  const lastMarkedReadId = useRef<string | null>(null);
+  const [readScrollRevision, setReadScrollRevision] = useState(0);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<PendingMessage | null>(null);
@@ -58,6 +69,79 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
     stickToBottom.current = true;
   }, [conversationId]);
 
+  useEffect(() => {
+    // A local timeout runs only at the next actual Online/Typing expiry.
+    const expiry = nextSignalExpiry(signals?.peerOnlineUntil, signals?.typing, clock);
+    if (expiry === null) return;
+    const timeout = window.setTimeout(
+      () => setClock(Date.now()), Math.max(1, expiry - Date.now() + 20),
+    );
+    return () => window.clearTimeout(timeout);
+  }, [signals, clock]);
+
+  useEffect(() => {
+    function onResume() {
+      if (document.visibilityState === "visible") setClock(Date.now());
+    }
+    document.addEventListener("visibilitychange", onResume);
+    return () => document.removeEventListener("visibilitychange", onResume);
+  }, []);
+
+  useEffect(() => {
+    const latest = results[0];
+    if (!latest || status === "LoadingFirstPage" || !myProfile?.presencePreferences?.readReceipts) return;
+    const read = () => {
+      const viewport = scroller.current?.getBoundingClientRect();
+      if (!viewport || viewport.width <= 0 || viewport.height <= 0
+        || viewport.bottom <= 0 || viewport.right <= 0
+        || viewport.top >= window.innerHeight || viewport.left >= window.innerWidth) return;
+      if (document.visibilityState !== "visible" || !stickToBottom.current || lastMarkedReadId.current === latest._id) return;
+      lastMarkedReadId.current = latest._id;
+      void markRead({ conversationId, messageId: latest._id }).catch(() => {
+        if (lastMarkedReadId.current === latest._id) lastMarkedReadId.current = null;
+      });
+    };
+    read();
+    // Dockview can keep inactive panels mounted; only count a receipt after
+    // the actual scroll container enters the viewport again.
+    const observer = typeof IntersectionObserver !== "undefined"
+      ? new IntersectionObserver(() => read(), { threshold: 0.1 }) : null;
+    if (scroller.current) observer?.observe(scroller.current);
+    document.addEventListener("visibilitychange", read);
+    return () => {
+      observer?.disconnect();
+      document.removeEventListener("visibilitychange", read);
+    };
+  }, [conversationId, results, status, myProfile?.presencePreferences?.readReceipts, markRead, readScrollRevision]);
+
+  function broadcastTyping(value: string) {
+    if (!myProfile?.presencePreferences?.typingIndicators) return;
+    if (!value.trim()) {
+      if (typingActive.current) {
+        typingActive.current = false;
+        typingLastSent.current = 0;
+        void setTyping({ conversationId, isTyping: false }).catch(() => {});
+      }
+      return;
+    }
+    const now = Date.now();
+    if (now - typingLastSent.current < 3_000) return;
+    typingActive.current = true;
+    typingLastSent.current = now;
+    void setTyping({ conversationId, isTyping: true }).catch(() => {});
+  }
+
+  useEffect(() => {
+    lastMarkedReadId.current = null;
+    return () => {
+      if (typingActive.current) {
+        typingActive.current = false;
+        void setTyping({ conversationId, isTyping: false }).catch(() => {});
+      }
+    };
+  }, [conversationId, setTyping]);
+
+
   function loadOlder() {
     if (status !== "CanLoadMore") return;
     const el = scroller.current;
@@ -75,6 +159,7 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
     try {
       await send({ conversationId, ...message });
       setDraft("");
+      broadcastTyping("");
       stickToBottom.current = true;
     } catch {
       setFailed(message);
@@ -89,6 +174,13 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
       void submit();
     }
   }
+
+  const peerIsOnline = isPeerOnline(signals?.peerOnlineUntil, clock);
+  const typingNames = signals?.typing?.filter(item => item.expiresAt > clock)
+    .map(member => member.displayName) ?? [];
+  const lastSeenLabel = signals?.peerLastSeenAt
+    ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(signals.peerLastSeenAt)
+    : null;
 
   const participantNames = group?.members?.reduce<Record<string, string>>((names, member) => {
     names[member.profileId] = member.displayName;
@@ -111,6 +203,8 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-lg font-bold sm:text-xl" dir="auto">{info?.displayName ?? t("loadingConversation")}</h1>
         {info?.kind === "direct" && info.handle && <p dir="ltr" className="text-xs text-muted-foreground">@{info.handle}</p>}
+        {info?.kind === "direct" && peerIsOnline && <p role="status" className="text-xs font-medium text-primary">{t("onlineNow")}</p>}
+        {info?.kind === "direct" && !peerIsOnline && lastSeenLabel && <p className="text-xs text-muted-foreground">{t("lastSeenAt", { date: lastSeenLabel })}</p>}
         {info?.kind === "group" && <p className="text-xs text-muted-foreground">{t("members")} · {group?.members.length ?? "…"}</p>}
       </div>
       {info?.kind === "group" && <Sheet>
@@ -136,7 +230,11 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
       : "flex h-[calc(100dvh-12rem)] min-h-80 max-h-[52rem] flex-col overflow-hidden rounded-[1.5rem] border-border/70 shadow-sm"}>
       <div ref={scroller} onScroll={() => {
         const el = scroller.current;
-        if (el) stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 96;
+        if (el) {
+          const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 96;
+          if (atBottom && !stickToBottom.current) setReadScrollRevision(v => v + 1);
+          stickToBottom.current = atBottom;
+        }
       }} className="sengapp-chat-messages min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="flex min-h-full flex-col justify-end px-3 py-5 sm:px-6">
           {status === "LoadingFirstPage" && <div role="status" aria-label={t("loadingMessages")} className="space-y-5 py-4">
@@ -152,14 +250,22 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
             <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"><MessageCircle aria-hidden="true" /></span>
             <p>{t("noMessages")}</p>
           </div>}
-          <ChatMessageTimeline messages={results} meProfileId={meProfileId} locale={locale} participantNames={info?.kind === "group" ? participantNames ?? {} : undefined} />
+          <ChatMessageTimeline messages={results} meProfileId={meProfileId} locale={locale}
+            participantNames={info?.kind === "group" ? participantNames ?? {} : undefined}
+            readBy={signals?.readBy ?? []} />
+          {typingNames.length > 0 && <p role="status" className="mt-3 px-3 text-xs text-muted-foreground">
+            {typingNames.length === 1
+              ? t("typingSingle", { name: typingNames[0] ?? "" })
+              : t("typingMultiple", { names: typingNames.slice(0, 3).join(", ") })}
+          </p>}
         </div>
       </div>
       <form onSubmit={(event) => void submit(event)} className="shrink-0 border-t border-border/70 bg-card/95 p-3 sm:p-4">
         <div className="flex items-end gap-2">
           <Textarea aria-label={t("messageInput")} aria-describedby="chat-compose-hint" value={draft} maxLength={2000} rows={1}
             className="max-h-36 min-h-11 flex-1 resize-none rounded-2xl bg-background/75 px-4 py-3 shadow-none"
-            placeholder={t("messagePlaceholder")} onChange={event => { setDraft(event.target.value); setFailed(null); }}
+            placeholder={t("messagePlaceholder")} onChange={event => { setDraft(event.target.value); setFailed(null); broadcastTyping(event.target.value); }}
+            onBlur={() => broadcastTyping("")}
             onKeyDown={composerKeyDown} />
           <Button type="submit" size="icon" className="size-11 shrink-0 rounded-2xl" disabled={busy || !draft.trim()}
             aria-label={busy ? t("sending") : t("send")}>

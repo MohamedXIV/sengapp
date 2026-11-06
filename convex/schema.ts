@@ -95,6 +95,8 @@ export default defineSchema({
     profileId: v.id("profiles"),
     role: v.optional(v.union(v.literal("owner"), v.literal("admin"), v.literal("member"))),
     joinedAt: v.number(),
+    // Last *message timestamp* this member actually viewed (not an arbitrary client time).
+    readThroughAt: v.optional(v.number()),
   })
     .index("by_conversation_profile", ["conversationId", "profileId"])
     .index("by_profile", ["profileId"]),
@@ -121,6 +123,24 @@ export default defineSchema({
     .index("by_conversation_time", ["conversationId", "createdAt"])
     .index("by_sender_nonce", ["senderProfileId", "clientNonce"])
     .index("by_sender_time", ["senderProfileId", "createdAt"]),
+
+  // A short-lived lease, NOT an authoritative socket connection or background tracker.
+  // Only direct peers with the relevant opt-in can see derived presence.
+  profileActivity: defineTable({
+    profileId: v.id("profiles"),
+    lastActiveAt: v.number(),
+    sessions: v.optional(v.array(v.object({
+      sessionId: v.string(), lastActiveAt: v.number(),
+    }))),
+  }).index("by_profile", ["profileId"]),
+
+  // One bounded, expiring record per member and conversation; text is never stored.
+  typingStates: defineTable({
+    conversationId: v.id("conversations"),
+    profileId: v.id("profiles"),
+    updatedAt: v.number(),
+    expiresAt: v.number(),
+  }).index("by_conversation_profile", ["conversationId", "profileId"]),
 
   blocks: defineTable({
     blockerProfileId: v.id("profiles"),

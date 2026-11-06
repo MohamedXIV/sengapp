@@ -25,6 +25,28 @@ describe("cozy chat timeline", () => {
     expect(log.querySelectorAll('[data-slot="bubble"]')).toHaveLength(3);
   });
 
+  it("shows a receipt only on the latest own message and only from consenting readers", () => {
+    const messages = [
+      { _id: "mine-2", senderProfileId: me, body: "Another hello", createdAt: 3000 },
+      { _id: "other-1", senderProfileId: peer, body: "Hey", createdAt: 2000 },
+      { _id: "mine-1", senderProfileId: me, body: "Hello", createdAt: 1000 },
+    ] as Parameters<typeof ChatMessageTimeline>[0]["messages"];
+    const reader = { profileId: peer, displayName: "Tala", readThroughAt: 3000 };
+    const { rerender } = render(<EnglishTestProvider>
+      <ChatMessageTimeline messages={messages} meProfileId={me} locale="en" readBy={[reader]} />
+    </EnglishTestProvider>);
+    expect(screen.getAllByText("Seen")).toHaveLength(1);
+    rerender(<EnglishTestProvider>
+      <ChatMessageTimeline messages={messages} meProfileId={me} locale="en"
+        participantNames={{ [peer]: "Tala" }} readBy={[reader]} />
+    </EnglishTestProvider>);
+    expect(screen.getByText("Read by Tala")).toBeInTheDocument();
+    rerender(<EnglishTestProvider>
+      <ChatMessageTimeline messages={messages} meProfileId={me} locale="en" readBy={[]} />
+    </EnglishTestProvider>);
+    expect(screen.queryByText("Seen")).not.toBeInTheDocument();
+  });
+
   it("renders day separators when the conversation spans different dates", () => {
     const messages = [
       { _id: "2", senderProfileId: peer, body: "Next morning", createdAt: Date.UTC(2026, 9, 30, 9) },

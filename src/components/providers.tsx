@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import type { AppLocale } from "@/lib/i18n/locale";
+import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -19,6 +20,7 @@ export function Providers({ children, locale }: { children: ReactNode; locale: A
         ? <ClerkProvider publishableKey={clerkKey} signInUrl="/login"
             localization={locale === "ar" ? arSA : undefined}>
             <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
+              <PresenceHeartbeat />
               {children}
             </ConvexProviderWithClerk>
           </ClerkProvider>
