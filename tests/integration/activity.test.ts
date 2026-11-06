@@ -24,9 +24,9 @@ async function fixture() {
   return { t, alice, bob, outsider, aliceId, bobId, conversationId };
 }
 
-const signal = (conversationId: Id<"conversations">) => ({
-  conversationId, refreshToken: 1,
-});
+const signal = (conversationId: Id<"conversations">) => ({ conversationId });
+const sessionA = "11111111-1111-4111-8111-111111111111";
+const sessionB = "22222222-2222-4222-8222-222222222222";
 
 const presence = (patch: Partial<{
   onlineStatus: boolean; lastSeen: boolean; readReceipts: boolean; typingIndicators: boolean;
@@ -37,7 +37,7 @@ const presence = (patch: Partial<{
 describe("privacy-enforced private presence, typing and read acknowledgements", () => {
   it("scopes every signal and mutation to authenticated conversation participants", async () => {
     const { t, alice, outsider, conversationId } = await fixture();
-    await alice.mutation(api.activity.heartbeat, {});
+    await alice.mutation(api.activity.heartbeat, { sessionId: sessionA });
     await expect(outsider.query(api.activity.getConversationSignals, signal(conversationId))).rejects.toThrow();
     await expect(outsider.mutation(api.activity.setTyping, { conversationId, isTyping: true })).rejects.toThrow();
     const msgId = await alice.mutation(api.messages.send, {
@@ -52,26 +52,47 @@ describe("privacy-enforced private presence, typing and read acknowledgements", 
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-11-04T08:00:00.000Z"));
     const { alice, bob, conversationId } = await fixture();
-    await alice.mutation(api.activity.heartbeat, {});
+    await alice.mutation(api.activity.heartbeat, { sessionId: sessionA });
     const first = await bob.query(api.activity.getConversationSignals, signal(conversationId));
-    expect(first.peerOnline).toBe(true);
+    expect(first.peerOnlineUntil).toBeGreaterThan(Date.now());
     expect(first.peerLastSeenAt).toEqual(expect.any(Number));
     await alice.mutation(api.profiles.updatePresencePreferences, presence({ onlineStatus: false }));
     const invisible = await bob.query(api.activity.getConversationSignals, signal(conversationId));
-    expect(invisible.peerOnline).toBeNull();
+    expect(invisible.peerOnlineUntil).toBeNull();
     expect(invisible.peerLastSeenAt).toBe(first.peerLastSeenAt);
     await alice.mutation(api.profiles.updatePresencePreferences, presence({ onlineStatus: false, lastSeen: false }));
-    await alice.mutation(api.activity.heartbeat, {});
+    await alice.mutation(api.activity.heartbeat, { sessionId: sessionA });
     const hidden = await bob.query(api.activity.getConversationSignals, signal(conversationId));
-    expect(hidden.peerOnline).toBeNull();
+    expect(hidden.peerOnlineUntil).toBeNull();
     expect(hidden.peerLastSeenAt).toBeNull();
     await alice.mutation(api.profiles.updatePresencePreferences, presence());
     vi.setSystemTime(new Date("2026-11-04T08:01:16.000Z"));
     const stale = await bob.query(api.activity.getConversationSignals, signal(conversationId));
-    expect(stale.peerOnline).toBe(false);
+    expect(stale.peerOnlineUntil).toBeLessThanOrEqual(Date.now());
     expect(stale.peerLastSeenAt).toBeLessThan(Date.now());
-    await alice.mutation(api.activity.heartbeat, {});
-    expect((await bob.query(api.activity.getConversationSignals, signal(conversationId))).peerOnline).toBe(true);
+    await alice.mutation(api.activity.heartbeat, { sessionId: sessionA });
+    expect((await bob.query(api.activity.getConversationSignals, signal(conversationId))).peerOnlineUntil).toBeGreaterThan(Date.now());
+  });
+
+  it("immediately ends only the closing tab while other sessions stay online", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-04T08:30:00Z"));
+    const { t, alice, bob, conversationId } = await fixture();
+    await alice.mutation(api.activity.heartbeat, { sessionId: sessionA });
+    await alice.mutation(api.activity.heartbeat, { sessionId: sessionB });
+    const online = await bob.query(api.activity.getConversationSignals, signal(conversationId));
+    expect(online.peerOnlineUntil).toBeGreaterThan(Date.now());
+    await alice.mutation(api.activity.endSession, { sessionId: sessionA });
+    expect((await bob.query(api.activity.getConversationSignals, signal(conversationId)))
+      .peerOnlineUntil).toBeGreaterThan(Date.now());
+    await alice.mutation(api.activity.endSession, { sessionId: sessionB });
+    const offline = await bob.query(api.activity.getConversationSignals, signal(conversationId));
+    expect(offline.peerOnlineUntil).toBe(0);
+    expect(offline.peerLastSeenAt).toEqual(expect.any(Number));
+    expect((await t.run(ctx => ctx.db.query("profileActivity").collect()))[0]?.sessions).toEqual([]);
+    await alice.mutation(api.activity.endSession, { sessionId: sessionA }); // idempotent
+    expect((await bob.query(api.activity.getConversationSignals, signal(conversationId)))
+      .peerOnlineUntil).toBe(0);
   });
 
   it("expires typing, stops it explicitly, and hides it when independently disabled", async () => {
@@ -85,7 +106,10 @@ describe("privacy-enforced private presence, typing and read acknowledgements", 
     await alice.mutation(api.activity.setTyping, { conversationId, isTyping: true });
     expect(await t.run(ctx => ctx.db.query("typingStates").collect())).toHaveLength(1);
     vi.setSystemTime(new Date("2026-11-04T09:00:08.000Z"));
-    expect((await bob.query(api.activity.getConversationSignals, signal(conversationId))).typing).toEqual([]);
+    // The cached query returns an expiry timestamp; the UI hides it locally.
+    const expired = await bob.query(api.activity.getConversationSignals, signal(conversationId));
+    expect(expired.typing).toHaveLength(1);
+    expect(expired.typing[0]!.expiresAt).toBeLessThanOrEqual(Date.now());
     await alice.mutation(api.activity.setTyping, { conversationId, isTyping: true });
     await alice.mutation(api.profiles.updatePresencePreferences, presence({ typingIndicators: false }));
     expect((await bob.query(api.activity.getConversationSignals, signal(conversationId))).typing).toEqual([]);
@@ -120,7 +144,7 @@ describe("privacy-enforced private presence, typing and read acknowledgements", 
     await expect(alice.query(api.activity.getConversationSignals, signal(conversationId))).rejects.toThrow();
     await expect(bob.mutation(api.activity.setTyping, { conversationId, isTyping: true })).rejects.toThrow();
     await t.run(ctx => ctx.db.patch(bobId, { status: "suspended" }));
-    await expect(bob.mutation(api.activity.heartbeat, {})).rejects.toThrow();
+    await expect(bob.mutation(api.activity.heartbeat, { sessionId: sessionA })).rejects.toThrow();
   });
 
   it("denies group read/typing after removal and never exposes history from before joining", async () => {
