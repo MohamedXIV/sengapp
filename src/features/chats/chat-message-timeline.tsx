@@ -7,14 +7,16 @@ import type { Doc, Id } from "../../../convex/_generated/dataModel";
 
 type TimelineMessage = Pick<Doc<"messages">, "_id" | "senderProfileId" | "body" | "createdAt">;
 
-export function ChatMessageTimeline({ messages, meProfileId, locale, participantNames }: {
+export function ChatMessageTimeline({ messages, meProfileId, locale, participantNames, readBy = [] }: {
   messages: TimelineMessage[];
   meProfileId: Id<"profiles">;
   locale: string;
   participantNames?: Record<string, string>;
+  readBy?: { profileId: Id<"profiles">; displayName: string; readThroughAt: number }[];
 }) {
   const t = useTranslations("Chats");
   const ordered = [...messages].reverse();
+  const lastOwn = [...ordered].reverse().find(message => message.senderProfileId === meProfileId)?._id;
   const dayFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
   const timeFormatter = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" });
 
@@ -50,6 +52,12 @@ export function ChatMessageTimeline({ messages, meProfileId, locale, participant
             </BubbleContent>
           </Bubble>
         </div>
+        {own && message._id === lastOwn && readBy.some(reader => reader.readThroughAt >= message.createdAt) && <p
+          role="status" className="mt-1 text-end text-[0.7rem] text-muted-foreground" dir="auto">
+          {participantNames
+            ? t("readBy", { names: readBy.filter(reader => reader.readThroughAt >= message.createdAt).map(reader => reader.displayName).join(", ") })
+            : t("seen")}
+        </p>}
       </li>;
     })}
   </ol>;

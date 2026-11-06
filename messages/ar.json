@@ -121,7 +121,13 @@
     "groupParticipant": "عضو في المجموعة",
     "searchConversations": "دوّر على محادثة",
     "noMatchingConversations": "مفيش محادثات مطابقة للبحث.",
-    "groupConversation": "مجموعة خاصة"
+    "groupConversation": "مجموعة خاصة",
+    "onlineNow": "متصل الآن",
+    "lastSeenAt": "آخر ظهور: {date}",
+    "typingSingle": "{name} بيكتب…",
+    "typingMultiple": "{names} بيكتبوا…",
+    "seen": "اتقرت",
+    "readBy": "قرأها: {names}"
   },
   "Connections": {
     "description": "ناسِك اللي تختارهم، وعلى راحتك. مفيش دليل عام ولا طلبات من غرباء.",

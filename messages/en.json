@@ -121,7 +121,13 @@
     "groupParticipant": "Group member",
     "searchConversations": "Find a conversation",
     "noMatchingConversations": "No conversations match your search.",
-    "groupConversation": "Private group"
+    "groupConversation": "Private group",
+    "onlineNow": "Online now",
+    "lastSeenAt": "Last seen {date}",
+    "typingSingle": "{name} is typing…",
+    "typingMultiple": "{names} are typing…",
+    "seen": "Seen",
+    "readBy": "Read by {names}"
   },
   "Connections": {
     "description": "Your people, your pace. No public directory, no random requests — just the friends you choose.",
