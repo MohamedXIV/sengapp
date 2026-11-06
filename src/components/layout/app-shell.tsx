@@ -4,6 +4,9 @@ import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { existingPresenceSessionId } from "@/lib/presence/session";
 import { useTranslations } from "next-intl";
 import { HeartHandshake, MessageCircle, Palette, Settings2, Shield, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -77,6 +80,18 @@ function AppShellContent({
   children, userRole = "member", displayName = "Member", handle = "squirrel", locale = "en",
 }: AppShellProps) {
   const { signOut } = useClerk();
+  const endSession = useMutation(api.activity.endSession);
+  async function signOutCleanly() {
+    const id = existingPresenceSessionId();
+    if (id) {
+      // An offline client must still be able to sign out promptly.
+      await Promise.race([
+        endSession({ sessionId: id }).catch(() => {}),
+        new Promise<void>(resolve => setTimeout(resolve, 500)),
+      ]);
+    }
+    await signOut({ redirectUrl: "/login" });
+  }
   const pathname = usePathname();
   const t = useTranslations("Navigation");
   const common = useTranslations("Common");
@@ -139,7 +154,7 @@ function AppShellContent({
               </Badge>
             </div>
           </div>
-          <SidebarQuickActions locale={locale} onSignOut={() => void signOut({ redirectUrl: "/login" })} />
+          <SidebarQuickActions locale={locale} onSignOut={() => void signOutCleanly()} />
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>

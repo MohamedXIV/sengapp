@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { GroupPanel } from "@/features/chats/group-panel";
 import { ChatMessageTimeline } from "@/features/chats/chat-message-timeline";
+import { isPeerOnline, nextSignalExpiry } from "@/lib/presence/session";
 
 interface PendingMessage { body: string; clientNonce: string }
 
@@ -31,8 +32,9 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
   const setTyping = useMutation(api.activity.setTyping);
   const markRead = useMutation(api.activity.markRead);
   const myProfile = useQuery(api.profiles.getMine);
-  const [refreshToken, setRefreshToken] = useState(0);
-  const signals = useQuery(api.activity.getConversationSignals, { conversationId, refreshToken });
+  // A stable reactive subscription; local time handles lease expiry.
+  const signals = useQuery(api.activity.getConversationSignals, { conversationId });
+  const [clock, setClock] = useState(() => Date.now());
   const typingLastSent = useRef(0);
   const typingActive = useRef(false);
   const lastMarkedReadId = useRef<string | null>(null);
@@ -68,16 +70,22 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
   }, [conversationId]);
 
   useEffect(() => {
-    const refresh = () => {
-      if (document.visibilityState === "visible") setRefreshToken(value => value + 1);
-    };
-    const timer = window.setInterval(refresh, 10_000);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      window.clearInterval(timer);
-      document.removeEventListener("visibilitychange", refresh);
-    };
-  }, [conversationId]);
+    // A local timeout runs only at the next actual Online/Typing expiry.
+    const expiry = nextSignalExpiry(signals?.peerOnlineUntil, signals?.typing, clock);
+    if (expiry === null) return;
+    const timeout = window.setTimeout(
+      () => setClock(Date.now()), Math.max(1, expiry - Date.now() + 20),
+    );
+    return () => window.clearTimeout(timeout);
+  }, [signals, clock]);
+
+  useEffect(() => {
+    function onResume() {
+      if (document.visibilityState === "visible") setClock(Date.now());
+    }
+    document.addEventListener("visibilitychange", onResume);
+    return () => document.removeEventListener("visibilitychange", onResume);
+  }, []);
 
   useEffect(() => {
     const latest = results[0];
@@ -167,7 +175,9 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
     }
   }
 
-  const typingNames = signals?.typing?.map(member => member.displayName) ?? [];
+  const peerIsOnline = isPeerOnline(signals?.peerOnlineUntil, clock);
+  const typingNames = signals?.typing?.filter(item => item.expiresAt > clock)
+    .map(member => member.displayName) ?? [];
   const lastSeenLabel = signals?.peerLastSeenAt
     ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(signals.peerLastSeenAt)
     : null;
@@ -193,8 +203,8 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-lg font-bold sm:text-xl" dir="auto">{info?.displayName ?? t("loadingConversation")}</h1>
         {info?.kind === "direct" && info.handle && <p dir="ltr" className="text-xs text-muted-foreground">@{info.handle}</p>}
-        {info?.kind === "direct" && signals?.peerOnline === true && <p role="status" className="text-xs font-medium text-primary">{t("onlineNow")}</p>}
-        {info?.kind === "direct" && signals?.peerOnline !== true && lastSeenLabel && <p className="text-xs text-muted-foreground">{t("lastSeenAt", { date: lastSeenLabel })}</p>}
+        {info?.kind === "direct" && peerIsOnline && <p role="status" className="text-xs font-medium text-primary">{t("onlineNow")}</p>}
+        {info?.kind === "direct" && !peerIsOnline && lastSeenLabel && <p className="text-xs text-muted-foreground">{t("lastSeenAt", { date: lastSeenLabel })}</p>}
         {info?.kind === "group" && <p className="text-xs text-muted-foreground">{t("members")} · {group?.members.length ?? "…"}</p>}
       </div>
       {info?.kind === "group" && <Sheet>

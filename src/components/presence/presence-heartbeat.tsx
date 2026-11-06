@@ -3,33 +3,56 @@
 import { useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { activePresenceSessionId } from "@/lib/presence/session";
 
-const HEARTBEAT_INTERVAL_MS = 30_000;
+// Keep one foreground lease per tab. Convex already pushes query updates.
+const HEARTBEAT_INTERVAL_MS = 40_000;
+const HEARTBEAT_MIN_LOCAL_MS = 25_000;
 
-/** One foreground-only lease for the whole app, shared by Classic and Cozy.
- * A background tab never signs out another tab; the server expires leases. */
 export function PresenceHeartbeat() {
   const profile = useQuery(api.profiles.getMine);
   const heartbeat = useMutation(api.activity.heartbeat);
+  const endSession = useMutation(api.activity.endSession);
   const enabled = Boolean(profile?.presencePreferences.onlineStatus || profile?.presencePreferences.lastSeen);
 
   useEffect(() => {
     if (!enabled || !profile?._id) return;
-    function pulse() {
-      if (document.visibilityState !== "visible" || !navigator.onLine) return;
-      void heartbeat({}).catch(() => { /* offline/revoked session: lease simply expires */ });
+    const sessionId = activePresenceSessionId();
+    let active = false;
+    let lastPulseAt = 0;
+    function stop() {
+      if (!active) return;
+      active = false;
+      lastPulseAt = 0;
+      // Best effort: a force-closed tab may not deliver this; the lease expires.
+      void endSession({ sessionId }).catch(() => {});
     }
-    pulse();
-    const interval = window.setInterval(pulse, HEARTBEAT_INTERVAL_MS);
-    document.addEventListener("visibilitychange", pulse);
-    window.addEventListener("focus", pulse);
-    window.addEventListener("online", pulse);
+    function heartbeatIfVisible() {
+      if (document.visibilityState !== "visible" || !navigator.onLine) return;
+      const now = Date.now();
+      if (active && now - lastPulseAt < HEARTBEAT_MIN_LOCAL_MS) return;
+      active = true;
+      lastPulseAt = now;
+      void heartbeat({ sessionId }).catch(() => {});
+    }
+    function visibilityChanged() {
+      if (document.visibilityState === "visible") heartbeatIfVisible();
+      else stop();
+    }
+    heartbeatIfVisible();
+    const interval = window.setInterval(heartbeatIfVisible, HEARTBEAT_INTERVAL_MS);
+    document.addEventListener("visibilitychange", visibilityChanged);
+    window.addEventListener("focus", heartbeatIfVisible);
+    window.addEventListener("online", heartbeatIfVisible);
+    window.addEventListener("pagehide", stop);
     return () => {
       window.clearInterval(interval);
-      document.removeEventListener("visibilitychange", pulse);
-      window.removeEventListener("focus", pulse);
-      window.removeEventListener("online", pulse);
+      document.removeEventListener("visibilitychange", visibilityChanged);
+      window.removeEventListener("focus", heartbeatIfVisible);
+      window.removeEventListener("online", heartbeatIfVisible);
+      window.removeEventListener("pagehide", stop);
+      stop();
     };
-  }, [enabled, heartbeat, profile?._id]);
+  }, [enabled, heartbeat, endSession, profile?._id]);
   return null;
 }
