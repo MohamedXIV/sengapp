@@ -66,9 +66,10 @@ export function AppearanceSettings({ initialPreferences, initialMode, onSave }: 
 
   function reset() {
     setDraft(DEFAULT_VISUAL_PREFERENCES);
-    setModeDraft({ base: initialMode, value: "system" });
+    // New accounts default to Light; Reset should match that product default.
+    setModeDraft({ base: initialMode, value: "light" });
     setPreview(DEFAULT_VISUAL_PREFERENCES);
-    previewMode("system");
+    previewMode("light");
     setError("");
     setStatus(t("resetPreview"));
   }
