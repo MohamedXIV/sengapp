@@ -287,7 +287,7 @@
   "Appearance": {
     "title": "Appearance",
     "aria": "Appearance settings",
-    "description": "Make your own cozy space. Every choice stays private to your account.",
+    "description": "A little more you. Colors, corners, shadows and spacing stay in sync across Classic and Cozy.",
     "collection": "Theme collection",
     "acorn": "Acorn",
     "forest": "Forest",
@@ -326,7 +326,13 @@
     "saved": "Appearance saved for your account.",
     "saveFailed": "Could not save appearance settings.",
     "guestPreview": "Preview window styles locally",
-    "guestSignIn": "Sign in to save all appearance"
+    "guestSignIn": "Sign in to save all appearance",
+    "shadowLevel": "Shadow depth",
+    "shadow_none": "No shadows",
+    "shadow_soft": "Soft shadows",
+    "shadow_raised": "Raised shadows",
+    "sharedPreviewNote": "One appearance for both Classic and Cozy. No separate glass or paper materials.",
+    "previewReply": "That looks lovely! ✨"
   },
   "Operator": {
     "title": "Operator tools",

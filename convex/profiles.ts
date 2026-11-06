@@ -213,21 +213,27 @@ export const updateAppearance = mutation({
     density: v.union(v.literal("comfortable"), v.literal("compact")),
     shadow: v.optional(v.union(v.literal("none"), v.literal("soft"), v.literal("raised"))),
     themePreference: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
-    windowStyle: v.object({
+    // Legacy optional input: newer UIs do not expose material controls.
+    // Keep accepting old clients, but preserve stored window styles if omitted.
+    windowStyle: v.optional(v.object({
       material: v.union(v.literal("glass"), v.literal("paper")),
       opacity: v.number(),
       blur: v.number(),
       atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),
-    }),
+    })),
   },
   handler: async (ctx, { themePreference, windowStyle, ...visualPreferences }) => {
     const profile = await requireAuthorizedProfile(ctx);
-    if (!Number.isInteger(windowStyle.opacity) || windowStyle.opacity < 65 || windowStyle.opacity > 100
-      || !Number.isInteger(windowStyle.blur) || windowStyle.blur < 0 || windowStyle.blur > 28) {
+    if (windowStyle && (!Number.isInteger(windowStyle.opacity) || windowStyle.opacity < 65 || windowStyle.opacity > 100
+      || !Number.isInteger(windowStyle.blur) || windowStyle.blur < 0 || windowStyle.blur > 28)) {
       throw new ConvexError({ code: "INVALID_WINDOW_STYLE" });
     }
     const updatedAt = Date.now();
-    await ctx.db.patch(profile._id, { visualPreferences, themePreference, windowStyle, updatedAt });
+    await ctx.db.patch(profile._id, {
+      visualPreferences, themePreference,
+      ...(windowStyle ? { windowStyle } : {}),
+      updatedAt,
+    });
     return { updatedAt };
   },
 });
