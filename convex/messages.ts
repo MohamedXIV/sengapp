@@ -3,7 +3,7 @@ import { paginationOptsValidator, paginationResultValidator } from "convex/serve
 import { mutation, query } from "./_generated/server";
 import { assertDirectNotBlocked, requireDirectConversation } from "./lib/directAccess";
 import { requireGroupMember } from "./lib/groupAccess";
-import type { Doc, Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
 const MAX_TEXT_LENGTH = 2_000;

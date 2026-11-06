@@ -43,7 +43,7 @@ describe("private replies, edits, deletes and emoji reactions", () => {
   });
 
   it("replies only to a visible message in the same conversation and makes retries idempotent", async () => {
-    const { t, alice, bob, outsider, conversationId } = await fixture();
+    const { t, alice, bob, outsider, aliceId, conversationId } = await fixture();
     const targetId = await alice.mutation(api.messages.send, {
       conversationId, body: "Where?", clientNonce: "message-reply-target01",
     });
@@ -57,16 +57,19 @@ describe("private replies, edits, deletes and emoji reactions", () => {
     expect(rows[0]).toMatchObject({
       replyToMessageId: targetId, replyPreview: { body: "Where?" },
     });
+    const foreignId = await t.run(async ctx => {
+      const foreignConversation = await ctx.db.insert("conversations", {
+        kind: "group", groupName: "Hidden", ownerProfileId: aliceId,
+        createdAt: Date.now(), updatedAt: Date.now(),
+      });
+      return ctx.db.insert("messages", {
+        conversationId: foreignConversation, senderProfileId: aliceId,
+        body: "Private", clientNonce: "message-reply-foreign1", createdAt: Date.now(),
+      });
+    });
     await expect(bob.mutation(api.messages.send, {
       ...replyArgs, clientNonce: "message-reply-outsider1", body: "new",
-      replyToMessageId: await t.run(ctx => ctx.db.insert("messages", {
-        conversationId: await ctx.db.insert("conversations", {
-          kind: "group", groupName: "hidden", ownerProfileId: (await alice.query(api.profiles.getMine, {}))!._id,
-          createdAt: Date.now(), updatedAt: Date.now(),
-        }),
-        senderProfileId: (await alice.query(api.profiles.getMine, {}))!._id, body: "private",
-        clientNonce: "message-reply-foreign1", createdAt: Date.now(),
-      })),
+      replyToMessageId: foreignId,
     })).rejects.toThrow();
     await expect(outsider.mutation(api.messages.send, {
       conversationId, body: "No access", clientNonce: "message-reply-noaccess1", replyToMessageId: targetId,
