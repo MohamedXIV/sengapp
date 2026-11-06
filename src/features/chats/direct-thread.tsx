@@ -81,7 +81,7 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
 
   useEffect(() => {
     const latest = results[0];
-    if (!latest || status === "LoadingFirstPage" || !myProfile?.presencePreferences.readReceipts) return;
+    if (!latest || status === "LoadingFirstPage" || !myProfile?.presencePreferences?.readReceipts) return;
     const read = () => {
       const viewport = scroller.current?.getBoundingClientRect();
       if (!viewport || viewport.width <= 0 || viewport.height <= 0
@@ -104,10 +104,10 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
       observer?.disconnect();
       document.removeEventListener("visibilitychange", read);
     };
-  }, [conversationId, results, status, myProfile?.presencePreferences.readReceipts, markRead, readScrollRevision]);
+  }, [conversationId, results, status, myProfile?.presencePreferences?.readReceipts, markRead, readScrollRevision]);
 
   function broadcastTyping(value: string) {
-    if (!myProfile?.presencePreferences.typingIndicators) return;
+    if (!myProfile?.presencePreferences?.typingIndicators) return;
     if (!value.trim()) {
       if (typingActive.current) {
         typingActive.current = false;

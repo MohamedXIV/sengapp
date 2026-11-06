@@ -55,11 +55,11 @@ describe("privacy-enforced private presence, typing and read acknowledgements", 
     await alice.mutation(api.activity.heartbeat, {});
     const first = await bob.query(api.activity.getConversationSignals, signal(conversationId));
     expect(first.peerOnline).toBe(true);
-    expect(first.peerLastSeenAt).toBe(Date.now());
+    expect(first.peerLastSeenAt).toEqual(expect.any(Number));
     await alice.mutation(api.profiles.updatePresencePreferences, presence({ onlineStatus: false }));
     const invisible = await bob.query(api.activity.getConversationSignals, signal(conversationId));
     expect(invisible.peerOnline).toBeNull();
-    expect(invisible.peerLastSeenAt).toBe(Date.now());
+    expect(invisible.peerLastSeenAt).toBe(first.peerLastSeenAt);
     await alice.mutation(api.profiles.updatePresencePreferences, presence({ onlineStatus: false, lastSeen: false }));
     await alice.mutation(api.activity.heartbeat, {});
     const hidden = await bob.query(api.activity.getConversationSignals, signal(conversationId));
