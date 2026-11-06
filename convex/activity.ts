@@ -6,8 +6,10 @@ import { requireGroupMember } from "./lib/groupAccess";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
-const PRESENCE_TTL_MS = 75_000;
-const HEARTBEAT_MIN_MS = 20_000;
+const PRESENCE_TTL_MS = 70_000;
+const HEARTBEAT_MIN_MS = 25_000;
+const MAX_ACTIVE_SESSIONS = 12;
+const SESSION_ID_PATTERN = /^[a-f0-9-]{36}$/;
 const TYPING_TTL_MS = 7_000;
 const TYPING_MIN_MS = 2_500;
 const MAX_GROUP_MEMBERS = 33;
@@ -22,27 +24,53 @@ async function requireConversationAccess(ctx: DbCtx, conversationId: Id<"convers
     return { kind: "group" as const, ...group };
   }
   const direct = await requireDirectConversation(ctx, conversationId);
-  await assertDirectNotBlocked(ctx, direct.me._id, direct.peer._id);
-  return { kind: "direct" as const, ...direct };
-}
-
-/** Called only while a signed-in, authorized member has the app in the foreground.
- * No explicit offline mutation: a hidden tab must not override another live tab. */
+  await assertDirectNotBlocked(ctx, direct./** A single cheap profile document tracks a bounded set of foreground tabs.
+ * Closing one tab cannot mistakenly mark another active tab offline.
+ * The client attempts to retire tabs early; leases still expire if the browser
+ * terminates abruptly without delivering a mutation. */
 export const heartbeat = mutation({
-  args: {},
+  args: { sessionId: v.string() },
   returns: v.null(),
-  handler: async ctx => {
+  handler: async (ctx, { sessionId }) => {
     const me = await requireAuthorizedProfile(ctx);
+    if (!SESSION_ID_PATTERN.test(sessionId)) return null;
     if (!me.presencePreferences.onlineStatus && !me.presencePreferences.lastSeen) return null;
     const now = Date.now();
     const existing = await ctx.db.query("profileActivity")
       .withIndex("by_profile", q => q.eq("profileId", me._id)).unique();
-    if (existing) {
-      if (now - existing.lastActiveAt >= HEARTBEAT_MIN_MS) {
-        await ctx.db.patch(existing._id, { lastActiveAt: now });
-      }
-    } else {
-      await ctx.db.insert("profileActivity", { profileId: me._id, lastActiveAt: now });
+    const current = existing?.sessions?.find(item => item.sessionId === sessionId);
+    if (current && now - current.lastActiveAt < HEARTBEAT_MIN_MS) return null;
+    const sessions = (existing?.sessions ?? [])
+      .filter(item => item.sessionId !== sessionId && item.lastActiveAt + PRESENCE_TTL_MS > now)
+      .sort((left, right) => right.lastActiveAt - left.lastActiveAt)
+      .slice(0, MAX_ACTIVE_SESSIONS - 1);
+    sessions.push({ sessionId, lastActiveAt: now });
+    if (existing) await ctx.db.patch(existing._id, { sessions, lastActiveAt: now });
+    else await ctx.db.insert("profileActivity", { profileId: me._id, lastActiveAt: now, sessions });
+    return null;
+  },
+});
+
+/** Best effort: unmount, tab hidden and explicit sign-out can retire only
+ * their own lease. Other foreground tabs stay online. */
+export const endSession = mutation({
+  args: { sessionId: v.string() },
+  returns: v.null(),
+  handler: async (ctx, { sessionId }) => {
+    const me = await requireAuthorizedProfile(ctx);
+    if (!SESSION_ID_PATTERN.test(sessionId)) return null;
+    const existing = await ctx.db.query("profileActivity")
+      .withIndex("by_profile", q => q.eq("profileId", me._id)).unique();
+    if (!existing?.sessions?.some(item => item.sessionId === sessionId)) return null;
+    await ctx.db.patch(existing._id, {
+      sessions: existing.sessions.filter(item => item.sessionId !== sessionId),
+      lastActiveAt: Math.max(Date.now(), existing.lastActiveAt),
+    });
+    return null;
+  },
+});
+
+, { profileId: me._id, lastActiveAt: now });
     }
     return null;
   },
@@ -92,19 +120,22 @@ export const markRead = mutation({
   },
 });
 
-/** Server-scoped signals. Refreshing the query argument merely forces a
- * re-evaluation of TTLs; caller-supplied times NEVER determine visibility. */
+/** Stable, cacheable subscription; timestamps are expiry metadata, never
+ * query arguments or server-side Date.now()-based display decisions. */
 export const getConversationSignals = query({
-  args: { conversationId: v.id("conversations"), refreshToken: v.optional(v.number()) },
+  args: { conversationId: v.id("conversations") },
   returns: v.object({
-    peerOnline: v.union(v.boolean(), v.null()),
+    peerOnlineUntil: v.union(v.number(), v.null()),
     peerLastSeenAt: v.union(v.number(), v.null()),
-    typing: v.array(v.object({ profileId: v.id("profiles"), displayName: v.string() })),
-    readBy: v.array(v.object({ profileId: v.id("profiles"), displayName: v.string(), readThroughAt: v.number() })),
+    typing: v.array(v.object({
+      profileId: v.id("profiles"), displayName: v.string(), expiresAt: v.number(),
+    })),
+    readBy: v.array(v.object({
+      profileId: v.id("profiles"), displayName: v.string(), readThroughAt: v.number(),
+    })),
   }),
   handler: async (ctx, { conversationId }) => {
     const access = await requireConversationAccess(ctx, conversationId);
-    const now = Date.now();
     if (access.kind === "direct") {
       const { me, peer } = access;
       const [activity, typing, membership] = await Promise.all([
@@ -115,11 +146,13 @@ export const getConversationSignals = query({
           q => q.eq("conversationId", conversationId).eq("profileId", peer._id)).unique(),
       ]);
       return {
-        peerOnline: peer.presencePreferences.onlineStatus ? Boolean(activity && now - activity.lastActiveAt < PRESENCE_TTL_MS) : null,
+        peerOnlineUntil: peer.presencePreferences.onlineStatus
+          ? Math.max(0, ...(activity?.sessions ?? []).map(session => session.lastActiveAt + PRESENCE_TTL_MS)) : null,
         peerLastSeenAt: peer.presencePreferences.lastSeen ? activity?.lastActiveAt ?? null : null,
-        typing: peer.presencePreferences.typingIndicators && typing && typing.expiresAt > now
-          ? [{ profileId: peer._id, displayName: peer.displayName }] : [],
-        readBy: me.presencePreferences.readReceipts && peer.presencePreferences.readReceipts && membership?.readThroughAt !== undefined
+        typing: peer.presencePreferences.typingIndicators && typing
+          ? [{ profileId: peer._id, displayName: peer.displayName, expiresAt: typing.expiresAt }] : [],
+        readBy: me.presencePreferences.readReceipts && peer.presencePreferences.readReceipts
+          && membership?.readThroughAt !== undefined
           ? [{ profileId: peer._id, displayName: peer.displayName, readThroughAt: membership.readThroughAt }] : [],
       };
     }
@@ -135,16 +168,15 @@ export const getConversationSignals = query({
       ]);
       if (!peer || peer.status !== "active") return null;
       return {
-        typing: peer.presencePreferences.typingIndicators && typing && typing.expiresAt > now
-          && typing.updatedAt >= membership.joinedAt
-          ? { profileId: peer._id, displayName: peer.displayName } : null,
+        typing: peer.presencePreferences.typingIndicators && typing && typing.updatedAt >= membership.joinedAt
+          ? { profileId: peer._id, displayName: peer.displayName, expiresAt: typing.expiresAt } : null,
         read: access.me.presencePreferences.readReceipts && peer.presencePreferences.readReceipts
           && membership.readThroughAt !== undefined && membership.readThroughAt > membership.joinedAt
           ? { profileId: peer._id, displayName: peer.displayName, readThroughAt: membership.readThroughAt } : null,
       };
     }));
     return {
-      peerOnline: null,
+      peerOnlineUntil: null,
       peerLastSeenAt: null,
       typing: signals.flatMap(x => x?.typing ? [x.typing] : []),
       readBy: signals.flatMap(x => x?.read ? [x.read] : []),

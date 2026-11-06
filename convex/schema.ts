@@ -129,6 +129,9 @@ export default defineSchema({
   profileActivity: defineTable({
     profileId: v.id("profiles"),
     lastActiveAt: v.number(),
+    sessions: v.optional(v.array(v.object({
+      sessionId: v.string(), lastActiveAt: v.number(),
+    }))),
   }).index("by_profile", ["profileId"]),
 
   // One bounded, expiring record per member and conversation; text is never stored.
