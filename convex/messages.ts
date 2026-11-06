@@ -141,7 +141,7 @@ export const edit = mutation({
     const now = Date.now();
     if (now > message.createdAt + EDIT_WINDOW_MS) throw new ConvexError({ code: "EDIT_WINDOW_EXPIRED" });
     const normalized = validBody(body);
-    if (message.body !== normalized) await ctx.db.patch(messageId, { body: normalized, editedAt: now });
+    if (message.body !== normalized) await ctx.db.patch(messageId, { body: normalized, editedAt: Math.max(now, message.createdAt) });
     return null;
   },
 });
@@ -155,7 +155,7 @@ export const remove = mutation({
     if (message.deletedAt) return null;
     // A tombstone keeps ordering and older replies intact, without retaining
     // the message text or reactions in the active record.
-    await ctx.db.patch(messageId, { body: "", reactions: [], deletedAt: Date.now() });
+    await ctx.db.patch(messageId, { body: "", reactions: [], deletedAt: Math.max(Date.now(), message.createdAt) });
     return null;
   },
 });
