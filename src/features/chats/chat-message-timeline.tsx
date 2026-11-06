@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { Marker, MarkerContent } from "@/components/ui/marker";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import { Message, MessageAvatar, MessageContent, MessageFooter, MessageHeader } from "@/components/ui/message";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MessageActions } from "@/features/chats/message-actions";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
 
@@ -29,7 +31,8 @@ export function ChatMessageTimeline({
   const dayFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
   const timeFormatter = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" });
 
-  return <ol role="log" aria-label={t("conversationHistory")} aria-live="polite" aria-relevant="additions text" className="space-y-1">
+  return <ol role="log" aria-label={t("conversationHistory")}
+    aria-live="polite" aria-relevant="additions text" className="space-y-1">
     {ordered.map((message, index) => {
       const previous = ordered[index - 1];
       const newDay = !previous || dayFormatter.format(previous.createdAt) !== dayFormatter.format(message.createdAt);
@@ -38,6 +41,8 @@ export function ChatMessageTimeline({
       const own = message.senderProfileId === meProfileId;
       const name = participantNames?.[message.senderProfileId] ?? t("groupParticipant");
       const canAct = !message.deletedAt && onReply && onReact;
+      const seenBy = own && message._id === lastOwn
+        ? readBy.filter(reader => reader.readThroughAt >= message.createdAt) : [];
 
       return <li key={message._id} data-message-id={message._id}
         className={newDay ? "pt-3" : grouped ? "pt-0.5" : "pt-3"}>
@@ -46,46 +51,45 @@ export function ChatMessageTimeline({
             {dayFormatter.format(message.createdAt)}
           </MarkerContent>
         </Marker>}
-        <div className={`group/message flex items-end gap-1 ${own ? "justify-end" : "justify-start"}`}>
-          {!own && participantNames && <span aria-hidden="true"
-            className={`flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[0.7rem] font-bold text-secondary-foreground ${grouped ? "invisible" : ""}`}>
-            {name.trim().slice(0, 1).toLocaleUpperCase(locale)}
-          </span>}
-          <Bubble data-message-owner={own ? "self" : "other"}
-            align={own ? "end" : "start"} variant={own ? "tinted" : "muted"}
-            className={own ? "rounded-ee-md" : "rounded-es-md"}>
-            <BubbleContent>
-              {!own && participantNames && !grouped && <p dir="auto" className="mb-1 text-xs font-semibold text-primary">{name}</p>}
-              {message.replyToMessageId && <div className="mb-2 max-w-full border-s-2 border-primary/40 bg-background/45 px-2 py-1 text-xs text-muted-foreground"
-                data-testid="reply-preview" dir="auto">
-                <span className="block font-semibold">{t("reply")}</span>
-                <span className="line-clamp-2 break-words">{message.replyPreview?.body ?? t("replyUnavailable")}</span>
-              </div>}
-              {message.deletedAt
-                ? <p className="text-sm italic text-muted-foreground">{t("messageDeleted")}</p>
-                : <p className="whitespace-pre-wrap break-words text-sm leading-relaxed" dir="auto">{message.body}</p>}
-              <div className="mt-1 flex justify-end gap-1 text-[0.65rem] text-muted-foreground">
-                {!message.deletedAt && message.editedAt && <span>{t("edited")}</span>}
-                <time dateTime={new Date(message.createdAt).toISOString()} className="tabular-nums">
-                  {timeFormatter.format(message.createdAt)}
-                </time>
-              </div>
-            </BubbleContent>
-          </Bubble>
-          {canAct && <div className="self-end">
-            <MessageActions own={own} meProfileId={meProfileId} reactions={message.reactions}
-              onReply={() => onReply(message)}
-              onEdit={own && onEdit ? () => onEdit(message) : undefined}
-              onDelete={own && onDelete ? () => onDelete(message) : undefined}
-              onReact={emoji => onReact(message, emoji)} />
-          </div>}
-        </div>
-        {own && message._id === lastOwn && readBy.some(reader => reader.readThroughAt >= message.createdAt) && <p
-          role="status" className="mt-1 text-end text-[0.7rem] text-muted-foreground" dir="auto">
-          {participantNames
-            ? t("readBy", { names: readBy.filter(reader => reader.readThroughAt >= message.createdAt).map(reader => reader.displayName).join(", ") })
-            : t("seen")}
-        </p>}
+        <Message align={own ? "end" : "start"} data-message-owner={own ? "self" : "other"}>
+          {!own && participantNames && <MessageAvatar className={grouped ? "invisible" : ""}>
+            <Avatar size="sm">
+              <AvatarFallback className="bg-secondary text-secondary-foreground font-semibold">
+                {name.trim().slice(0, 1).toLocaleUpperCase(locale)}
+              </AvatarFallback>
+            </Avatar>
+          </MessageAvatar>}
+          <MessageContent className="gap-1.5">
+            {!own && participantNames && !grouped && <MessageHeader>{name}</MessageHeader>}
+            <Bubble align={own ? "end" : "start"} variant={own ? "tinted" : "muted"}>
+              <BubbleContent className={own ? "rounded-ee-md" : "rounded-es-md"}>
+                {message.replyToMessageId && <div
+                  className="mb-2 max-w-full border-s-2 border-primary/40 bg-background/45 px-2 py-1 text-xs text-muted-foreground"
+                  data-testid="reply-preview" dir="auto">
+                  <span className="block font-semibold">{t("reply")}</span>
+                  <span className="line-clamp-2 break-words">{message.replyPreview?.body ?? t("replyUnavailable")}</span>
+                </div>}
+                {message.deletedAt
+                  ? <p className="italic text-muted-foreground">{t("messageDeleted")}</p>
+                  : <p className="whitespace-pre-wrap break-words text-sm leading-relaxed" dir="auto">{message.body}</p>}
+              </BubbleContent>
+            </Bubble>
+            <MessageFooter className="flex-wrap gap-x-2 gap-y-1 px-1">
+              <time dateTime={new Date(message.createdAt).toISOString()} className="text-[0.7rem] tabular-nums">
+                {timeFormatter.format(message.createdAt)}
+              </time>
+              {!message.deletedAt && message.editedAt && <span className="text-[0.7rem]">{t("edited")}</span>}
+              {canAct && <MessageActions own={own} meProfileId={meProfileId} reactions={message.reactions}
+                onReply={() => onReply(message)}
+                onEdit={own && onEdit ? () => onEdit(message) : undefined}
+                onDelete={own && onDelete ? () => onDelete(message) : undefined}
+                onReact={emoji => onReact(message, emoji)} />}
+            </MessageFooter>
+            {seenBy.length > 0 && <MessageFooter role="status" className="px-1 text-[0.7rem]" dir="auto">
+              {participantNames ? t("readBy", { names: seenBy.map(reader => reader.displayName).join(", ") }) : t("seen")}
+            </MessageFooter>}
+          </MessageContent>
+        </Message>
       </li>;
     })}
   </ol>;

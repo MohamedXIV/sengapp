@@ -1,6 +1,9 @@
 "use client";
 
-import * as Menu from "@radix-ui/react-dropdown-menu";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
+  DropdownMenuItem, DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, MessageSquareReply, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -28,29 +31,29 @@ export function MessageActions({
   })).filter(item => item.count > 0);
 
   return <div className="flex min-w-0 flex-wrap items-center gap-1">
-    <Menu.Root>
-      <Menu.Trigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button type="button" size="icon" variant="ghost" className="size-8 shrink-0 rounded-full text-muted-foreground sm:opacity-0 sm:group-hover/message:opacity-100 sm:group-focus-within/message:opacity-100 sm:focus-visible:opacity-100"
           aria-label={t("messageActions")}>
           <MoreHorizontal className="size-4" aria-hidden="true" />
         </Button>
-      </Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Content sideOffset={5} align={own ? "end" : "start"}
-          className="z-[100] min-w-44 rounded-xl border bg-popover p-1 text-popover-foreground shadow-lg outline-none">
-          <Menu.Item onSelect={onReply}
-            className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm outline-none focus:bg-accent">
+      </DropdownMenuTrigger>
+      
+        <DropdownMenuContent sideOffset={5} align={own ? "end" : "start"}
+          className="z-[120] min-w-48 rounded-xl shadow-xl">
+          <DropdownMenuItem onSelect={onReply}
+            className="min-h-9 rounded-lg px-3">
             <MessageSquareReply className="size-4" aria-hidden="true" />{t("reply")}
-          </Menu.Item>
-          {own && onEdit && <Menu.Item onSelect={onEdit}
-            className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm outline-none focus:bg-accent">
+          </DropdownMenuItem>
+          {own && onEdit && <DropdownMenuItem onSelect={onEdit}
+            className="min-h-9 rounded-lg px-3">
             <Pencil className="size-4" aria-hidden="true" />{t("editMessage")}
-          </Menu.Item>}
-          {own && onDelete && <Menu.Item onSelect={onDelete}
-            className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive outline-none focus:bg-destructive/10">
+          </DropdownMenuItem>}
+          {own && onDelete && <DropdownMenuItem onSelect={onDelete}
+            variant="destructive" className="min-h-9 rounded-lg px-3">
             <Trash2 className="size-4" aria-hidden="true" />{t("deleteMessage")}
-          </Menu.Item>}
-          <Menu.Separator className="my-1 h-px bg-border" />
+          </DropdownMenuItem>}
+          <DropdownMenuSeparator  />
           <div role="group" aria-label={t("reactions")} className="flex items-center gap-1 p-1">
             {REACTIONS.map(emoji => <button type="button" key={emoji}
               aria-label={t("reactWith", { emoji })}
@@ -59,9 +62,9 @@ export function MessageActions({
               {emoji}
             </button>)}
           </div>
-        </Menu.Content>
-      </Menu.Portal>
-    </Menu.Root>
+        </DropdownMenuContent>
+      
+    </DropdownMenu>
     {counts.map(({ emoji, count, mine }) => <button key={emoji} type="button"
       onClick={() => onReact(emoji)} aria-label={t("reactionCount", { emoji, count })}
       aria-pressed={mine}
