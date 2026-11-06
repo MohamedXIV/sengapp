@@ -135,7 +135,7 @@ export function SengappStudio() {
 
   useEffect(() => {
     const saved = readAppearance();
-    if (saved) setAppearance(saved);
+    if (saved) queueMicrotask(() => setAppearance(saved));
   }, []);
   useEffect(() => {
     try { window.localStorage.setItem(APPEARANCE_KEY, JSON.stringify(appearance)); } catch { /* browser storage can be blocked */ }
