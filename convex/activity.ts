@@ -24,7 +24,11 @@ async function requireConversationAccess(ctx: DbCtx, conversationId: Id<"convers
     return { kind: "group" as const, ...group };
   }
   const direct = await requireDirectConversation(ctx, conversationId);
-  await assertDirectNotBlocked(ctx, direct./** A single cheap profile document tracks a bounded set of foreground tabs.
+  await assertDirectNotBlocked(ctx, direct.me._id, direct.peer._id);
+  return { kind: "direct" as const, ...direct };
+}
+
+/** A single cheap profile document tracks a bounded set of foreground tabs.
  * Closing one tab cannot mistakenly mark another active tab offline.
  * The client attempts to retire tabs early; leases still expire if the browser
  * terminates abruptly without delivering a mutation. */
@@ -66,12 +70,6 @@ export const endSession = mutation({
       sessions: existing.sessions.filter(item => item.sessionId !== sessionId),
       lastActiveAt: Math.max(Date.now(), existing.lastActiveAt),
     });
-    return null;
-  },
-});
-
-, { profileId: me._id, lastActiveAt: now });
-    }
     return null;
   },
 });
