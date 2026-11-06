@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { ChatMessageTimeline } from "@/features/chats/chat-message-timeline";
 import { EnglishTestProvider } from "../helpers/intl";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -45,6 +45,39 @@ describe("cozy chat timeline", () => {
       <ChatMessageTimeline messages={messages} meProfileId={me} locale="en" readBy={[]} />
     </EnglishTestProvider>);
     expect(screen.queryByText("Seen")).not.toBeInTheDocument();
+  });
+
+  it("renders live reply previews, edited markers and redacted deleted messages", () => {
+    const messages = [
+      { _id: "3", senderProfileId: me, body: "", deletedAt: 4000, createdAt: 3000 },
+      { _id: "2", senderProfileId: peer, body: "I answered", createdAt: 2000,
+        replyToMessageId: "1", replyPreview: { body: null, senderProfileId: null } },
+      { _id: "1", senderProfileId: me, body: "Original", createdAt: 1000, editedAt: 1200 },
+    ] as Parameters<typeof ChatMessageTimeline>[0]["messages"];
+    render(<EnglishTestProvider>
+      <ChatMessageTimeline messages={messages} meProfileId={me} locale="en" />
+    </EnglishTestProvider>);
+    expect(screen.getByText("Original message unavailable")).toBeInTheDocument();
+    expect(screen.getByText("This message was deleted")).toBeInTheDocument();
+    expect(screen.getByText("Edited")).toBeInTheDocument();
+    expect(screen.getByText("I answered")).toBeInTheDocument();
+  });
+
+  it("keeps reactions accessible, counts them and toggles by emoji", () => {
+    const onReact = vi.fn();
+    const message = {
+      _id: "1", senderProfileId: peer, body: "React here", createdAt: 1000,
+      reactions: [{ profileId: me, emoji: "❤️" }, { profileId: peer, emoji: "❤️" }],
+    } as Parameters<typeof ChatMessageTimeline>[0]["messages"][number];
+    render(<EnglishTestProvider>
+      <ChatMessageTimeline messages={[message]} meProfileId={me} locale="en"
+        onReply={() => {}} onReact={onReact} />
+    </EnglishTestProvider>);
+    const reaction = screen.getByRole("button", { name: "❤️, 2 reactions" });
+    expect(reaction).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(reaction);
+    expect(onReact).toHaveBeenCalledWith(message, "❤️");
+    expect(screen.getByRole("button", { name: "Message options" })).toBeVisible();
   });
 
   it("renders day separators when the conversation spans different dates", () => {

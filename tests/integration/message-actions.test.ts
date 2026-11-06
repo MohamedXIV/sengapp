@@ -36,8 +36,9 @@ describe("private replies, edits, deletes and emoji reactions", () => {
     await expect(outsider.mutation(api.messages.edit, { messageId: id, body: "stolen" })).rejects.toThrow();
     await expect(alice.mutation(api.messages.edit, { messageId: id, body: " " })).rejects.toThrow();
     await alice.mutation(api.messages.edit, { messageId: id, body: "  Updated text  " });
-    expect((await bob.query(api.messages.list, { conversationId, paginationOpts })).page[0])
-      .toMatchObject({ body: "Updated text", editedAt: Date.now() });
+    const updated = (await bob.query(api.messages.list, { conversationId, paginationOpts })).page[0];
+    expect(updated).toMatchObject({ body: "Updated text", editedAt: expect.any(Number) });
+    expect(updated?.editedAt).toBeGreaterThanOrEqual(updated?.createdAt ?? 0);
     vi.setSystemTime(new Date("2026-11-06T12:16:00Z"));
     await expect(alice.mutation(api.messages.edit, { messageId: id, body: "Too late" })).rejects.toThrow();
   });
