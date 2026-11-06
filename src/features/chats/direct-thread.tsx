@@ -19,11 +19,18 @@ import { isPeerOnline, nextSignalExpiry } from "@/lib/presence/session";
 
 interface PendingMessage { body: string; clientNonce: string; replyToMessageId?: Id<"messages"> }
 
-export function DirectThread({ conversationId, meProfileId, embedded = false, onBack }: {
-  conversationId: Id<"conversations">; meProfileId: Id<"profiles">;
+interface ThreadProps {
+  conversationId: Id<"conversations">;
+  meProfileId: Id<"profiles">;
   embedded?: boolean;
   onBack?: () => void;
-}) {
+}
+
+export function DirectThread(props: ThreadProps) {
+  return <ThreadContent key={props.conversationId} {...props} />;
+}
+
+function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }: ThreadProps) {
   const t = useTranslations("Chats");
   const locale = useLocale();
   const info = useQuery(api.conversations.getOne, { conversationId });
@@ -75,12 +82,6 @@ export function DirectThread({ conversationId, meProfileId, embedded = false, on
     initialized.current = null;
     restoreOlder.current = null;
     stickToBottom.current = true;
-    setReplyingTo(null);
-    setEditingMessage(null);
-    setDeletingMessage(null);
-    setDraft("");
-    setFailed(null);
-    setActionError(false);
   }, [conversationId]);
 
   useEffect(() => {
