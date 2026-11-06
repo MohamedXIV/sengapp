@@ -30,7 +30,7 @@ export function MessageActions({
   return <div className="flex min-w-0 flex-wrap items-center gap-1">
     <Menu.Root>
       <Menu.Trigger asChild>
-        <Button type="button" size="icon" variant="ghost" className="size-8 shrink-0 rounded-full text-muted-foreground"
+        <Button type="button" size="icon" variant="ghost" className="size-8 shrink-0 rounded-full text-muted-foreground sm:opacity-0 sm:group-hover/message:opacity-100 sm:group-focus-within/message:opacity-100 sm:focus-visible:opacity-100"
           aria-label={t("messageActions")}>
           <MoreHorizontal className="size-4" aria-hidden="true" />
         </Button>

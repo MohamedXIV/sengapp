@@ -72,7 +72,7 @@ export function ChatMessageTimeline({
               </div>
             </BubbleContent>
           </Bubble>
-          {canAct && <div className="self-end sm:opacity-0 sm:group-hover/message:opacity-100 sm:group-focus-within/message:opacity-100">
+          {canAct && <div className="self-end">
             <MessageActions own={own} meProfileId={meProfileId} reactions={message.reactions}
               onReply={() => onReply(message)}
               onEdit={own && onEdit ? () => onEdit(message) : undefined}
