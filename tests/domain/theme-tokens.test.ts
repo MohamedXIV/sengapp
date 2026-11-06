@@ -21,12 +21,14 @@ describe("semantic personal-theme tokens", () => {
   it("changes independent accents, typography, radius, and density without arbitrary CSS", () => {
     const base = getThemeTokens(DEFAULT_VISUAL_PREFERENCES, "light");
     const changed = getThemeTokens({
-      preset: "ocean", accent: "violet", font: "nunito", radius: "round", density: "compact",
+      preset: "ocean", accent: "violet", font: "nunito", radius: "round", density: "compact", shadow: "raised",
     }, "light");
     expect(changed["--primary"]).not.toBe(base["--primary"]);
     expect(changed["--font-sans-app"]).toContain("Nunito");
     expect(changed["--radius"]).not.toBe(base["--radius"]);
     expect(changed["--sengapp-space"]).not.toBe(base["--sengapp-space"]);
+    expect(changed["--sengapp-shadow-card"]).not.toBe(base["--sengapp-shadow-card"]);
+    expect(getThemeTokens({ ...DEFAULT_VISUAL_PREFERENCES, shadow: "none" }, "light")["--sengapp-shadow-floating"]).toBe("none");
     expect(Object.keys(changed).every((key) => key.startsWith("--"))).toBe(true);
   });
 });

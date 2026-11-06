@@ -164,6 +164,7 @@ export const updateVisualPreferences = mutation({
     font: v.union(v.literal("system"), v.literal("inter"), v.literal("nunito")),
     radius: v.union(v.literal("subtle"), v.literal("soft"), v.literal("round")),
     density: v.union(v.literal("comfortable"), v.literal("compact")),
+    shadow: v.optional(v.union(v.literal("none"), v.literal("soft"), v.literal("raised"))),
     themePreference: v.optional(v.union(v.literal("light"), v.literal("dark"), v.literal("system"))),
   },
   handler: async (ctx, { themePreference, ...preferences }) => {
@@ -210,6 +211,7 @@ export const updateAppearance = mutation({
     font: v.union(v.literal("system"), v.literal("inter"), v.literal("nunito")),
     radius: v.union(v.literal("subtle"), v.literal("soft"), v.literal("round")),
     density: v.union(v.literal("comfortable"), v.literal("compact")),
+    shadow: v.optional(v.union(v.literal("none"), v.literal("soft"), v.literal("raised"))),
     themePreference: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
     windowStyle: v.object({
       material: v.union(v.literal("glass"), v.literal("paper")),

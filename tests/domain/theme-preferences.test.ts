@@ -19,14 +19,16 @@ describe("personal theme preferences contract", () => {
   it("rejects unknown presets, unsupported fonts, arbitrary colors, and extra fields", () => {
     const valid = {
       preset: "forest", accent: "sage", font: "nunito",
-      radius: "soft", density: "compact",
+      radius: "soft", density: "compact", shadow: "raised",
     };
     expect(visualPreferencesSchema.safeParse(valid).success).toBe(true);
+    expect(visualPreferencesSchema.parse({ ...valid, shadow: undefined }).shadow).toBe("soft");
     for (const invalid of [
       { ...valid, preset: "my-custom-css" },
       { ...valid, accent: "#ff0000" },
       { ...valid, font: "url(https://bad.example/x)" },
       { ...valid, density: "tiny" },
+      { ...valid, shadow: "super-blurry" },
       { ...valid, customCss: "body { display:none }" },
     ]) {
       expect(visualPreferencesSchema.safeParse(invalid).success).toBe(false);

@@ -28,6 +28,7 @@ export default defineSchema({
       font: v.union(v.literal("system"), v.literal("inter"), v.literal("nunito")),
       radius: v.union(v.literal("subtle"), v.literal("soft"), v.literal("round")),
       density: v.union(v.literal("comfortable"), v.literal("compact")),
+      shadow: v.optional(v.union(v.literal("none"), v.literal("soft"), v.literal("raised"))),
     })),
     // Optional for existing accounts. Strict, profile-owned world-window presentation;
     // never store arbitrary CSS or an executable shader payload.

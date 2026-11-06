@@ -44,6 +44,17 @@ export function getThemeTokens(preferences: VisualPreferences, appearance: Appea
   const primaryForeground = isDark ? "220 29% 9%" : "0 0% 100%";
   const accent = isDark ? a.tintDark : a.tintLight;
   const accentForeground = isDark ? "0 0% 97%" : "220 30% 15%";
+  const elevation = {
+    none: { card: "none", floating: "none" },
+    soft: {
+      card: `0 3px 12px hsl(${s.foreground} / 0.07)`,
+      floating: `0 10px 28px hsl(${s.foreground} / 0.12)`,
+    },
+    raised: {
+      card: `0 8px 24px hsl(${s.foreground} / 0.15)`,
+      floating: `0 20px 48px hsl(${s.foreground} / 0.23)`,
+    },
+  }[preferences.shadow];
   return {
     "--background": s.background,
     "--foreground": s.foreground,
@@ -65,6 +76,8 @@ export function getThemeTokens(preferences: VisualPreferences, appearance: Appea
     "--radius": { subtle: "0.375rem", soft: "0.75rem", round: "1.125rem" }[preferences.radius],
     "--font-sans-app": { system: "system-ui", inter: '"Inter Variable"', nunito: '"Nunito Variable"' }[preferences.font],
     "--sengapp-space": preferences.density === "compact" ? "1rem" : "1.5rem",
+    "--sengapp-shadow-card": elevation.card,
+    "--sengapp-shadow-floating": elevation.floating,
     "--sidebar": `hsl(${s.card})`,
     "--sidebar-foreground": `hsl(${s.foreground})`,
     "--sidebar-primary": `hsl(${primary})`,

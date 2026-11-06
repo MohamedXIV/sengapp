@@ -5,6 +5,7 @@ export const THEME_ACCENTS = ["amber", "coral", "sage", "teal", "blue", "violet"
 export const THEME_FONTS = ["system", "inter", "nunito"] as const;
 export const THEME_RADII = ["subtle", "soft", "round"] as const;
 export const THEME_DENSITIES = ["comfortable", "compact"] as const;
+export const THEME_SHADOWS = ["none", "soft", "raised"] as const;
 
 export const visualPreferencesSchema = z.strictObject({
   preset: z.enum(THEME_PRESETS),
@@ -12,12 +13,14 @@ export const visualPreferencesSchema = z.strictObject({
   font: z.enum(THEME_FONTS),
   radius: z.enum(THEME_RADII),
   density: z.enum(THEME_DENSITIES),
+  // Old profiles predate this setting; parse them with a safe default.
+  shadow: z.enum(THEME_SHADOWS).default("soft"),
 });
 
 export type VisualPreferences = z.infer<typeof visualPreferencesSchema>;
 
 export const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = Object.freeze({
-  preset: "acorn", accent: "amber", font: "system", radius: "soft", density: "comfortable",
+  preset: "acorn", accent: "amber", font: "system", radius: "soft", density: "comfortable", shadow: "soft",
 });
 
 export function resolveVisualPreferences(input?: Partial<VisualPreferences> | null): VisualPreferences {
