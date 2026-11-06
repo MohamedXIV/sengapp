@@ -40,7 +40,8 @@
     "noteTitle": "It's nicer with a friend.",
     "noteDescription": "Invite someone you trust and make this place yours.",
     "inviteAction": "Invite someone",
-    "topbarSubtitle": "Make yourself at home."
+    "topbarSubtitle": "Make yourself at home.",
+    "toggle": "Toggle navigation"
   },
   "Home": {
     "eyebrow": "Your space, your pace",
