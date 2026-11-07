@@ -6,7 +6,7 @@ test("UI v2 uses the real shadcn desktop inset/offcanvas sidebar", async ({ page
   await expect(page.getByRole("heading", { name: "Conversations" })).toBeVisible();
   const sidebar = page.locator('[data-variant="inset"][data-state]');
   await expect(sidebar).toHaveAttribute("data-state", "expanded");
-  const trigger = page.getByRole("button", { name: "Toggle Sidebar" });
+  const trigger = page.locator('[data-sidebar="trigger"]');
   await trigger.click();
   await expect(sidebar).toHaveAttribute("data-state", "collapsed");
   await trigger.click();
