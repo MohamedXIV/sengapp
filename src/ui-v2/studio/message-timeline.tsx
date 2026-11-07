@@ -99,8 +99,7 @@ function MessageRow({
 export function MessageTimeline({
   conversationName, conversationId, messages, reacted, onReact, onReply, onEdit, onDelete, onCopy,
 }: MessageTimelineProps) {
-  return <MessageScrollerProvider key={conversationId} autoScroll defaultScrollPosition="end"
-    preserveScrollOnPrepend>
+  return <MessageScrollerProvider key={conversationId} autoScroll defaultScrollPosition="end">
     <MessageScroller className="s2-message-scroll min-h-0 flex-1" aria-label={"Messages in " + conversationName}>
       <MessageScrollerViewport className="scroll-fade-b" aria-label={"Messages in " + conversationName}>
         <MessageScrollerContent className="mx-auto w-full max-w-3xl gap-4 px-4 py-5 sm:px-8">
