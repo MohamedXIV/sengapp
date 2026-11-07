@@ -22,7 +22,9 @@ describe("UI v2 clean-room architectural boundary", () => {
     }
     expect(inputGroup).toContain('from "@/components/ui/textarea"');
     for (const file of [timeline, composer]) {
-      expect(file).not.toMatch(/@\\/features\\/|convex\\/|@clerk\\//);
+      expect(file).not.toContain("@/features/");
+      expect(file).not.toContain("convex/");
+      expect(file).not.toContain("@clerk/");
     }
     expect(route).toContain("SengappStudio");
   });
