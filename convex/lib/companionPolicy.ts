@@ -1,5 +1,5 @@
 import { ConvexError } from "convex/values";
-import type { Doc, Id } from "../_generated/dataModel";
+import type { Id } from "../_generated/dataModel";
 import type { QueryCtx, MutationCtx } from "../_generated/server";
 import { assertDirectNotBlocked, requireDirectConversation } from "./directAccess";
 import { requireGroupMember } from "./groupAccess";
