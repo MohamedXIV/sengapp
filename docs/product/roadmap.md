@@ -42,6 +42,7 @@
 - Optional visual companion layered over Phaser/React windows, with reduced-motion controls and pointer-safe behavior; rendering technology remains provisional. No AI access implied by visual animations.
 - Private AI companion space and authorized, mention-driven group participation.
 - AI provider quotas, privacy boundaries and graceful failure.
+- Proposed implementation gate: specify consent/event contract and negative-access tests, then prove one permissioned `@mention` with [Convex Agent (ADR 0003)](../architecture/adr/0003-permissioned-convex-agents.md). Convex AI Gateway remains optional, not required for a free-tier proof. UI v2 mocks are not real task execution.
 
 ### 4. Private alpha readiness
 
