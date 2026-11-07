@@ -6,16 +6,21 @@ import { denyCompanion, readCompanionScope, requireCallerInConversation } from "
 const MAX_COMPANIONS_PER_OWNER = 3;
 const MAX_NAME_LENGTH = 40;
 
+function parseIdentity(handle: string, displayName: string) {
+  const slug = handle.trim().toLowerCase();
+  const name = displayName.trim();
+  if (!/^[a-z][a-z0-9_]{1,23}$/.test(slug) || !name || name.length > MAX_NAME_LENGTH) {
+    throw new ConvexError({ code: "INVALID_COMPANION" });
+  }
+  return { slug, name };
+}
+
 export const createMine = mutation({
   args: { handle: v.string(), displayName: v.string() },
   returns: v.id("companions"),
   handler: async (ctx, { handle, displayName }) => {
     const me = await requireAuthorizedProfile(ctx);
-    const slug = handle.trim().toLowerCase();
-    const name = displayName.trim();
-    if (!/^[a-z][a-z0-9_]{1,23}$/.test(slug) || !name || name.length > MAX_NAME_LENGTH) {
-      throw new ConvexError({ code: "INVALID_COMPANION" });
-    }
+    const { slug, name } = parseIdentity(handle, displayName);
     const existing = await ctx.db.query("companions")
       .withIndex("by_owner_handle", q => q.eq("ownerProfileId", me._id).eq("handle", slug))
       .unique();
@@ -30,6 +35,35 @@ export const createMine = mutation({
       ownerProfileId: me._id, handle: slug, displayName: name,
       status: "active", revision: 1, createdAt: now, updatedAt: now,
     });
+  },
+});
+
+/**
+ * The owner chooses and can rename both values. Bump revision to invalidate
+ * authorization snapshots made for an older identity.
+ */
+export const renameMine = mutation({
+  args: { companionId: v.id("companions"), handle: v.string(), displayName: v.string() },
+  returns: v.null(),
+  handler: async (ctx, { companionId, handle, displayName }) => {
+    const me = await requireAuthorizedProfile(ctx);
+    const current = await ctx.db.get(companionId);
+    if (!current || current.ownerProfileId !== me._id) return denyCompanion();
+    const { slug, name } = parseIdentity(handle, displayName);
+    if (current.handle === slug && current.displayName === name) return null;
+    if (current.handle !== slug) {
+      const existing = await ctx.db.query("companions")
+        .withIndex("by_owner_handle", q => q.eq("ownerProfileId", me._id).eq("handle", slug))
+        .unique();
+      if (existing && existing._id !== companionId) {
+        throw new ConvexError({ code: "COMPANION_HANDLE_TAKEN" });
+      }
+    }
+    await ctx.db.patch(companionId, {
+      handle: slug, displayName: name,
+      revision: current.revision + 1, updatedAt: Date.now(),
+    });
+    return null;
   },
 });
 

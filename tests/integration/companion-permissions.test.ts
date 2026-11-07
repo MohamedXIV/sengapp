@@ -26,7 +26,7 @@ async function fixture() {
   ]);
   const direct = await alice.mutation(api.conversations.openDirect, { connectionId: directConnection });
   const companionId = await alice.mutation(api.companions.createMine, {
-    handle: "Milo", displayName: "Milo",
+    handle: "Sparrow", displayName: "Sparrow",
   });
   return { t, alice, bob, carla, outsider, aliceId, bobId, carlaId, direct, companionId, carlaConnection };
 }
@@ -37,7 +37,7 @@ async function consentDirect(f: Awaited<ReturnType<typeof fixture>>) {
   await f.bob.mutation(api.companions.setConsent, args);
 }
 
-async function mention(f: Awaited<ReturnType<typeof fixture>>, body = "@milo help with this") {
+async function mention(f: Awaited<ReturnType<typeof fixture>>, body = "@sparrow help with this") {
   return f.alice.mutation(api.messages.send, {
     conversationId: f.direct, body,
     clientNonce: "companion-message-" + Math.random().toString(36).slice(2).padEnd(18, "0"),
@@ -54,7 +54,7 @@ describe("Companion authorization contracts (no AI provider)", () => {
     const [a] = await f.alice.query(api.companions.listMine, {});
     expect(a?._id).toBe(f.companionId);
     expect(await f.bob.query(api.companions.listMine, {})).toEqual([]);
-    expect(await f.alice.mutation(api.companions.createMine, { handle: "MILO", displayName: "Milo" }))
+    expect(await f.alice.mutation(api.companions.createMine, { handle: "SPARROW", displayName: "Sparrow" }))
       .toBe(f.companionId);
     await expect(f.bob.mutation(api.companions.setEnabled, {
       companionId: f.companionId, enabled: false,
@@ -68,6 +68,50 @@ describe("Companion authorization contracts (no AI provider)", () => {
     await expect(unverified.query(api.companions.listMine, {})).rejects.toThrow();
     await expect(unverified.mutation(api.companions.createMine, {
       handle: "secret", displayName: "Secret",
+    })).rejects.toThrow();
+  });
+
+
+  it("owner can rename alias and display name without reviving stale invocations", async () => {
+    const f = await fixture();
+    await consentDirect(f);
+    const initial = await mention(f);
+    const older = await f.alice.mutation(api.companionInvocations.request, {
+      conversationId: f.direct, companionId: f.companionId,
+      sourceMessageId: initial, clientNonce: nonce("17"),
+    });
+    await expect(f.bob.mutation(api.companions.renameMine, {
+      companionId: f.companionId, handle: "little_star", displayName: "نجمة",
+    })).rejects.toThrow();
+    await f.alice.mutation(api.companions.renameMine, {
+      companionId: f.companionId, handle: "little_star", displayName: "نجمة",
+    });
+    expect((await f.alice.query(api.companions.listMine, {}))[0])
+      .toMatchObject({ handle: "little_star", displayName: "نجمة" });
+    expect(await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId: older }))
+      .toBeNull();
+    await expect(f.alice.mutation(api.companionInvocations.request, {
+      conversationId: f.direct, companionId: f.companionId,
+      sourceMessageId: initial, clientNonce: nonce("18"),
+    })).rejects.toThrow();
+    const current = await mention(f, "@little_star hello");
+    const fresh = await f.alice.mutation(api.companionInvocations.request, {
+      conversationId: f.direct, companionId: f.companionId,
+      sourceMessageId: current, clientNonce: nonce("19"),
+    });
+    expect(await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId: fresh }))
+      .toMatchObject({ text: "@little_star hello" });
+    await f.alice.mutation(api.companions.renameMine, {
+      companionId: f.companionId, handle: "LITTLE_STAR", displayName: "نجمة",
+    });
+    expect(await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId: fresh }))
+      .not.toBeNull();
+    await f.alice.mutation(api.companions.createMine, { handle: "other", displayName: "آخر" });
+    await expect(f.alice.mutation(api.companions.renameMine, {
+      companionId: f.companionId, handle: "other", displayName: "duplicate",
+    })).rejects.toThrow();
+    await expect(f.alice.mutation(api.companions.renameMine, {
+      companionId: f.companionId, handle: "bad alias!", displayName: "invalid",
     })).rejects.toThrow();
   });
 
@@ -93,7 +137,7 @@ describe("Companion authorization contracts (no AI provider)", () => {
     const id = await f.alice.mutation(api.companionInvocations.request, args);
     expect(await f.alice.mutation(api.companionInvocations.request, args)).toBe(id);
     expect(await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId: id }))
-      .toMatchObject({ text: "@milo help with this", requesterProfileId: f.aliceId });
+      .toMatchObject({ text: "@sparrow help with this", requesterProfileId: f.aliceId });
     expect(await f.bob.query(api.companionInvocations.listMine, {})).toEqual([]);
     expect(await f.alice.query(api.companionInvocations.listMine, {}))
       .toMatchObject([{ invocationId: id, status: "validated" }]);
@@ -111,12 +155,12 @@ describe("Companion authorization contracts (no AI provider)", () => {
       conversationId: f.direct, body: "PRIVATE HISTORY NEVER TO MODEL", clientNonce: "private-history-message-01",
     });
     await consentDirect(f);
-    const sourceMessageId = await mention(f, "@Milo please summarize only this sentence");
+    const sourceMessageId = await mention(f, "@Sparrow please summarize only this sentence");
     const id = await f.alice.mutation(api.companionInvocations.request, {
       conversationId: f.direct, companionId: f.companionId, sourceMessageId, clientNonce: nonce("4"),
     });
     const context = await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId: id });
-    expect(context?.text).toBe("@Milo please summarize only this sentence");
+    expect(context?.text).toBe("@Sparrow please summarize only this sentence");
     expect(JSON.stringify(context)).not.toContain("PRIVATE HISTORY");
     expect(JSON.stringify(await f.alice.query(api.companionInvocations.listMine, {}))).not.toContain("summarize");
     expect(JSON.stringify(await f.bob.query(api.companions.consentStatus, {
@@ -164,16 +208,16 @@ describe("Companion authorization contracts (no AI provider)", () => {
         .withIndex("by_pair", q => q.eq("blockerProfileId", f.bobId).eq("blockedProfileId", f.aliceId)).unique();
       if (block) await ctx.db.delete(block._id);
     });
-    await f.alice.mutation(api.messages.edit, { messageId: msg, body: "@milo revised text" });
+    await f.alice.mutation(api.messages.edit, { messageId: msg, body: "@sparrow revised text" });
     expect(await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId: id })).toBeNull();
-    const anotherMessage = await mention(f, "@milo new request");
+    const anotherMessage = await mention(f, "@sparrow new request");
     const second = await f.alice.mutation(api.companionInvocations.request, {
       conversationId: f.direct, companionId: f.companionId, sourceMessageId: anotherMessage,
       clientNonce: nonce("8"),
     });
     await f.alice.mutation(api.messages.remove, { messageId: anotherMessage });
     expect(await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId: second })).toBeNull();
-    const thirdMessage = await mention(f, "@milo last request");
+    const thirdMessage = await mention(f, "@sparrow last request");
     const third = await f.alice.mutation(api.companionInvocations.request, {
       conversationId: f.direct, companionId: f.companionId, sourceMessageId: thirdMessage,
       clientNonce: nonce("9"),
@@ -220,7 +264,7 @@ describe("Companion authorization contracts (no AI provider)", () => {
     const f = await fixture();
     const group = await f.alice.mutation(api.groups.create, { name: "Cozy circle" });
     const old = await f.alice.mutation(api.messages.send, {
-      conversationId: group, body: "@milo message before join", clientNonce: "group-before-milo-0001",
+      conversationId: group, body: "@sparrow message before join", clientNonce: "group-before-sparrow-0001",
     });
     const consent = { companionId: f.companionId, conversationId: group, granted: true };
     await f.alice.mutation(api.companions.setConsent, consent);
@@ -237,13 +281,13 @@ describe("Companion authorization contracts (no AI provider)", () => {
       conversationId: group, companionId: f.companionId, sourceMessageId: old, clientNonce: nonce("14"),
     })).rejects.toThrow();
     const current = await f.alice.mutation(api.messages.send, {
-      conversationId: group, body: "@milo hello after join", clientNonce: "group-after-milo-0001",
+      conversationId: group, body: "@sparrow hello after join", clientNonce: "group-after-sparrow-0001",
     });
     const invocationId = await f.alice.mutation(api.companionInvocations.request, {
       conversationId: group, companionId: f.companionId, sourceMessageId: current, clientNonce: nonce("15"),
     });
     expect(await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId }))
-      .toMatchObject({ text: "@milo hello after join" });
+      .toMatchObject({ text: "@sparrow hello after join" });
     // A third member immediately voids prior authorization until they opt in;
     // even if they later consent, old invocation snapshots remain invalid.
     const invited = await f.alice.mutation(api.groups.inviteMember, { conversationId: group, profileId: f.carlaId });
@@ -253,7 +297,7 @@ describe("Companion authorization contracts (no AI provider)", () => {
     await f.carla.mutation(api.companions.setConsent, consent);
     expect(await f.t.query(internal.companionInvocations.contextForDispatch, { invocationId })).toBeNull();
     const latestMsg = await f.alice.mutation(api.messages.send, {
-      conversationId: group, body: "@milo another task", clientNonce: "group-latest-milo-001",
+      conversationId: group, body: "@sparrow another task", clientNonce: "group-latest-sparrow-001",
     });
     const latest = await f.alice.mutation(api.companionInvocations.request, {
       conversationId: group, companionId: f.companionId, sourceMessageId: latestMsg, clientNonce: nonce("16"),

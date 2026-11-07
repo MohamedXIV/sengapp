@@ -20,7 +20,7 @@
 - Context is **one own-authored mention message only**. No thread history, reply targets, private memories, attachments, other chats, group summaries, provider keys or connected apps are shared. Edits/deletes invalidate the existing request.
 - No default AI provider or Gateway. A future dispatcher must call \`contextForDispatch\` immediately before each permitted model call and cannot trust a previous queued authorization, a UI state, or a previously valid consent snapshot.
 
-## Remaining before the first real Milo
+## Remaining before the first user-named Companion
 
 1. Review whether all-member, per-companion consent and owner-only invocation match Sengapp's user experience.
 2. Decide a safe snapshot-to-dispatch atomicity strategy; reading context and making an external provider call cannot be one Convex transaction, so recheck immediately before dispatch and cancel safely on subsequent revocation.
