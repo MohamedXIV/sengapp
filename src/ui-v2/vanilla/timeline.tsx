@@ -5,31 +5,37 @@ import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Marker, MarkerContent } from "@/components/ui/marker";
 import { Message, MessageAvatar, MessageContent, MessageFooter, MessageHeader } from "@/components/ui/message";
 import {
-  MessageScroller, MessageScrollerButton, MessageScrollerContent,
-  MessageScrollerItem, MessageScrollerProvider, MessageScrollerViewport,
+  MessageScroller, MessageScrollerButton, MessageScrollerContent, MessageScrollerItem,
+  MessageScrollerProvider, MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
 import type { MessageData } from "./data";
 
-function MessageRow({ message }: { message: MessageData }) {
+function ChatMessage({ message }: { message: MessageData }) {
   return (
-    <Message align={message.mine ? "end" : "start"}>
-      {!message.mine && (
-        <MessageAvatar>
-          <Avatar>
-            <AvatarFallback>{message.sender.slice(0, 1)}</AvatarFallback>
-          </Avatar>
-        </MessageAvatar>
-      )}
-      <MessageContent>
-        {!message.mine && <MessageHeader>{message.sender}</MessageHeader>}
-        <Bubble variant={message.mine ? "default" : "secondary"}>
-          <BubbleContent>
-            <p dir="auto" className="whitespace-pre-wrap">{message.text}</p>
-          </BubbleContent>
-        </Bubble>
-        <MessageFooter><time>{message.time}</time></MessageFooter>
-      </MessageContent>
-    </Message>
+    <MessageScrollerItem messageId={message.id}>
+      <Message align={message.mine ? "end" : "start"}>
+        {!message.mine && (
+          <MessageAvatar>
+            <Avatar>
+              <AvatarFallback>{message.sender.slice(0, 1)}</AvatarFallback>
+            </Avatar>
+          </MessageAvatar>
+        )}
+        <MessageContent>
+          {!message.mine && (
+            <MessageHeader>
+              {message.sender}<time className="ms-2">{message.time}</time>
+            </MessageHeader>
+          )}
+          <Bubble variant={message.mine ? "muted" : "secondary"}>
+            <BubbleContent>
+              <p dir="auto" className="whitespace-pre-wrap">{message.text}</p>
+            </BubbleContent>
+          </Bubble>
+          {message.mine && <MessageFooter><time>{message.time}</time></MessageFooter>}
+        </MessageContent>
+      </Message>
+    </MessageScrollerItem>
   );
 }
 
@@ -40,15 +46,11 @@ export function VanillaTimeline({ conversationId, messages }: {
     <MessageScrollerProvider key={conversationId} defaultScrollPosition="end" autoScroll>
       <MessageScroller>
         <MessageScrollerViewport>
-          <MessageScrollerContent>
+          <MessageScrollerContent className="gap-6 px-6 py-6">
             <MessageScrollerItem messageId={conversationId + "-date"}>
               <Marker variant="separator"><MarkerContent>Today</MarkerContent></Marker>
             </MessageScrollerItem>
-            {messages.map(message => (
-              <MessageScrollerItem key={message.id} messageId={message.id}>
-                <MessageRow message={message} />
-              </MessageScrollerItem>
-            ))}
+            {messages.map(message => <ChatMessage key={message.id} message={message} />)}
           </MessageScrollerContent>
         </MessageScrollerViewport>
         <MessageScrollerButton />

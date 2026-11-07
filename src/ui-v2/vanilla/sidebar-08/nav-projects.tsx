@@ -39,7 +39,8 @@ export function NavProjects({
   selectedId: string
   onSelect: (id: string) => void
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile, setOpenMobile } = useSidebar()
+  function select(id: string) { onSelect(id); setOpenMobile(false) }
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -48,7 +49,7 @@ export function NavProjects({
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild isActive={selectedId === item.id}>
-              <button type="button" onClick={() => onSelect(item.id)}>
+              <button type="button" onClick={() => select(item.id)}>
                 <item.icon />
                 <span>{item.name}</span>
               </button>
@@ -65,7 +66,7 @@ export function NavProjects({
                 side={isMobile ? "bottom" : "right"}
                 align={isMobile ? "end" : "start"}
               >
-                <DropdownMenuItem onSelect={() => onSelect(item.id)}>
+                <DropdownMenuItem onSelect={() => select(item.id)}>
                   <Folder className="text-muted-foreground" />
                   <span>Open conversation</span>
                 </DropdownMenuItem>

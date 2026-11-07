@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/sidebar"
 import { conversations } from "../data"
 
-export function AppSidebar({ selectedId, onSelect, onNavigate, ...props }: React.ComponentProps<typeof Sidebar> & {
+export function AppSidebar({ selectedId, onSelect, onNavigate, filter, ...props }: React.ComponentProps<typeof Sidebar> & {
   selectedId: string
   onSelect: (id: string) => void
   onNavigate: (name: string) => void
+  filter: "All chats" | "Unread" | "Groups"
 }) {
   const data = {
     user: { name: "Your space", email: "Sengapp UI v2 preview", avatar: "" },
@@ -34,7 +35,7 @@ export function AppSidebar({ selectedId, onSelect, onNavigate, ...props }: React
       { title: "Support", url: "https://github.com/MohamedXIV/sengapp", icon: LifeBuoy },
       { title: "Feedback", url: "https://github.com/MohamedXIV/sengapp/issues", icon: Send },
     ],
-    projects: conversations.map(conversation => ({
+    projects: conversations.filter(conversation => filter === "Unread" ? conversation.unread > 0 : filter === "Groups" ? conversation.id !== "sara" : true).map(conversation => ({
       id: conversation.id,
       name: conversation.name,
       url: "#",
