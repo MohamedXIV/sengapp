@@ -3,7 +3,7 @@
  * Brand-new presentation primitives. Nothing is imported from the legacy shell.
  * Tokens are local to .s2-root so old globals cannot be the design system.
  */
-:is(.s2-root, .s2-appearance-popout) {
+:is(.s2-root, .s2-appearance-popout, body:has(.s2-root)) {
   --s2-canvas: #eee9e2;
   --s2-paper: #fffdfa;
   --s2-panel: #fcf8f3;
@@ -32,7 +32,41 @@
   --sidebar-accent-foreground: var(--s2-tint-ink);
   --sidebar-border: var(--s2-line);
   --sidebar-ring: var(--s2-accent);
+  /* Shadcn primitives use HSL channels; the portal inherits these from the preview body. */
+  --background: 36 100% 99%;
+  --foreground: 24 10% 18%;
+  --popover: 36 100% 99%;
+  --popover-foreground: 24 10% 18%;
+  --accent: 81 28% 90%;
+  --accent-foreground: 94 26% 29%;
+  --primary: 94 20% 42%;
+  --primary-foreground: 40 100% 99%;
+  --muted-foreground: 26 8% 47%;
+  --border: 33 19% 87%;
+  --ring: 94 20% 42%;
 }
+
+/* Portaled shadcn Sheet and DropdownMenu inherit these route-only tokens.
+   Both palettes remain driven by the same UI v2 Appearance settings. */
+body:has(.s2-root[data-accent="clay"]) {
+  --primary: 17 35% 51%; --accent: 22 65% 90%;
+  --accent-foreground: 17 37% 37%; --ring: 17 35% 51%;
+}
+body:has(.s2-root[data-accent="plum"]) {
+  --primary: 272 19% 53%; --accent: 271 38% 91%;
+  --accent-foreground: 271 20% 39%; --ring: 272 19% 53%;
+}
+body:has(.s2-root[data-accent="ocean"]) {
+  --primary: 194 32% 44%; --accent: 191 37% 91%;
+  --accent-foreground: 194 32% 36%; --ring: 194 32% 44%;
+}
+body:has(.s2-root) .sengapp-sheet-overlay {
+  background-color: rgba(51, 45, 42, .32);
+}
+body:has(.s2-root[data-mode="dark"]) .sengapp-sheet-overlay {
+  background-color: rgba(0, 0, 0, .58);
+}
+
 .s2-root {
   isolation: isolate;
   position: relative;
@@ -58,15 +92,15 @@
 .s2-root h1, .s2-root h2, .s2-root h3, .s2-root p { margin: 0; }
 .s2-root [aria-hidden="true"] { pointer-events: none; }
 .s2-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-:is(.s2-root, .s2-appearance-popout)[data-accent="clay"] { --s2-accent: #ae6d54; --s2-tint: #f7e4d9; --s2-tint-ink: #814e39; --s2-own: #f5eae1; --s2-own-ink: #5d4238; }
-:is(.s2-root, .s2-appearance-popout)[data-accent="plum"] { --s2-accent: #89719e; --s2-tint: #eee6f5; --s2-tint-ink: #675078; --s2-own: #f0e9f6; --s2-own-ink: #493a59; }
-:is(.s2-root, .s2-appearance-popout)[data-accent="ocean"] { --s2-accent: #4c8394; --s2-tint: #e1eff2; --s2-tint-ink: #3b6472; --s2-own: #e3eef1; --s2-own-ink: #34535e; }
-:is(.s2-root, .s2-appearance-popout)[data-corners="quiet"] { --s2-radius: 7px; }
-:is(.s2-root, .s2-appearance-popout)[data-corners="round"] { --s2-radius: 26px; }
-:is(.s2-root, .s2-appearance-popout)[data-elevation="flat"] { --s2-elevation: none; }
-:is(.s2-root, .s2-appearance-popout)[data-elevation="lifted"] { --s2-elevation: 0 24px 70px rgba(65, 46, 34, .18), 0 4px 12px rgba(65, 46, 34, .08); }
-:is(.s2-root, .s2-appearance-popout)[data-density="compact"] { --s2-gap: 12px; }
-:is(.s2-root, .s2-appearance-popout)[data-mode="dark"] {
+:is(.s2-root, .s2-appearance-popout)[data-accent="clay"], body:has(.s2-root[data-accent="clay"]) { --s2-accent: #ae6d54; --s2-tint: #f7e4d9; --s2-tint-ink: #814e39; --s2-own: #f5eae1; --s2-own-ink: #5d4238; }
+:is(.s2-root, .s2-appearance-popout)[data-accent="plum"], body:has(.s2-root[data-accent="plum"]) { --s2-accent: #89719e; --s2-tint: #eee6f5; --s2-tint-ink: #675078; --s2-own: #f0e9f6; --s2-own-ink: #493a59; }
+:is(.s2-root, .s2-appearance-popout)[data-accent="ocean"], body:has(.s2-root[data-accent="ocean"]) { --s2-accent: #4c8394; --s2-tint: #e1eff2; --s2-tint-ink: #3b6472; --s2-own: #e3eef1; --s2-own-ink: #34535e; }
+:is(.s2-root, .s2-appearance-popout)[data-corners="quiet"], body:has(.s2-root[data-corners="quiet"]) { --s2-radius: 7px; }
+:is(.s2-root, .s2-appearance-popout)[data-corners="round"], body:has(.s2-root[data-corners="round"]) { --s2-radius: 26px; }
+:is(.s2-root, .s2-appearance-popout)[data-elevation="flat"], body:has(.s2-root[data-elevation="flat"]) { --s2-elevation: none; }
+:is(.s2-root, .s2-appearance-popout)[data-elevation="lifted"], body:has(.s2-root[data-elevation="lifted"]) { --s2-elevation: 0 24px 70px rgba(65, 46, 34, .18), 0 4px 12px rgba(65, 46, 34, .08); }
+:is(.s2-root, .s2-appearance-popout)[data-density="compact"], body:has(.s2-root[data-density="compact"]) { --s2-gap: 12px; }
+:is(.s2-root, .s2-appearance-popout)[data-mode="dark"], body:has(.s2-root[data-mode="dark"]) {
   --s2-canvas: #171715;
   --s2-paper: #252521;
   --s2-panel: #23231f;
@@ -81,13 +115,24 @@
   --s2-tint: #354030;
   --s2-tint-ink: #dbeccb;
   --s2-elevation: 0 16px 56px rgba(0, 0, 0, .25);
+  --background: 60 6% 14%;
+  --foreground: 40 15% 92%;
+  --popover: 60 6% 14%;
+  --popover-foreground: 40 15% 92%;
+  --accent: 100 13% 22%;
+  --accent-foreground: 97 34% 85%;
+  --primary: 98 24% 54%;
+  --primary-foreground: 60 6% 12%;
+  --muted-foreground: 40 5% 67%;
+  --border: 55 5% 24%;
+  --ring: 98 24% 54%;
   color-scheme: dark;
 }
-:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-accent="clay"] { --s2-own: #483a32; --s2-own-ink: #f4dfd2; --s2-tint: #49382f; --s2-tint-ink: #f4d0bd; }
-:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-accent="plum"] { --s2-own: #3e3648; --s2-own-ink: #eee0f7; --s2-tint: #403448; --s2-tint-ink: #e9d6f4; }
-:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-accent="ocean"] { --s2-own: #2e3f43; --s2-own-ink: #dceff5; --s2-tint: #304247; --s2-tint-ink: #c8e8f1; }
-:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-elevation="flat"] { --s2-elevation: none; }
-:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-elevation="lifted"] { --s2-elevation: 0 25px 70px rgba(0,0,0,.4); }
+:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-accent="clay"], body:has(.s2-root[data-mode="dark"][data-accent="clay"]) { --s2-own: #483a32; --s2-own-ink: #f4dfd2; --s2-tint: #49382f; --s2-tint-ink: #f4d0bd; }
+:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-accent="plum"], body:has(.s2-root[data-mode="dark"][data-accent="plum"]) { --s2-own: #3e3648; --s2-own-ink: #eee0f7; --s2-tint: #403448; --s2-tint-ink: #e9d6f4; }
+:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-accent="ocean"], body:has(.s2-root[data-mode="dark"][data-accent="ocean"]) { --s2-own: #2e3f43; --s2-own-ink: #dceff5; --s2-tint: #304247; --s2-tint-ink: #c8e8f1; }
+:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-elevation="flat"], body:has(.s2-root[data-mode="dark"][data-elevation="flat"]) { --s2-elevation: none; }
+:is(.s2-root, .s2-appearance-popout)[data-mode="dark"][data-elevation="lifted"], body:has(.s2-root[data-mode="dark"][data-elevation="lifted"]) { --s2-elevation: 0 25px 70px rgba(0,0,0,.4); }
 
 :is(.s2-root, .s2-appearance-popout)[data-mode="dark"] .s2-preview-banner { color: #bcb3a7; }
 .s2-stage {
@@ -114,8 +159,6 @@
 .s2-root[data-list-open="false"] { --s2-list-width: 0px; }
 .s2-root[data-details-open="true"] { --s2-details-width: 276px; }
 .s2-root[data-list-open="false"] .s2-chat-list { display: none; }
-.s2-chat-list { display: none; }
-
 .s2-chat-list { grid-column: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--s2-panel); border-inline-end: 1px solid var(--s2-line); }
 .s2-list-header { flex: none; padding: 24px 17px 12px; }
 .s2-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; }

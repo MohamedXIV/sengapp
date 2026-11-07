@@ -79,7 +79,7 @@ export function SengappAppSidebar({ section, filter, selectedId, onSection, onFi
         </SidebarMenuButton></SidebarMenuItem>
       </SidebarMenu></SidebarGroupContent></SidebarGroup>
     </SidebarContent>
-    <SidebarFooter><SidebarMenu><SidebarMenuItem>
+    <SidebarFooter className="pb-[max(0.75rem,env(safe-area-inset-bottom))]"><SidebarMenu><SidebarMenuItem>
       <DropdownMenu><DropdownMenuTrigger asChild>
         <SidebarMenuButton type="button" size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
           <Avatar className="size-8 rounded-lg"><AvatarFallback className="rounded-lg">Y</AvatarFallback></Avatar>
@@ -87,7 +87,7 @@ export function SengappAppSidebar({ section, filter, selectedId, onSection, onFi
           <ChevronsUpDown className="ms-auto size-4" aria-hidden="true"/>
         </SidebarMenuButton>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg" side={isMobile?"bottom":"right"} align="end" sideOffset={4}>
+      <DropdownMenuContent data-sengapp-v2-profile-menu className="z-[60] w-(--radix-dropdown-menu-trigger-width) min-w-56 max-w-[calc(100vw-1.5rem)] rounded-lg" side={isMobile?"top":"right"} align={isMobile?"start":"end"} sideOffset={8} collisionPadding={12}>
         <DropdownMenuLabel className="font-normal">Sengapp UI v2 · local demo</DropdownMenuLabel>
         <DropdownMenuSeparator/>
         <DropdownMenuItem onSelect={() => { setOpenMobile(false); onAppearance(); }}><Palette aria-hidden="true"/>Appearance</DropdownMenuItem>
