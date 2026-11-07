@@ -9,7 +9,7 @@
 - **Phaser 4 (experimental):** one optional full-screen 2D isometric scene and landscape world; a room is a smaller collection of world-space sprites, not the screen. Does not render canonical chat text.
 - **Dockview React (experimental):** floating/resize/dockable accessible React chat/tool panels, with touch-first phone alternatives; still ordinary DOM.
 - **Companion presentation (future):** optional shared character state and a transparent overlay across DOM panels; not necessarily PixiJS and never an AI authorization mechanism.
-- **AI integration:** server-side provider abstraction, opt-in prompt context, per-user budgets, provider secrets and companion authorization.
+- **AI integration (proposed in ADR 0003):** preserve Sengapp's canonical Convex messages and authorization, use the Convex Agent Component for scoped AI runtime/threads/tools/streaming, with a replaceable direct provider first and optional paid-plan Convex AI Gateway. Consent, context isolation, per-user budgets and provider secrets remain Sengapp-owned backend responsibilities.
 - **Media:** an application-owned attachment interface; file metadata and access checks belong to the server.
 
 ## Baseline stack
@@ -31,3 +31,5 @@ Do not add a second database until there is an established need. Avoid a monolit
 Identity & Invitations · Conversations & Members · Messages & Reactions · Attachments · Presence & Read Positions · User Preferences · Companions & Permissions · AI Usage Budgets.
 
 See [ADR 0001](adr/0001-convex-first.md) and [ADR 0002](adr/0002-personal-world-and-workspace.md) for the backend decision and the [approved v0.1 design](../specs/sengapp-v0.1-design.md) for proposed entities and acceptance criteria.
+
+**Companion integration decision (proposed):** [ADR 0003](adr/0003-permissioned-convex-agents.md). Do not interpret UI v2 mocks as deployed AI capabilities.

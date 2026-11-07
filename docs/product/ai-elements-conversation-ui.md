@@ -2,6 +2,8 @@
 
 **Status:** UI-only design demonstration on Draft PR #36, not implementation of agents, provider calls, recurring reminders or real consent. References: existing \`docs/product/vision.md\`, \`docs/product/roadmap.md\`, \`docs/architecture/overview.md\`, issue #8, and https://ui.shadcn.com/docs/ai-elements .
 
+> **Backend selection note (2026-11-07):** The planned runtime is [Convex Agent Component with an optional AI Gateway](../architecture/adr/0003-permissioned-convex-agents.md). This is a proposed integration path only; this document's AI Elements are UI patterns and previews, not evidence of a deployed agent.
+
 ## Product invariant
 
 **One conversation, multiple participant types.** Human DMs and groups remain primary. A named companion is accessible by mention from any chat UI, but it does not automatically become a member, read history, or execute work. Private owner work and group contexts are isolated. If member permissions are not confirmed, the invocation stays a blocked request, not an AI response.
@@ -42,7 +44,7 @@ No feature should be force-rendered in every message. Capability is universal wi
 - \`system_event\`: access denied, invitation pending, consent revoked, provider unavailable, budget exceeded.
 - \`citation\` / \`attachment\`: authorization-aware resources, no public persistent document links.
 
-The renderer should switch on a discriminated event type and lazy-load tool-specific UI. Keep domain events independent of the AI SDK and of any single provider. AI SDK (if selected) belongs behind a server permission adapter and an explicit event transport contract, not as a replacement for Convex conversation membership.
+The renderer should switch on a discriminated event type and lazy-load tool-specific UI. Keep domain events independent of the AI SDK and of any single provider. The preferred server execution path is Convex Agent (built on AI SDK-compatible models), guarded by a Sengapp authorization/event adapter. The AI SDK and shadcn helpers are not replacements for Convex membership rules; Convex AI Gateway is optional and currently paid-plan-only.
 
 ## Non-negotiable backend gates
 
