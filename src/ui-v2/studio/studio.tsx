@@ -8,6 +8,14 @@ import {
   Smile, Sparkles, UsersRound, X,
 } from "lucide-react";
 import { demoConversations, initialMessages, type DemoConversation, type DemoMessage } from "./studio-data";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Avatar as ShadcnAvatar, AvatarFallback } from "@/components/ui/avatar";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 type Accent = "sage" | "clay" | "plum" | "ocean";
 type Corners = "quiet" | "soft" | "round";
@@ -43,25 +51,25 @@ function readAppearance(): Appearance | null {
   }
 }
 
-function Avatar({ conversation, small = false }: { conversation: Pick<DemoConversation, "tone" | "initials">; small?: boolean }) {
-  return <span className={"s2-avatar s2-tone-" + conversation.tone + (small ? " s2-avatar-small" : "")} aria-hidden="true">
-    {conversation.initials}
-  </span>;
+function ConversationAvatar({ conversation, small = false }: { conversation: Pick<DemoConversation, "tone" | "initials">; small?: boolean }) {
+  return <ShadcnAvatar className={"s2-avatar s2-tone-" + conversation.tone + (small ? " s2-avatar-small" : "")} aria-hidden="true">
+    <AvatarFallback className="s2-avatar-fallback">{conversation.initials}</AvatarFallback>
+  </ShadcnAvatar>;
 }
 
 function PersonAvatar({ name, small = false }: { name: string; small?: boolean }) {
   const tones: DemoConversation["tone"][] = ["clay", "blue", "plum", "sage", "peach"];
   const index = Math.abs(name.split("").reduce((sum, ch) => sum + ch.charCodeAt(0), 0)) % tones.length;
-  return <span className={"s2-avatar s2-person-avatar s2-tone-" + tones[index] + (small ? " s2-avatar-small" : "")} aria-hidden="true">
-    {name.substring(0, 1)}
-  </span>;
+  return <ShadcnAvatar className={"s2-avatar s2-person-avatar s2-tone-" + tones[index] + (small ? " s2-avatar-small" : "")} aria-hidden="true">
+    <AvatarFallback className="s2-avatar-fallback">{name.substring(0, 1)}</AvatarFallback>
+  </ShadcnAvatar>;
 }
 
 function Action({ label, onClick, children, active = false, className = "" }: {
   label: string; onClick: () => void; children: ReactNode; active?: boolean; className?: string;
 }) {
-  return <button type="button" className={"s2-icon-button " + className} title={label} aria-label={label}
-    aria-pressed={active} onClick={onClick}>{children}</button>;
+  return <Button type="button" variant="ghost" size="icon" className={"s2-icon-button " + className} title={label} aria-label={label}
+    aria-pressed={active} onClick={onClick}>{children}</Button>;
 }
 
 function ChoiceButtons<T extends string>({ legend, choices, value, onChange }: {
@@ -69,37 +77,40 @@ function ChoiceButtons<T extends string>({ legend, choices, value, onChange }: {
 }) {
   return <fieldset className="s2-choice-field">
     <legend>{legend}</legend>
-    <div className="s2-choice-options">
-      {choices.map(choice => <button type="button" key={choice} className="s2-choice"
-        aria-pressed={value === choice} onClick={() => onChange(choice)}>
+    <ToggleGroup type="single" variant="outline" spacing={2} className="s2-choice-options" value={value}
+      aria-label={legend} onValueChange={next => { if (next) onChange(next as T); }}>
+      {choices.map(choice => <ToggleGroupItem value={choice} key={choice} className="s2-choice">
         {choice === value && <Check size={13} aria-hidden="true" />}
         <span>{choice.charAt(0).toUpperCase() + choice.slice(1)}</span>
-      </button>)}
-    </div>
+      </ToggleGroupItem>)}
+    </ToggleGroup>
   </fieldset>;
 }
 
-function AppearancePopout({ appearance, setAppearance, onClose }: {
+function AppearancePopout({ appearance, setAppearance }: {
   appearance: Appearance;
   setAppearance: (value: Appearance) => void;
-  onClose: () => void;
 }) {
   function change<K extends keyof Appearance>(key: K, value: Appearance[K]) {
     setAppearance({ ...appearance, [key]: value });
   }
-  return <section className="s2-appearance-popout" aria-label="Customize the design preview">
-    <div className="s2-popout-header">
-      <div><span className="s2-overline">MAKE IT YOURS</span><h2>Appearance</h2></div>
-      <Action label="Close appearance" onClick={onClose}><X size={17}/></Action>
-    </div>
-    <p className="s2-small-muted">Try the foundations before we connect any real account. Your choices stay in this browser.</p>
+  return <DialogContent className="s2-appearance-popout"
+    data-mode={appearance.mode} data-accent={appearance.accent} data-corners={appearance.corners}
+    data-elevation={appearance.elevation} data-density={appearance.density}>
+    <DialogHeader className="s2-popout-header">
+      <div><span className="s2-overline">MAKE IT YOURS</span><DialogTitle className="s2-popout-title">Appearance</DialogTitle></div>
+    </DialogHeader>
+    <DialogDescription className="s2-small-muted">
+      Try the foundations before we connect any real account. Your choices stay in this browser.
+    </DialogDescription>
     <ChoiceButtons legend="Accent color" choices={preferenceOptions.accent} value={appearance.accent} onChange={value => change("accent", value)}/>
     <ChoiceButtons legend="Corners" choices={preferenceOptions.corners} value={appearance.corners} onChange={value => change("corners", value)}/>
     <ChoiceButtons legend="Elevation" choices={preferenceOptions.elevation} value={appearance.elevation} onChange={value => change("elevation", value)}/>
     <ChoiceButtons legend="Density" choices={preferenceOptions.density} value={appearance.density} onChange={value => change("density", value)}/>
     <ChoiceButtons legend="Mode" choices={preferenceOptions.mode} value={appearance.mode} onChange={value => change("mode", value)}/>
-    <button type="button" className="s2-secondary-button s2-reset-button" onClick={() => setAppearance(DEFAULT_APPEARANCE)}>Reset appearance</button>
-  </section>;
+    <Button type="button" variant="outline" className="s2-secondary-button s2-reset-button"
+      onClick={() => setAppearance(DEFAULT_APPEARANCE)}>Reset appearance</Button>
+  </DialogContent>;
 }
 
 function Overview({ section, onBack }: { section: MainSection; onBack: () => void }) {
@@ -111,7 +122,7 @@ function Overview({ section, onBack }: { section: MainSection; onBack: () => voi
     <p>{isPeople
       ? "Your connections will have a calm home of their own. For now, this reference focuses on conversations."
       : "Shared notes will live alongside your chats, never competing with them for attention."}</p>
-    <button type="button" className="s2-primary-button" onClick={onBack}>Back to conversations <ChevronRight size={17}/></button>
+    <Button variant="ghost" type="button" className="s2-primary-button" onClick={onBack}>Back to conversations <ChevronRight size={17}/></Button>
   </div>;
 }
 
@@ -223,26 +234,26 @@ export function SengappStudio() {
         </div>
         <div className="s2-nav-label">YOUR SPACE</div>
         <nav className="s2-nav-links">
-          <button type="button" className="s2-nav-item" aria-current={section === "chats" ? "page" : undefined} onClick={() => changeSection("chats")} title="Chats">
-            <MessageCircle size={19}/><span className="s2-nav-text">Chats</span><span className="s2-nav-count">{unreadTotal}</span>
-          </button>
-          <button type="button" className="s2-nav-item" aria-current={section === "people" ? "page" : undefined} onClick={() => changeSection("people")} title="People">
+          <Button variant="ghost" type="button" className="s2-nav-item" aria-current={section === "chats" ? "page" : undefined} onClick={() => changeSection("chats")} title="Chats">
+            <MessageCircle size={19}/><span className="s2-nav-text">Chats</span><Badge className="s2-nav-count">{unreadTotal}</Badge>
+          </Button>
+          <Button variant="ghost" type="button" className="s2-nav-item" aria-current={section === "people" ? "page" : undefined} onClick={() => changeSection("people")} title="People">
             <UsersRound size={19}/><span className="s2-nav-text">People</span>
-          </button>
-          <button type="button" className="s2-nav-item" aria-current={section === "notes" ? "page" : undefined} onClick={() => changeSection("notes")} title="Notes">
+          </Button>
+          <Button variant="ghost" type="button" className="s2-nav-item" aria-current={section === "notes" ? "page" : undefined} onClick={() => changeSection("notes")} title="Notes">
             <Archive size={19}/><span className="s2-nav-text">Notes</span>
-          </button>
+          </Button>
         </nav>
         <div className="s2-nav-spacer"/>
         <div className="s2-nav-bottom">
-          <button type="button" className="s2-nav-item" onClick={() => setAppearanceOpen(true)} title="Appearance">
+          <Button variant="ghost" type="button" className="s2-nav-item" onClick={() => setAppearanceOpen(true)} title="Appearance">
             <Palette size={19}/><span className="s2-nav-text">Appearance</span>
-          </button>
-          <button type="button" className="s2-profile" onClick={() => setAppearanceOpen(true)} aria-label="Customize your preview">
+          </Button>
+          <Button variant="ghost" type="button" className="s2-profile" onClick={() => setAppearanceOpen(true)} aria-label="Customize your preview">
             <span className="s2-self-avatar" aria-hidden="true">Y</span>
             <span className="s2-profile-meta"><strong>Your space</strong><small>Design preview</small></span>
             <ChevronDown size={15} className="s2-profile-chevron" aria-hidden="true"/>
-          </button>
+          </Button>
         </div>
       </aside>
 
@@ -252,26 +263,29 @@ export function SengappStudio() {
             <Action label="Start new conversation (demo)" onClick={() => setNotice("Creating new conversations will be connected after visual approval.")} className="s2-add-button"><Plus size={20}/></Action>
           </div>
           <label className="s2-search"><Search size={17} aria-hidden="true"/><span className="s2-sr-only">Search conversations</span>
-            <input value={search} onChange={event => setSearch(event.target.value)} placeholder="Find a conversation…" />
+            <Input value={search} onChange={event => setSearch(event.target.value)} placeholder="Find a conversation…" />
           </label>
-          <div className="s2-filters" role="group" aria-label="Filter conversations">
+          <ToggleGroup type="single" variant="outline" spacing={2} className="s2-filters" value={filter}
+            aria-label="Filter conversations" onValueChange={next => { if (next) setFilter(next as Filter); }}>
             {(["all", "unread", "groups"] as Filter[]).map(item =>
-              <button key={item} type="button" className="s2-filter" aria-pressed={filter === item}
-                onClick={() => setFilter(item)}>{item === "all" ? "All" : item === "unread" ? "Unread" : "Groups"}{item === "unread" && <span>3</span>}</button>)}
-          </div>
+              <ToggleGroupItem key={item} value={item} className="s2-filter">
+                {item === "all" ? "All" : item === "unread" ? "Unread" : "Groups"}
+                {item === "unread" && <span>3</span>}
+              </ToggleGroupItem>)}
+          </ToggleGroup>
         </header>
-        <div className="s2-conversation-items">
-          {visibleChats.map(conversation => <button type="button" key={conversation.id}
+        <ScrollArea className="s2-conversation-items"><div className="s2-conversation-padding">
+          {visibleChats.map(conversation => <Button variant="ghost" type="button" key={conversation.id}
             className="s2-conversation" aria-current={selectedId === conversation.id && section === "chats" ? "true" : undefined}
             onClick={() => selectConversation(conversation.id)}>
-            <Avatar conversation={conversation}/>
+            <ConversationAvatar conversation={conversation}/>
             <span className="s2-conversation-main">
               <span className="s2-conversation-top"><strong>{conversation.name}</strong><small>{conversation.time}</small></span>
-              <span className="s2-conversation-bottom"><span>{conversation.preview}</span>{conversation.unread > 0 && <b>{conversation.unread}</b>}</span>
+              <span className="s2-conversation-bottom"><span>{conversation.preview}</span>{conversation.unread > 0 && <Badge className="s2-unread-count">{conversation.unread}</Badge>}</span>
             </span>
-          </button>)}
+          </Button>)}
           {visibleChats.length === 0 && <p className="s2-no-results">Nothing here yet. Try another search.</p>}
-        </div>
+        </div></ScrollArea>
         <div className="s2-list-footnote"><Heart size={13} aria-hidden="true"/> The good conversations live here.</div>
       </section>
 
@@ -284,7 +298,7 @@ export function SengappStudio() {
                 onClick={() => setNavOpen(value => !value)}>{navOpen ? <PanelLeftClose size={18}/> : <PanelLeftOpen size={18}/>}</Action>
               <Action label={listOpen ? "Hide conversation list" : "Show conversation list"} className="s2-desktop-action"
                 onClick={() => setListOpen(value => !value)}>{listOpen ? <PanelLeftClose size={18}/> : <PanelLeftOpen size={18}/>}</Action>
-              <Avatar conversation={selected} small/>
+              <ConversationAvatar conversation={selected} small/>
               <div className="s2-thread-identity"><strong>{selected.name}</strong><span>{selected.kind === "group" ? selected.members.length + " members" : "A private conversation"} <i aria-hidden="true">·</i> <em>Just us</em></span></div>
             </div>
             <div className="s2-thread-actions">
@@ -293,7 +307,7 @@ export function SengappStudio() {
               <Action label="More options" onClick={() => setNotice("More conversation actions arrive with the connected app.")}><MoreHorizontal size={20}/></Action>
             </div>
           </header>
-          <div className="s2-message-scroll" aria-label={"Messages in " + selected.name}>
+          <ScrollArea className="s2-message-scroll" aria-label={"Messages in " + selected.name}><div className="s2-message-inner">
             <div className="s2-date-divider"><span>Friday, November 6</span></div>
             <div className="s2-messages">
               {messages.map(message => <div key={message.id} className={"s2-message " + (message.own ? "s2-message-own" : "")}>
@@ -308,28 +322,28 @@ export function SengappStudio() {
                     {message.own && <span className="s2-own-time">{message.time} <CheckCheck size={13} aria-label="Seen in demo"/></span>}
                     {message.reactions?.map(reaction => {
                       const chosen = reacted.includes(selectedId + ":" + message.id + ":" + reaction.emoji);
-                      return <button type="button" key={reaction.emoji} className="s2-reaction"
+                      return <Button variant="ghost" type="button" key={reaction.emoji} className="s2-reaction"
                         aria-pressed={chosen} aria-label={"React " + reaction.emoji + " to " + message.sender + "'s message"}
-                        onClick={() => toggleReaction(message.id, reaction.emoji)}>{reaction.emoji}<span>{reaction.count}</span></button>;
+                        onClick={() => toggleReaction(message.id, reaction.emoji)}>{reaction.emoji}<span>{reaction.count}</span></Button>;
                     })}
-                    <button type="button" className="s2-reply-action" onClick={() => setReply(message)}>Reply</button>
-                    <button type="button" className="s2-reply-action" aria-label={"Add heart reaction to " + message.sender + "'s message"}
-                      onClick={() => toggleReaction(message.id, "💜")}><Smile size={15}/></button>
+                    <Button variant="ghost" type="button" className="s2-reply-action" onClick={() => setReply(message)}>Reply</Button>
+                    <Button variant="ghost" type="button" className="s2-reply-action" aria-label={"Add heart reaction to " + message.sender + "'s message"}
+                      onClick={() => toggleReaction(message.id, "💜")}><Smile size={15}/></Button>
                   </div>
                 </div>
               </div>)}
               <div ref={endOfThread}/>
             </div>
-          </div>
+          </div></ScrollArea>
           <div className="s2-composer-shell">
             {reply && <div className="s2-composer-reply"><span>Replying to <strong>{reply.sender}</strong><small>{(reply.text.split("\n")[0] ?? "")}</small></span>
               <Action label="Cancel reply" onClick={() => setReply(null)}><X size={16}/></Action></div>}
             <form className="s2-composer" onSubmit={sendMessage}>
               <Action label="Add a heart to your draft" onClick={() => setDraft(value => value + " 💜")}><Smile size={20}/></Action>
               <label className="s2-composer-field"><span className="s2-sr-only">Write a message</span>
-                <textarea rows={1} placeholder={"Write to " + selected.name + "…"} maxLength={3000} value={draft}
+                <Textarea rows={1} placeholder={"Write to " + selected.name + "…"} maxLength={3000} value={draft}
                   onChange={event => setDraft(event.target.value)} onKeyDown={handleComposerKeyDown}/></label>
-              <button className="s2-send" type="submit" disabled={!draft.trim()} aria-label="Add message to local demo"><Send size={19}/></button>
+              <Button variant="ghost" className="s2-send" type="submit" disabled={!draft.trim()} aria-label="Add message to local demo"><Send size={19}/></Button>
             </form>
             <p className="s2-composer-note">Design preview only · Nothing is sent to anyone</p>
           </div>
@@ -338,7 +352,7 @@ export function SengappStudio() {
 
       {section === "chats" && detailsOpen && <aside className="s2-details" aria-label="Conversation details">
         <header className="s2-details-header"><strong>Details</strong><Action label="Close details" onClick={() => setDetailsOpen(false)}><X size={17}/></Action></header>
-        <div className="s2-detail-intro"><Avatar conversation={selected}/><h2>{selected.name}</h2><p>{selected.kind === "group" ? selected.members.length + " members" : "Private chat"}</p></div>
+        <div className="s2-detail-intro"><ConversationAvatar conversation={selected}/><h2>{selected.name}</h2><p>{selected.kind === "group" ? selected.members.length + " members" : "Private chat"}</p></div>
         <p className="s2-detail-description">{selected.description}</p>
         <section className="s2-detail-section"><div className="s2-detail-section-heading"><h3>People</h3><span>{selected.members.length}</span></div>
           <div className="s2-member-list">{selected.members.map(member => <div className="s2-member" key={member}><PersonAvatar name={member} small/><span>{member}</span>{member === "You" && <small>you</small>}</div>)}</div>
@@ -349,14 +363,15 @@ export function SengappStudio() {
         <div className="s2-detail-bottom"><Bell size={15}/><span>Quiet by design. You choose what to see.</span></div>
       </aside>}
 
-      {appearanceOpen && <><button type="button" className="s2-popout-scrim" aria-label="Dismiss appearance" onClick={() => setAppearanceOpen(false)}/>
-        <AppearancePopout appearance={appearance} setAppearance={setAppearance} onClose={() => setAppearanceOpen(false)}/></>}
+      <Dialog open={appearanceOpen} onOpenChange={setAppearanceOpen}>
+        {appearanceOpen && <AppearancePopout appearance={appearance} setAppearance={setAppearance}/>}
+      </Dialog>
     </div>
     <div className="s2-mobile-tabs" aria-label="Mobile navigation">
-      <button type="button" aria-current={section === "chats" ? "page" : undefined} onClick={() => changeSection("chats")}><MessageCircle size={20}/>Chats</button>
-      <button type="button" aria-current={section === "people" ? "page" : undefined} onClick={() => changeSection("people")}><UsersRound size={20}/>People</button>
-      <button type="button" aria-current={section === "notes" ? "page" : undefined} onClick={() => changeSection("notes")}><Archive size={20}/>Notes</button>
-      <button type="button" onClick={() => setAppearanceOpen(true)}><Settings2 size={20}/>Style</button>
+      <Button variant="ghost" type="button" aria-current={section === "chats" ? "page" : undefined} onClick={() => changeSection("chats")}><MessageCircle size={20}/>Chats</Button>
+      <Button variant="ghost" type="button" aria-current={section === "people" ? "page" : undefined} onClick={() => changeSection("people")}><UsersRound size={20}/>People</Button>
+      <Button variant="ghost" type="button" aria-current={section === "notes" ? "page" : undefined} onClick={() => changeSection("notes")}><Archive size={20}/>Notes</Button>
+      <Button variant="ghost" type="button" onClick={() => setAppearanceOpen(true)}><Settings2 size={20}/>Style</Button>
     </div>
     {notice && <div className="s2-notice" role="status">{notice}<Action label="Dismiss notice" onClick={() => setNotice(null)}><X size={15}/></Action></div>}
   </div>;

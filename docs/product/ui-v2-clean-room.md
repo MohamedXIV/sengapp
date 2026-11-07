@@ -34,3 +34,13 @@ src/ui-v2/studio provides a complete standalone reference conversation: filterab
 The interactions simulate UI only. No real conversation is created and nothing is sent.
 
 Next: human visual acceptance for the first reference screen; then Arabic/RTL and mobile design passes; then build actual shared presentation components and integrate the existing backend without importing legacy UI.
+
+## Component policy — shadcn-first, not CSS-first
+
+**Source-of-truth:** official shadcn/ui components and documented blocks. Never write a custom primitive when an official one fits. Use the installed shadcn Button, Input, Textarea, Badge, Dialog and add the upstream Avatar, Toggle, Toggle Group and Scroll Area. Any local adapter may compose a shadcn primitive, never reimplement its focus, keyboard, selection, dialog or scroll mechanics.
+
+**Visual boundary:** shadcn controls provide accessibility/interaction; v2-only semantic tokens, art direction and application composition provide the look. No legacy screen, CSS block, profile component, or navigation markup is imported. The old shadcn install is a vendor-like component library, NOT permission to inherit its old visual styling.
+
+Use the blocks sidebar-07/08/09 and dashboard-01 for layout patterns only. The final Classic/Cozy shells should adopt shadcn Sidebar, Sheet and appropriate official components *when shells are rebuilt*, instead of transplanting the old Classic shell into v2.
+
+The demo has a floating Appearance Dialog, with shadcn focus management and keyboard Escape, and Scroll Area for message and conversation scrolling. All actions remain sample-data-only until product integration.
