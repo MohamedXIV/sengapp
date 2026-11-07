@@ -65,12 +65,12 @@ test("UI v2 messages use native shadcn Message, Bubble and MessageScroller parts
   await expect(page.locator('[data-slot="message-scroller-viewport"]')).toBeVisible();
   await expect(page.locator('[data-slot="message-scroller-content"]')).toBeVisible();
   await expect(page.locator('[data-slot="marker"][data-variant="separator"]')).toBeVisible();
-  const row = page.locator('[data-message-id="d1"]');
-  await expect(row).toHaveAttribute("data-slot", "message");
+  const row = page.locator('[data-slot="message-scroller-item"][data-message-id="d1"]');
+  await expect(row.locator('[data-slot="message"]')).toHaveAttribute("data-align", "start");
   await expect(row.locator('[data-slot="message-content"]')).toBeVisible();
   await expect(row.locator('[data-slot="bubble"]')).toHaveAttribute("data-variant", "muted");
-  const own = page.locator('[data-message-id="d5"]');
-  await expect(own).toHaveAttribute("data-align", "end");
+  const own = page.locator('[data-slot="message-scroller-item"][data-message-id="d5"]');
+  await expect(own.locator('[data-slot="message"]')).toHaveAttribute("data-align", "end");
   await expect(own.locator('[data-slot="bubble"]')).toHaveAttribute("data-variant", "default");
-  await expect(page.getByRole("button", { name: "Scroll to end" })).toHaveCount(1);
+  await expect(page.locator('[data-slot="message-scroller-button"]')).toHaveCount(1);
 });
