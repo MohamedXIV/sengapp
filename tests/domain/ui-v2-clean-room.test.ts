@@ -8,7 +8,7 @@ describe("UI v2 clean-room architectural boundary", () => {
     const css = readFileSync("src/ui-v2/studio/studio.css", "utf8");
     const uiImports = [...component.matchAll(/from ["'](@\/components\/[^"']+)["']/g)].map(match => match[1]);
     expect(uiImports.length).toBeGreaterThan(0);
-    expect(uiImports.every(path => path.startsWith("@/components/ui/"))).toBe(true);
+    expect(uiImports.every(path => path?.startsWith("@/components/ui/") === true)).toBe(true);
     expect(component).not.toMatch(/@\/features\/|convex\/|@clerk\//);
     expect(route).not.toMatch(/@\/components\/|@\/features\/|convex\/|@clerk\//);
     expect(css).not.toMatch(/\.cottage-|\.sengapp-workspace|\.dv-|\.dockview-|glassmorphism/);
