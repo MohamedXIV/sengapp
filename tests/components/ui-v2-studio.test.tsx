@@ -1,19 +1,22 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { VanillaMessenger } from "@/ui-v2/vanilla/messenger";
 
-beforeAll(() => {
+beforeEach(() => {
+  const matchMedia = (query: string): MediaQueryList => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => true,
+  });
   Object.defineProperty(window, "matchMedia", {
+    configurable: true,
     writable: true,
-    value: vi.fn().mockImplementation((media: string) => ({
-      matches: false,
-      media,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
+    value: matchMedia,
   });
 });
 
