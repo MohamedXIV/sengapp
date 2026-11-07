@@ -204,48 +204,7 @@ body:has(.s2-root[data-mode="dark"]) .sengapp-sheet-overlay {
 .s2-thread-identity span { color: var(--s2-muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .s2-thread-identity i { padding-inline: 4px; font-style: normal; }
 .s2-thread-identity em { font-style: normal; color: var(--s2-tint-ink); }
-.s2-message-scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 15px clamp(18px,3vw,45px) 12px; }
-.s2-date-divider { display: flex; gap: 15px; align-items: center; color: var(--s2-faint); font-size: 10px; margin-bottom: 28px; }
-.s2-date-divider::before, .s2-date-divider::after { content: ""; display: block; background: var(--s2-line); height: 1px; flex: 1; }
-.s2-date-divider span { white-space: nowrap; padding: 5px 12px; background: var(--s2-panel); border: 1px solid var(--s2-line); border-radius: 99px; }
-.s2-messages { display: flex; flex-direction: column; gap: 18px; max-width: 800px; margin-inline: auto; }
-:is(.s2-root, .s2-appearance-popout)[data-density="compact"] .s2-messages { gap: 11px; }
-.s2-message { display: flex; gap: 10px; align-items: flex-start; }
-.s2-message .s2-avatar { width: 34px; height: 34px; font-size: 15px; margin-top: 4px; }
-.s2-message-content { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; max-width: min(78%, 570px); }
-.s2-message-meta { display: flex; gap: 10px; align-items: baseline; margin: 0 0 5px 4px; }
-.s2-message-meta strong { font-weight: 710; font-size: 12px; }
-.s2-message-meta time, .s2-own-time { font-size: 10px; color: var(--s2-muted); }
-.s2-bubble { padding: 12px 15px; max-width: 100%; background: var(--s2-wash); border-radius: var(--s2-radius); border-start-start-radius: 5px; font-size: 13px; line-height: 1.55; }
-:is(.s2-root, .s2-appearance-popout)[data-density="compact"] .s2-bubble { padding: 9px 12px; }
-.s2-bubble p { white-space: pre-wrap; overflow-wrap: anywhere; }
-.s2-quoted { display: flex; flex-direction: column; gap: 1px; border-inline-start: 3px solid var(--s2-accent); padding-inline-start: 10px; margin-bottom: 9px; color: var(--s2-muted); font-size: 11px; }
-.s2-quoted strong { color: var(--s2-accent); font-size: 11px; }
-.s2-message-trail { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; padding-top: 5px; }
-.s2-reaction { min-height: 23px; display: inline-flex; gap: 5px; align-items: center; padding: 2px 9px; background: var(--s2-paper); border: 1px solid var(--s2-line); border-radius: 99px; font-size: 11px !important; }
-.s2-reaction[aria-pressed="true"] { border-color: var(--s2-accent); background: var(--s2-tint); color: var(--s2-tint-ink); }
-.s2-reaction span { color: var(--s2-muted); }
-.s2-reply-action { display: inline-flex; align-items: center; gap: 4px; min-height: 23px; padding: 2px 7px; border: 0; border-radius: 6px; background: transparent; font-size: 10px !important; color: var(--s2-faint) !important; opacity: .55; }
-.s2-reply-action:hover, .s2-reply-action:focus-visible { opacity: 1; color: var(--s2-accent) !important; background: var(--s2-wash); }
-.s2-message-own { flex-direction: row-reverse; }
-.s2-message-own .s2-message-content { align-items: flex-end; }
-.s2-message-own .s2-bubble { border-start-start-radius: var(--s2-radius); border-start-end-radius: 5px; background: var(--s2-own); color: var(--s2-own-ink); }
-.s2-message-own .s2-message-trail { justify-content: flex-end; }
-.s2-own-time { display: inline-flex; align-items: center; gap: 5px; padding-inline: 4px; }
-.s2-own-time svg { color: var(--s2-accent); }
-.s2-composer-shell { flex: none; padding: 11px clamp(14px, 3vw, 36px) 13px; background: var(--s2-paper); }
-.s2-composer { display: flex; align-items: center; gap: 9px; width: 100%; min-height: 57px; max-width: 800px; margin-inline: auto; border: 1px solid var(--s2-line); border-radius: calc(var(--s2-radius) + 7px); padding: 8px 9px; background: var(--s2-paper); box-shadow: 0 2px 9px rgba(52,39,27,.035); }
-.s2-composer:focus-within { border-color: var(--s2-accent); }
-.s2-composer .s2-icon-button { color: var(--s2-muted); }
-.s2-composer-field { display: block; flex: 1; min-width: 0; }
-.s2-composer textarea { display: block; resize: none; width: 100%; max-height: 150px; min-height: 23px; border: 0; outline: none !important; color: var(--s2-ink); background: transparent; line-height: 1.5; font-size: 12px; }
-.s2-send { flex: none; width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--s2-accent); color: var(--s2-accent-ink) !important; }
-.s2-send:hover { filter: brightness(.93); }
-.s2-composer-note { text-align: center; color: var(--s2-faint); font-size: 10px; padding-top: 6px; }
-.s2-composer-reply { max-width: 800px; margin-inline: auto; margin-bottom: 6px; padding: 7px 10px; border-inline-start: 3px solid var(--s2-accent); background: var(--s2-panel); border-radius: 5px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 11px; }
-.s2-composer-reply span { display: block; min-width: 0; }
-.s2-composer-reply small { display: block; color: var(--s2-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.s2-composer-reply .s2-icon-button { width: 27px; height: 27px; }
+.s2-composer-shell { flex: none; padding: 12px clamp(12px, 3vw, 32px) 13px; background: var(--s2-paper); }
 .s2-mobile-back { display: none; }
 
 .s2-details { grid-column: 3; display: flex; flex-direction: column; overflow-y: auto; background: var(--s2-panel); border-inline-start: 1px solid var(--s2-line); }
@@ -314,16 +273,10 @@ body:has(.s2-root[data-mode="dark"]) .sengapp-sheet-overlay {
   .s2-thread-identity strong { font-size: 14px; }
   .s2-thread-identity span { font-size: 10px; }
   .s2-thread-actions { gap: 1px; }
-  .s2-messages { gap: 17px; }
-  .s2-message-content { max-width: min(82%,570px); }
-  .s2-composer-shell { padding: 8px 10px 10px; }
-  .s2-composer-note { font-size: 9px; }
   .s2-details { position: absolute; z-index: 15; inset: 0; display: flex; width: 100%; background: var(--s2-paper); }
   .s2-notice { bottom: 15px; inset-inline: 10px; }
 }
 @media (max-width: 390px) {
-  .s2-message-content { max-width: 82%; }
-  .s2-bubble { padding: 10px 12px; font-size: 12px; }
   .s2-list-header h1 { font-size: 23px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -333,7 +286,6 @@ body:has(.s2-root[data-mode="dark"]) .sengapp-sheet-overlay {
 /* shadcn/ui primitives: the library provides behavior, v2 supplies only visual tokens and layout. */
 .s2-root { --radius: var(--s2-radius); }
 .s2-avatar .s2-avatar-fallback { background: transparent; color: inherit; }
-.s2-send svg { width: 19px; height: 19px; }
 .s2-choice[data-state="on"], .s2-filter[data-state="on"] { color: var(--s2-tint-ink); background: var(--s2-tint); border-color: var(--s2-accent); }
 .s2-conversation-items { overflow: hidden; padding: 0; }
 .s2-conversation-padding { padding: 4px 9px 12px; }

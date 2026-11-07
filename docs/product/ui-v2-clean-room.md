@@ -56,3 +56,8 @@ The standard offcanvas and mobile Sheet transitions are now owned by shadcn. The
 ## Portal theming and account menus
 
 The desktop shadcn DropdownMenu had a transparent surface because the legacy global theme did not define the `--popover` channels. The mobile shadcn Sheet renders in a Radix Portal, outside the `.s2-root` subtree, so its inherited sidebar colors came from the legacy root rather than from UI v2. Fix both at the design-token boundary: CSS `body:has(.s2-root)` inherits the same UI v2 palette (including chosen accent/light/dark variants) for Radix portals while the route is mounted. Define the missing shadcn popover HSL channels, not a custom dropdown component. The mobile profile menu opens above the footer and respects collision padding and safe-area space. Keep upstream shadcn behavior unchanged. Browser tests assert solid popover surfaces, unified mobile/desktop colors, placement and menu actions.
+
+
+## Messages + Composer (shadcn-first reference)
+
+The timeline is a standalone component composed from official shadcn Card/CardContent, Avatar, Badge, ScrollArea, Separator, Toggle and DropdownMenu. Replies, quick reactions and message actions use their built-in accessible interactions. The Composer is standalone and uses the official InputGroup/InputGroupTextarea/InputGroupAddon/InputGroupButton and Popover. Only product-specific alignment, bubble palette and spacing are styled. Demo sends, edits, deletes, replies, reactions, emoji insertion and clipboard do not write to Convex. Mixed Arabic/English and longer fixture messages exercise text wrapping and bidi. Mobile Enter adds a newline; send is an explicit button press. No real attachments are available in the reference.

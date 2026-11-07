@@ -71,4 +71,12 @@ describe("Sengapp UI v2 isolated reference", () => {
     expect(JSON.parse(window.localStorage.getItem("sengapp-v2-clean-room-appearance") ?? "null")).toEqual(saved);
   });
 
+  it("renders shadcn message action menus and composer controls", () => {
+    render(<SengappStudio />);
+    expect(screen.getByRole("button", { name: "Message actions: d1" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Choose emoji" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Attach file (demo)" }));
+    expect(screen.getByText(/Attachments will be connected/)).toBeInTheDocument();
+  });
+
 });

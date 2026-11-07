@@ -90,6 +90,8 @@ export const initialMessages: Record<string, DemoMessage[]> = {
   design: [
     { id: "a1", sender: "Mina", time: "Yesterday", text: "New sketches uploaded ✨\nI kept the layout simple this time." },
     { id: "a2", sender: "You", own: true, time: "Yesterday", text: "The little details make all the difference." },
+    { id: "a3", sender: "Sara", time: "Yesterday", text: "تفتكر نخفف الحدود والظلال شوية؟ خلّي المحادثة هي البطل، والباقي هادي 🌿" },
+    { id: "a4", sender: "Mina", time: "Yesterday", text: "We should test longer messages too. A thoughtful design has to feel calm when a conversation becomes detailed, when someone shares a few paragraphs, and when English and Arabic appear in the same thread. Nothing should be clipped or squeezed into an awkward fixed-width box." },
   ],
   family: [
     { id: "f1", sender: "Nour", time: "Nov 4", text: "Dinner on Friday? 🍲" },

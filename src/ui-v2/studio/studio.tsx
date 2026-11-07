@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
 import {
-  ArrowLeft, Bell, Check, CheckCheck, ChevronRight, Heart, Leaf,
+  ArrowLeft, Bell, Check, ChevronRight, Heart, Leaf,
   MoreHorizontal, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen,
-  Plus, Search, Send, Smile, Sparkles, UsersRound, X,
+  Plus, Search, Sparkles, UsersRound, X,
 } from "lucide-react";
 import { demoConversations, initialMessages, type DemoConversation, type DemoMessage } from "./studio-data";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { SengappAppSidebar } from "./app-sidebar";
+import { MessageTimeline } from "./message-timeline";
+import { MessageComposer } from "./message-composer";
 
 type Accent = "sage" | "clay" | "plum" | "ocean";
 type Corners = "quiet" | "soft" | "round";
@@ -142,6 +144,7 @@ export function SengappStudio() {
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
   const [reply, setReply] = useState<DemoMessage | null>(null);
+  const [editing, setEditing] = useState<DemoMessage | null>(null);
   const [threads, setThreads] = useState<Record<string, DemoMessage[]>>(initialMessages);
   const [reacted, setReacted] = useState<string[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
@@ -175,6 +178,8 @@ export function SengappStudio() {
   function selectConversation(id: string) {
     setSelectedId(id);
     setReply(null);
+    setEditing(null);
+    setDraft("");
     setDetailsOpen(false);
     setSection("chats");
     setMobileView("thread");
@@ -187,23 +192,54 @@ export function SengappStudio() {
     setMobileView(next === "chats" ? "list" : "thread");
   }
 
-  function sendMessage(event?: FormEvent) {
-    event?.preventDefault();
+  function sendMessage() {
     const value = draft.trim();
     if (!value) return;
-    const message: DemoMessage = {
-      id: "local-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
-      sender: "You", time: "Now", text: value, own: true,
-      ...(reply ? { reply: { sender: reply.sender, text: (reply.text.split("\n")[0] ?? "") } } : {}),
-    };
-    setThreads(previous => ({ ...previous, [selectedId]: [...(previous[selectedId] ?? []), message] }));
+    if (editing) {
+      setThreads(previous => ({
+        ...previous,
+        [selectedId]: (previous[selectedId] ?? []).map(message => message.id === editing.id ? { ...message, text: value } : message),
+      }));
+      setNotice("Edited in the local design demo — nothing was sent.");
+    } else {
+      const message: DemoMessage = {
+        id: "local-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+        sender: "You", time: "Now", text: value, own: true,
+        ...(reply ? { reply: { sender: reply.sender, text: reply.text.split("\n")[0] ?? "" } } : {}),
+      };
+      setThreads(previous => ({ ...previous, [selectedId]: [...(previous[selectedId] ?? []), message] }));
+      setNotice("Added to the local design demo — no message was sent.");
+    }
     setDraft("");
     setReply(null);
-    setNotice("Added to the local design demo — no message was sent.");
+    setEditing(null);
   }
 
-  function handleComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) sendMessage(event);
+  function replyTo(message: DemoMessage) {
+    if (editing) setDraft("");
+    setEditing(null);
+    setReply(message);
+  }
+  function editMessage(message: DemoMessage) {
+    if (!message.own) return;
+    setReply(null);
+    setEditing(message);
+    setDraft(message.text);
+  }
+  function deleteMessage(message: DemoMessage) {
+    if (!message.own) return;
+    setThreads(previous => ({ ...previous, [selectedId]: (previous[selectedId] ?? []).filter(item => item.id !== message.id) }));
+    if (editing?.id === message.id) { setEditing(null); setDraft(""); }
+    if (reply?.id === message.id) setReply(null);
+    setNotice("Removed from local preview only.");
+  }
+  async function copyMessage(message: DemoMessage) {
+    try {
+      await navigator.clipboard.writeText(message.text);
+      setNotice("Message text copied.");
+    } catch {
+      setNotice("Clipboard is unavailable in this browser.");
+    }
   }
 
   function toggleReaction(messageId: string, emoji: string) {
@@ -290,46 +326,13 @@ export function SengappStudio() {
               <Action label="More options" onClick={() => setNotice("More conversation actions arrive with the connected app.")}><MoreHorizontal size={20}/></Action>
             </div>
           </header>
-          <ScrollArea className="s2-message-scroll" aria-label={"Messages in " + selected.name}><div className="s2-message-inner">
-            <div className="s2-date-divider"><span>Friday, November 6</span></div>
-            <div className="s2-messages">
-              {messages.map(message => <div key={message.id} className={"s2-message " + (message.own ? "s2-message-own" : "")}>
-                {!message.own && <PersonAvatar name={message.sender} small/>}
-                <div className="s2-message-content">
-                  {!message.own && <div className="s2-message-meta"><strong>{message.sender}</strong><time>{message.time}</time></div>}
-                  <div className="s2-bubble">
-                    {message.reply && <div className="s2-quoted"><strong>{message.reply.sender}</strong><span>{message.reply.text}</span></div>}
-                    <p>{message.text}</p>
-                  </div>
-                  <div className="s2-message-trail">
-                    {message.own && <span className="s2-own-time">{message.time} <CheckCheck size={13} aria-label="Seen in demo"/></span>}
-                    {message.reactions?.map(reaction => {
-                      const chosen = reacted.includes(selectedId + ":" + message.id + ":" + reaction.emoji);
-                      return <Button variant="ghost" type="button" key={reaction.emoji} className="s2-reaction"
-                        aria-pressed={chosen} aria-label={"React " + reaction.emoji + " to " + message.sender + "'s message"}
-                        onClick={() => toggleReaction(message.id, reaction.emoji)}>{reaction.emoji}<span>{reaction.count}</span></Button>;
-                    })}
-                    <Button variant="ghost" type="button" className="s2-reply-action" onClick={() => setReply(message)}>Reply</Button>
-                    <Button variant="ghost" type="button" className="s2-reply-action" aria-label={"Add heart reaction to " + message.sender + "'s message"}
-                      onClick={() => toggleReaction(message.id, "💜")}><Smile size={15}/></Button>
-                  </div>
-                </div>
-              </div>)}
-              <div ref={endOfThread}/>
-            </div>
-          </div></ScrollArea>
-          <div className="s2-composer-shell">
-            {reply && <div className="s2-composer-reply"><span>Replying to <strong>{reply.sender}</strong><small>{(reply.text.split("\n")[0] ?? "")}</small></span>
-              <Action label="Cancel reply" onClick={() => setReply(null)}><X size={16}/></Action></div>}
-            <form className="s2-composer" onSubmit={sendMessage}>
-              <Action label="Add a heart to your draft" onClick={() => setDraft(value => value + " 💜")}><Smile size={20}/></Action>
-              <label className="s2-composer-field"><span className="s2-sr-only">Write a message</span>
-                <Textarea rows={1} placeholder={"Write to " + selected.name + "…"} maxLength={3000} value={draft}
-                  onChange={event => setDraft(event.target.value)} onKeyDown={handleComposerKeyDown}/></label>
-              <Button variant="ghost" className="s2-send" type="submit" disabled={!draft.trim()} aria-label="Add message to local demo"><Send size={19}/></Button>
-            </form>
-            <p className="s2-composer-note">Design preview only · Nothing is sent to anyone</p>
-          </div>
+          <MessageTimeline conversationName={selected.name} conversationId={selectedId} messages={messages}
+            reacted={reacted} endRef={endOfThread} onReact={toggleReaction} onReply={replyTo}
+            onEdit={editMessage} onDelete={deleteMessage} onCopy={copyMessage}/>
+          <MessageComposer recipient={selected.name} draft={draft} reply={reply} editing={editing}
+            onDraftChange={setDraft} onSend={sendMessage}
+            onCancel={() => { setReply(null); setEditing(null); setDraft(""); }}
+            onAttach={() => setNotice("Attachments will be connected after the UI review.")}/>
         </> : <Overview section={section} onBack={() => changeSection("chats")}/>}
       </section>
 
