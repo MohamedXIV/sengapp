@@ -12,32 +12,37 @@ beforeAll(() => {
       addListener: vi.fn(),
       removeListener: vi.fn(),
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
       dispatchEvent: vi.fn(),
     })),
   });
 });
 
-describe("UI v2 vanilla shadcn baseline", () => {
-  it("shows a sample chat without a live backend", () => {
+describe("Sengapp shadcn block reference", () => {
+  it("displays the official block-inspired chat panel and sidebar", () => {
     render(<VanillaMessenger />);
     expect(screen.getByRole("heading", { name: "Dev Team" })).toBeInTheDocument();
     expect(screen.getByText(/Morning team!/)).toBeInTheDocument();
-    expect(screen.getByText("Sample conversations only")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "New conversation" })).toBeInTheDocument();
   });
 
-  it("switches local conversations", () => {
+  it("selects mock conversations from sidebar-08", () => {
     render(<VanillaMessenger />);
     fireEvent.click(screen.getByRole("button", { name: /Sara Ali/ }));
     expect(screen.getByText("How does the new layout feel?")).toBeInTheDocument();
   });
 
-  it("uses InputGroup for a local-only send", () => {
+  it("displays the native Empty state for a new conversation", () => {
+    render(<VanillaMessenger />);
+    fireEvent.click(screen.getByRole("button", { name: "New conversation" }));
+    expect(screen.getByText("Start a conversation")).toBeInTheDocument();
+  });
+
+  it("sends only into local preview state through InputGroup", () => {
     render(<VanillaMessenger />);
     const input = screen.getByRole("textbox", { name: "Write a message" });
-    fireEvent.change(input, { target: { value: "A plain demo message" } });
+    fireEvent.change(input, { target: { value: "Plain demo message" } });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    expect(screen.getByText("A plain demo message")).toBeInTheDocument();
+    expect(screen.getByText("Plain demo message")).toBeInTheDocument();
     expect(input).toHaveValue("");
   });
 });

@@ -69,7 +69,7 @@ export function VanillaMessenger() {
                   <div className="flex min-w-0 items-center gap-3">
                     <Avatar><AvatarFallback>{conversation?.initials ?? "✳"}</AvatarFallback></Avatar>
                     <div className="min-w-0">
-                      <CardTitle>{title}</CardTitle>
+                      <CardTitle role="heading" aria-level={1}>{title}</CardTitle>
                       <CardDescription>{subtitle}</CardDescription>
                     </div>
                   </div>
@@ -111,7 +111,7 @@ export function VanillaMessenger() {
             )}
           </Card>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>UI reference based on shadcn's Chat Demo and sidebar-08 block.</span>
+            <span>UI reference based on shadcn&apos;s Chat Demo and sidebar-08 block.</span>
             <Badge variant="outline">Demo only</Badge>
           </div>
         </div>

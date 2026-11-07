@@ -1,22 +1,10 @@
-# Sengapp UI v2 — vanilla shadcn baseline
+# Sengapp UI v2 — official shadcn block composition
 
-## Reset decision
+The first "vanilla" experiment was too bare because it copied individual primitives, not the actual layout and shell of the official examples. This iteration is grounded in two authored upstream compositions:
 
-The layered UI v2 Design Studio was rejected. This revision deletes its components, old page-specific CSS, appearance playground, and hand-authored visual system instead of covering them with additional overrides.
+- Official \`sidebar-08\` block: AppSidebar + NavMain + NavProjects + NavSecondary + NavUser. Sengapp labels and local click callbacks replace the demo's Acme/Project data, while the original structure and utility classes remain.
+- Official \`chat-demo\` and \`message-scroller-group-chat\` examples: bounded chat Card, explicit header, Empty state, MessageScroller, Message/Bubble variants, and the InputGroup composer with an attachment menu and Send action. Agent and AI SDK features are omitted because Sengapp is a human-to-human messenger.
 
-## Included
+The old global Sengapp theme uses warm custom HSL tokens and lacks the popup tokens required by modern primitives. The UI v2-only \`shadcn-theme.css\` restores a single familiar stock shadcn light palette for the baseline without styling individual components or affecting main routes.
 
-- A fresh /ui-v2 route using the installed official shadcn Sidebar, Message, Bubble, MessageScroller, Marker, Avatar, Badge, Separator, and InputGroup.
-- No className or style props on chat primitives and no new page-specific CSS. Tailwind only positions structural containers (flex, height, padding, overflow).
-- Existing global project shadcn theme variables still supply the baseline palette; the route does not introduce another theme or token layer.
-- Three mock conversations with both English and Arabic messages, and a local-only Send interaction.
-
-## Intentionally absent
-
-Appearance customization, reactions, replies, editing, deleting, profile menus, overlays, AI transport, and backend adapters are deferred until the owner accepts the default component appearance.
-
-## Isolation
-
-Nothing on the /ui-v2 route reads from Clerk or Convex, writes to production, or imports the old Classic or Cozy UI. The main branch and production routes remain unchanged.
-
-CI validates component composition and desktop/mobile behavior. Passing CI is not visual approval.
+All conversations and sends are local demo state. No Convex/Clerk/AI SDK integration is present. Main branch and production UI remain unchanged. The PR remains Draft until visual signoff.
