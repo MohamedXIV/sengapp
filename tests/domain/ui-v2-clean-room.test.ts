@@ -17,10 +17,19 @@ describe("UI v2 clean-room architectural boundary", () => {
     const composer = readFileSync("src/ui-v2/studio/message-composer.tsx", "utf8");
     const inputGroup = readFileSync("src/components/ui/input-group.tsx", "utf8");
     const presentation = component + timeline + composer;
-    for (const primitive of ["button", "input", "avatar", "toggle-group", "scroll-area", "dialog", "card", "toggle", "dropdown-menu", "input-group", "popover"]) {
+    for (const primitive of ["button", "input", "avatar", "toggle-group", "dialog", "toggle", "dropdown-menu", "input-group", "popover", "bubble", "message", "message-scroller", "marker"]) {
       expect(presentation).toContain(`@/components/ui/${primitive}`);
     }
     expect(inputGroup).toContain('from "@/components/ui/textarea"');
+    const scroller = readFileSync("src/components/ui/message-scroller.tsx", "utf8");
+    const bubble = readFileSync("src/components/ui/bubble.tsx", "utf8");
+    expect(scroller).toContain('@shadcn/react/message-scroller');
+    expect(timeline).toContain('<MessageScrollerProvider');
+    expect(timeline).toContain('<MessageScrollerItem');
+    expect(timeline).toContain('<BubbleReactions');
+    expect(timeline).not.toContain('<Card');
+    expect(timeline).not.toContain('scrollIntoView');
+    expect(bubble).toContain("bubbleVariants");
     for (const file of [timeline, composer]) {
       expect(file).not.toContain("@/features/");
       expect(file).not.toContain("convex/");

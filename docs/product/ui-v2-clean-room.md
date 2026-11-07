@@ -66,3 +66,10 @@ The timeline is a standalone component composed from official shadcn Card/CardCo
 ## Message/Composer visual and behavioral verification
 
 Browser coverage now checks the shadcn DropdownMenu message actions, Radix Toggle reaction state, edit/reply/send, InputGroup multiline keyboard handling and Popover emoji insertion. Mobile selects a thread, checks long and Arabic messages, creates a multiline draft and sends explicitly. All actions are mock state; stable routes and the production backend remain untouched.
+
+
+## Native shadcn chat composition — Message/Bubble/Scroller
+
+Replaced the Card-based message rows and generic ScrollArea with **upstream shadcn/ui** `Message` (`MessageAvatar`, `MessageHeader`, `MessageContent`, `MessageFooter`), `Bubble` (`BubbleContent`, `BubbleReactions`), `Marker` and `MessageScroller` (Provider, Viewport, Content, Item, Button). The app uses `@shadcn/react/message-scroller@0.3.1` for the upstream tested headless scroll behavior. `defaultScrollPosition="end"`, `autoScroll`, and `preserveScrollOnPrepend` keep a human-to-human conversation's reading position; unlike AI turn anchoring, `scrollAnchor={false}` on human chat rows avoids jumping to the sender's newest message. The old `scrollIntoView` effect was removed. The real shadcn scroll-fade-b utility is copied unchanged from upstream's `shadcn/tailwind.css` into an isolated UI v2 stylesheet rather than installing the whole CLI just for CSS.
+
+AI Elements patterns and `@shadcn/helpers/ai-sdk` are deliberately not imported: Sengapp currently handles human messages and uses Convex in production, and no AI SDK transport is needed for that workflow. The existing shadcn InputGroup/Popover Composer stays unchanged. Browser tests cover native data slots and all prior mock interactions. PR stays Draft until visual approval.

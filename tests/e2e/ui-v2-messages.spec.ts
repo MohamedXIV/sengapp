@@ -42,7 +42,7 @@ test("UI v2 composer uses the official emoji Popover and preserves Shift+Enter",
   await expect(input).toHaveValue("Hello\n🌿");
 });
 
-test("UI v2 mobile thread retains an explicit Send action and wrapped message cards", async ({ page }, testInfo) => {
+test("UI v2 mobile thread retains an explicit Send action and shadcn Message and Bubble", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile-chrome", "Mobile messenger layout");
   await page.goto("/ui-v2");
   await page.getByRole("button", { name: /Design Friends/ }).click();
@@ -56,4 +56,21 @@ test("UI v2 mobile thread retains an explicit Send action and wrapped message ca
   await expect(page.getByText("Mobile note")).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
+});
+
+
+test("UI v2 messages use native shadcn Message, Bubble and MessageScroller parts", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium", "Desktop chat primitive composition");
+  await page.goto("/ui-v2");
+  await expect(page.locator('[data-slot="message-scroller-viewport"]')).toBeVisible();
+  await expect(page.locator('[data-slot="message-scroller-content"]')).toBeVisible();
+  await expect(page.locator('[data-slot="marker"][data-variant="separator"]')).toBeVisible();
+  const row = page.locator('[data-message-id="d1"]');
+  await expect(row).toHaveAttribute("data-slot", "message");
+  await expect(row.locator('[data-slot="message-content"]')).toBeVisible();
+  await expect(row.locator('[data-slot="bubble"]')).toHaveAttribute("data-variant", "muted");
+  const own = page.locator('[data-message-id="d5"]');
+  await expect(own).toHaveAttribute("data-align", "end");
+  await expect(own.locator('[data-slot="bubble"]')).toHaveAttribute("data-variant", "default");
+  await expect(page.getByRole("button", { name: "Scroll to end" })).toHaveCount(1);
 });

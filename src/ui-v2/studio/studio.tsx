@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type ReactNode, type CSSProperties } from "react";
 import {
   ArrowLeft, Bell, Check, ChevronRight, Heart, Leaf,
   MoreHorizontal, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen,
@@ -147,7 +147,6 @@ export function SengappStudio() {
   const [threads, setThreads] = useState<Record<string, DemoMessage[]>>(initialMessages);
   const [reacted, setReacted] = useState<string[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
-  const endOfThread = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const saved = readAppearance();
@@ -161,9 +160,6 @@ export function SengappStudio() {
     if (!appearanceHydrated) return;
     try { window.localStorage.setItem(APPEARANCE_KEY, JSON.stringify(appearance)); } catch { /* browser storage can be blocked */ }
   }, [appearance, appearanceHydrated]);
-  useEffect(() => {
-    if (mobileView === "thread") endOfThread.current?.scrollIntoView?.({ block: "nearest" });
-  }, [mobileView, selectedId, threads]);
 
   const selected = demoConversations.find(conversation => conversation.id === selectedId) ?? demoConversations[0]!;
   const messages = threads[selected.id] ?? [];
@@ -326,7 +322,7 @@ export function SengappStudio() {
             </div>
           </header>
           <MessageTimeline conversationName={selected.name} conversationId={selectedId} messages={messages}
-            reacted={reacted} endRef={endOfThread} onReact={toggleReaction} onReply={replyTo}
+            reacted={reacted} onReact={toggleReaction} onReply={replyTo}
             onEdit={editMessage} onDelete={deleteMessage} onCopy={copyMessage}/>
           <MessageComposer recipient={selected.name} draft={draft} reply={reply} editing={editing}
             onDraftChange={setDraft} onSend={sendMessage}
