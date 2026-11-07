@@ -13,8 +13,16 @@ describe("UI v2 clean-room architectural boundary", () => {
     expect(route).not.toMatch(/@\/components\/|@\/features\/|convex\/|@clerk\//);
     expect(css).not.toMatch(/\.cottage-|\.sengapp-workspace|\.dv-|\.dockview-|glassmorphism/);
     expect(component).toContain("demoConversations");
-    for (const primitive of ["button", "input", "textarea", "avatar", "toggle-group", "scroll-area", "dialog"]) {
-      expect(component).toContain(`@/components/ui/${primitive}`);
+    const timeline = readFileSync("src/ui-v2/studio/message-timeline.tsx", "utf8");
+    const composer = readFileSync("src/ui-v2/studio/message-composer.tsx", "utf8");
+    const inputGroup = readFileSync("src/components/ui/input-group.tsx", "utf8");
+    const presentation = component + timeline + composer;
+    for (const primitive of ["button", "input", "avatar", "toggle-group", "scroll-area", "dialog", "card", "toggle", "dropdown-menu", "input-group", "popover"]) {
+      expect(presentation).toContain(`@/components/ui/${primitive}`);
+    }
+    expect(inputGroup).toContain('from "@/components/ui/textarea"');
+    for (const file of [timeline, composer]) {
+      expect(file).not.toMatch(/@\\/features\\/|convex\\/|@clerk\\//);
     }
     expect(route).toContain("SengappStudio");
   });
