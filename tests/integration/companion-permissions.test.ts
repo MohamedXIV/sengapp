@@ -232,6 +232,10 @@ describe("Companion authorization contracts (no AI provider)", () => {
     })).rejects.toThrow(); // New participant hasn't consented; no history should be shared.
     await expect(f.outsider.mutation(api.companions.setConsent, consent)).rejects.toThrow();
     await f.bob.mutation(api.companions.setConsent, consent);
+    // Consent after joining does not expose a message written before the join.
+    await expect(f.alice.mutation(api.companionInvocations.request, {
+      conversationId: group, companionId: f.companionId, sourceMessageId: old, clientNonce: nonce("14"),
+    })).rejects.toThrow();
     const current = await f.alice.mutation(api.messages.send, {
       conversationId: group, body: "@milo hello after join", clientNonce: "group-after-milo-0001",
     });
