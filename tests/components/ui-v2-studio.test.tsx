@@ -51,7 +51,7 @@ describe("Sengapp shadcn block reference", () => {
   it("renders the mock companion within the same conversation and keeps approvals local", () => {
     render(<VanillaMessenger />);
     expect(screen.getByText("AI companion · mock")).toBeInTheDocument();
-    expect(screen.getByText(/No model or tool was run/)).toBeInTheDocument();
+    expect(screen.getByText(/no model or tool was run/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Approve preview" }));
     expect(screen.getByText("Approved locally · not executed")).toBeInTheDocument();
   });
