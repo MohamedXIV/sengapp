@@ -47,8 +47,12 @@ export const request = mutation({
     const membership = scope.memberships.find(row => row.profileId === me._id);
     if (!membership) return denyCompanion();
     const source = await ctx.db.get(sourceMessageId);
-    assertSourceMessage(source, me._id, conversationId, scope.companion.handle,
-      scope.conversation.kind === "group" ? membership.joinedAt : null);
+    // A new group member must not be shown pre-join history through an AI reply,
+    // even when the original sender is still a member.
+    const joinedCutoff = scope.conversation.kind === "group"
+      ? Math.max(...scope.memberships.map(member => member.joinedAt))
+      : null;
+    assertSourceMessage(source, me._id, conversationId, scope.companion.handle, joinedCutoff);
 
     // Re-validate authorization BEFORE even returning an idempotent prior result.
     const duplicate = await ctx.db.query("companionInvocations")
@@ -137,8 +141,11 @@ export const contextForDispatch = internalQuery({
       const membership = scope.memberships.find(row => row.profileId === invocation.requesterProfileId);
       if (!membership) return null;
       const source = await ctx.db.get(invocation.sourceMessageId);
+      const joinedCutoff = scope.conversation.kind === "group"
+        ? Math.max(...scope.memberships.map(member => member.joinedAt))
+        : null;
       assertSourceMessage(source, invocation.requesterProfileId, invocation.conversationId,
-        scope.companion.handle, scope.conversation.kind === "group" ? membership.joinedAt : null);
+        scope.companion.handle, joinedCutoff);
       if (source.editedAt !== invocation.sourceEditedAt) return null;
       return {
         invocationId: invocation._id, conversationId: invocation.conversationId,
