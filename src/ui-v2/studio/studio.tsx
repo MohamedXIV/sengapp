@@ -131,6 +131,7 @@ function Overview({ section, onBack }: { section: MainSection; onBack: () => voi
 
 export function SengappStudio() {
   const [appearance, setAppearance] = useState<Appearance>(DEFAULT_APPEARANCE);
+  const [appearanceHydrated, setAppearanceHydrated] = useState(false);
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const [listOpen, setListOpen] = useState(true);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -148,11 +149,16 @@ export function SengappStudio() {
 
   useEffect(() => {
     const saved = readAppearance();
-    if (saved) queueMicrotask(() => setAppearance(saved));
+    // Prevent the default theme from replacing a saved theme during the first paint.
+    queueMicrotask(() => {
+      if (saved) setAppearance(saved);
+      setAppearanceHydrated(true);
+    });
   }, []);
   useEffect(() => {
+    if (!appearanceHydrated) return;
     try { window.localStorage.setItem(APPEARANCE_KEY, JSON.stringify(appearance)); } catch { /* browser storage can be blocked */ }
-  }, [appearance]);
+  }, [appearance, appearanceHydrated]);
   useEffect(() => {
     if (mobileView === "thread") endOfThread.current?.scrollIntoView?.({ block: "nearest" });
   }, [mobileView, selectedId, threads]);

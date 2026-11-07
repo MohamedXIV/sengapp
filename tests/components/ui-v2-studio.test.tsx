@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { SengappStudio } from "@/ui-v2/studio/studio";
 
 beforeAll(() => {
@@ -62,4 +62,13 @@ describe("Sengapp UI v2 isolated reference", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reset appearance" }));
     expect(container.querySelector(".s2-root")).toHaveAttribute("data-accent", "sage");
   });
+  it("restores saved appearance before writing defaults to browser storage", async () => {
+    const saved = { accent: "plum", corners: "soft", elevation: "soft", density: "comfortable", mode: "dark" };
+    window.localStorage.setItem("sengapp-v2-clean-room-appearance", JSON.stringify(saved));
+    const { container } = render(<SengappStudio />);
+    await waitFor(() => expect(container.querySelector(".s2-root")).toHaveAttribute("data-mode", "dark"));
+    expect(container.querySelector(".s2-root")).toHaveAttribute("data-accent", "plum");
+    expect(JSON.parse(window.localStorage.getItem("sengapp-v2-clean-room-appearance") ?? "null")).toEqual(saved);
+  });
+
 });

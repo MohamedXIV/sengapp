@@ -118,7 +118,7 @@ body:has(.s2-root[data-mode="dark"]) .sengapp-sheet-overlay {
   --background: 60 6% 14%;
   --foreground: 40 15% 92%;
   --popover: 60 6% 14%;
-  --popover-foreground: 40 15% 92%;
+  --popover-foreground: 40 26% 91%;
   --accent: 100 13% 22%;
   --accent-foreground: 97 34% 85%;
   --primary: 98 24% 54%;
