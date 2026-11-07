@@ -56,6 +56,10 @@ test("mobile sidebar-08 and human group chat work without horizontal overflow", 
 test("AI companion and human messages share one native scroller with Trace and approval", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "Desktop shared AI-human conversation");
   await page.goto("/ui-v2");
+  await page.getByRole("button", { name: "Name your companion" }).click();
+  await page.getByRole("textbox", { name: "Companion display name" }).fill("Sparrow");
+  await page.getByRole("textbox", { name: "Mention alias" }).fill("sparrow");
+  await page.getByRole("button", { name: "Save companion" }).click();
   await expect(page.locator('[data-slot="message-scroller-item"][data-message-id="t5"]')).toBeVisible();
   await expect(page.locator('[data-agent-activity="preview"] [data-slot="trace"]').first()).toBeVisible();
   await expect(page.locator('[data-agent-activity="preview"]')).toHaveCount(1);
@@ -68,11 +72,15 @@ test("AI companion and human messages share one native scroller with Trace and a
 test("mentioning a companion produces a clearly mocked response only with sample consent", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "Desktop companion mock");
   await page.goto("/ui-v2");
+  await page.getByRole("button", { name: "Name your companion" }).click();
+  await page.getByRole("textbox", { name: "Companion display name" }).fill("Sparrow");
+  await page.getByRole("textbox", { name: "Mention alias" }).fill("sparrow");
+  await page.getByRole("button", { name: "Save companion" }).click();
   await page.getByRole("button", { name: "Mention a companion" }).click();
-  await page.getByRole("button", { name: /Mention @Milo/ }).click();
+  await page.getByRole("button", { name: /Mention @sparrow/ }).click();
   const draft = page.getByRole("textbox", { name: "Write a message" });
-  await expect(draft).toHaveValue("@Milo ");
-  await draft.fill("@Milo can you help with our design review?");
+  await expect(draft).toHaveValue("@sparrow ");
+  await draft.fill("@sparrow can you help with our design review?");
   await page.getByRole("button", { name: "Send", exact: true }).click();
   await expect(page.getByText(/No AI model, memory, connected app or tool has been called/)).toBeVisible();
 });
@@ -80,9 +88,38 @@ test("mentioning a companion produces a clearly mocked response only with sample
 test("in another conversation a mention is blocked until participant consent", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "Desktop consent mock");
   await page.goto("/ui-v2");
+  await page.getByRole("button", { name: "Name your companion" }).click();
+  await page.getByRole("textbox", { name: "Companion display name" }).fill("Sparrow");
+  await page.getByRole("textbox", { name: "Mention alias" }).fill("sparrow");
+  await page.getByRole("button", { name: "Save companion" }).click();
   await page.getByRole("button", { name: /Sara Ali/ }).click();
-  await page.getByRole("textbox", { name: "Write a message" }).fill("@Milo please remember this");
+  await page.getByRole("textbox", { name: "Write a message" }).fill("@sparrow please remember this");
   await page.getByRole("button", { name: "Send", exact: true }).click();
   await expect(page.getByText(/Companion request not activated/)).toBeVisible();
   await expect(page.locator('[data-agent-activity="preview"]')).toHaveCount(0);
+});
+
+
+test("no default Companion; owner can choose and edit name and alias", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium", "Desktop companion alias");
+  await page.goto("/ui-v2");
+  await expect(page.locator('[data-slot="message-scroller-item"][data-message-id="t5"]')).toHaveCount(0);
+  await expect(page.getByText("Choose your own companion alias")).toBeVisible();
+  await page.getByRole("textbox", { name: "Write a message" }).fill("@star is not configured");
+  await page.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(page.locator('[data-agent-activity="preview"]')).toHaveCount(0);
+  await page.getByRole("button", { name: "Name your companion" }).click();
+  await page.getByRole("textbox", { name: "Companion display name" }).fill("فراشة");
+  await page.getByRole("textbox", { name: "Mention alias" }).fill("farasha");
+  await page.getByRole("button", { name: "Save companion" }).click();
+  await expect(page.getByText("@farasha · sample consent")).toBeVisible();
+  await page.getByRole("button", { name: "Edit companion" }).click();
+  await page.getByRole("textbox", { name: "Companion display name" }).fill("Little Star");
+  await page.getByRole("textbox", { name: "Mention alias" }).fill("star");
+  await page.getByRole("button", { name: "Save companion" }).click();
+  await expect(page.getByText("@star · sample consent")).toBeVisible();
+  await expect(page.getByText("Little Star", { exact: true })).toBeVisible();
+  await page.getByRole("textbox", { name: "Write a message" }).fill("@star hello");
+  await page.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(page.getByText(/No AI model, memory, connected app or tool has been called/)).toBeVisible();
 });

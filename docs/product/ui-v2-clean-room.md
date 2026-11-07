@@ -12,10 +12,14 @@ All conversations and sends are local demo state. No Convex/Clerk/AI SDK integra
 
 ## AI companions are part of conversations, not a second product UI
 
-The existing approved vision supports named companions in private and explicitly approved group chats. A UI-only example now uses human and agent entries in the same MessageScroller; shadcn Trace and Item provide activity/approval surfaces. The composer permits `@Milo` from **every** conversation, but only the fictitious `team` sample has mock consent. Other peer/group conversations display a blocked request with no agent output. This is **not real consent**, no AI provider runs, and no real background reminder is created. Everything remains in component state.
+The existing approved vision supports named companions in private and explicitly approved group chats. A UI-only example now uses human and agent entries in the same MessageScroller; shadcn Trace and Item provide activity/approval surfaces. The composer permits the owner's chosen `@alias` from **every** conversation, but only the fictitious `team` sample has mock consent. Other peer/group conversations display a blocked request with no agent output. This is **not real consent**, no AI provider runs, and no real background reminder is created. Everything remains in component state.
 
 See [AI Elements adoption and authorization architecture](ai-elements-conversation-ui.md) for the complete pattern inventory and required server-side trust boundaries.
 
 ## Companion backend decision
 
 See [ADR 0003 — Convex Agent with optional Gateway](../architecture/adr/0003-permissioned-convex-agents.md). The UI v2 demo uses a fictitious agent and mock approvals only; the planned server integration and permission gates are **not** implemented here.
+
+## Companion identity is owner-defined
+
+UI v2 starts without a named AI agent. The owner uses a native shadcn Dialog to choose (and edit) display name and @mention handle, then the example agent event appears. The selection is local preview state only. In the real app, Convex PR #37 stores owner-scoped `handle` and `displayName`.

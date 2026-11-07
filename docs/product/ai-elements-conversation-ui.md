@@ -4,6 +4,10 @@
 
 > **Backend selection note (2026-11-07):** The planned runtime is [Convex Agent Component with an optional AI Gateway](../architecture/adr/0003-permissioned-convex-agents.md). This is a proposed integration path only; this document's AI Elements are UI patterns and previews, not evidence of a deployed agent.
 
+## Owner-chosen identity
+
+Each user names their own Companion: a freely chosen **display name** (including Arabic) and a configurable **@mention alias**. No fixed product name, preset persona or universal nickname. Mentions must resolve to a specific companion ID owned by a user and authorized for that conversation; no text-only global identity match. In UI v2 this is temporary local demo state; in PR #37 Convex stores owner-scoped handle and displayName.
+
 ## Product invariant
 
 **One conversation, multiple participant types.** Human DMs and groups remain primary. A named companion is accessible by mention from any chat UI, but it does not automatically become a member, read history, or execute work. Private owner work and group contexts are isolated. If member permissions are not confirmed, the invocation stays a blocked request, not an AI response.
@@ -58,6 +62,6 @@ The renderer should switch on a discriminated event type and lazy-load tool-spec
 
 ## UI gate for this iteration
 
-The existing **UI v2 design** remains based on the official shadcn Chat demo and sidebar-08 block, without extending \`studio.css\` or the old appearance system. The local preview shows an agent inside a real-looking message stream, a Trace-based sample task, a source link and a non-executing confirmation card. Mentioning @Milo is available in every composer; only mock consent gates the illustrative reply.
+The existing **UI v2 design** remains based on the official shadcn Chat demo and sidebar-08 block, without extending \`studio.css\` or the old appearance system. The local preview shows an agent inside a real-looking message stream, a Trace-based sample task, a source link and a non-executing confirmation card. Once the owner chooses a display name and @mention alias in the demo, that alias is available in every composer; only mock consent gates the illustrative reply. No product-level default Companion identity exists.
 
 Before real agent work, validate roles and permissions at the Convex boundary, create a request/response event contract, and add multi-account negative-access tests. After that, layer in additional documented AI Elements only when their corresponding data contract exists.

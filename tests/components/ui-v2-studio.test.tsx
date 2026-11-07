@@ -50,6 +50,10 @@ describe("Sengapp shadcn block reference", () => {
   });
   it("renders the mock companion within the same conversation and keeps approvals local", () => {
     render(<VanillaMessenger />);
+    fireEvent.click(screen.getByRole("button", { name: "Name your companion" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Companion display name" }), { target: { value: "فراشة" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Mention alias" }), { target: { value: "farasha" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save companion" }));
     expect(screen.getByText("AI companion · mock")).toBeInTheDocument();
     expect(screen.getByText(/no model or tool was run/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Approve preview" }));
@@ -58,9 +62,13 @@ describe("Sengapp shadcn block reference", () => {
 
   it("does not show companion output without mock consent", () => {
     render(<VanillaMessenger />);
+    fireEvent.click(screen.getByRole("button", { name: "Name your companion" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Companion display name" }), { target: { value: "Sparrow" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Mention alias" }), { target: { value: "sparrow" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save companion" }));
     fireEvent.click(screen.getByRole("button", { name: /Sara Ali/ }));
     const input = screen.getByRole("textbox", { name: "Write a message" });
-    fireEvent.change(input, { target: { value: "@Milo can you help?" } });
+    fireEvent.change(input, { target: { value: "@sparrow can you help?" } });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
     expect(screen.getByText(/Companion request not activated/)).toBeInTheDocument();
     expect(screen.queryByText("AI companion · mock")).not.toBeInTheDocument();
