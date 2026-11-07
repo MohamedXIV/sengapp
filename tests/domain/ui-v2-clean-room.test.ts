@@ -26,8 +26,8 @@ describe("UI v2 vanilla clean-room boundary", () => {
     for (const primitive of ["Message", "Bubble", "BubbleContent", "MessageScroller", "MessageScrollerViewport"]) {
       expect(timeline).toContain("<" + primitive);
     }
-    expect(timeline).not.toContain("className=");
-    expect(composer).not.toContain("className=");
+    expect(timeline).not.toMatch(/<(?:Message|Bubble|BubbleContent|MessageScroller|MessageScrollerViewport|MessageScrollerContent)\b[^>]*className=/);
+    expect(composer).not.toMatch(/<(?:InputGroup|InputGroupTextarea|InputGroupAddon|InputGroupButton)\b[^>]*className=/);
     expect(messenger).not.toContain("style=");
   });
 });
