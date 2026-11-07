@@ -61,3 +61,8 @@ The desktop shadcn DropdownMenu had a transparent surface because the legacy glo
 ## Messages + Composer (shadcn-first reference)
 
 The timeline is a standalone component composed from official shadcn Card/CardContent, Avatar, Badge, ScrollArea, Separator, Toggle and DropdownMenu. Replies, quick reactions and message actions use their built-in accessible interactions. The Composer is standalone and uses the official InputGroup/InputGroupTextarea/InputGroupAddon/InputGroupButton and Popover. Only product-specific alignment, bubble palette and spacing are styled. Demo sends, edits, deletes, replies, reactions, emoji insertion and clipboard do not write to Convex. Mixed Arabic/English and longer fixture messages exercise text wrapping and bidi. Mobile Enter adds a newline; send is an explicit button press. No real attachments are available in the reference.
+
+
+## Message/Composer visual and behavioral verification
+
+Browser coverage now checks the shadcn DropdownMenu message actions, Radix Toggle reaction state, edit/reply/send, InputGroup multiline keyboard handling and Popover emoji insertion. Mobile selects a thread, checks long and Arabic messages, creates a multiline draft and sends explicitly. All actions are mock state; stable routes and the production backend remain untouched.

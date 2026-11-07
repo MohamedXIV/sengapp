@@ -9,7 +9,6 @@ import {
 import { demoConversations, initialMessages, type DemoConversation, type DemoMessage } from "./studio-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar as ShadcnAvatar, AvatarFallback } from "@/components/ui/avatar";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
