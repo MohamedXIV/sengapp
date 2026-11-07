@@ -132,6 +132,54 @@ export default defineSchema({
     .index("by_sender_nonce", ["senderProfileId", "clientNonce"])
     .index("by_sender_time", ["senderProfileId", "createdAt"]),
 
+  // Companions are owned by an existing profile, never implicit group members.
+  companions: defineTable({
+    ownerProfileId: v.id("profiles"),
+    handle: v.string(),
+    displayName: v.string(),
+    status: v.union(v.literal("active"), v.literal("disabled")),
+    revision: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_owner", ["ownerProfileId"])
+    .index("by_owner_handle", ["ownerProfileId", "handle"]),
+
+  // Per-member opt-in for ONE companion in ONE conversation, bound to the
+  // current membership epoch. Removal and rejoin do not restore old consent.
+  companionConsents: defineTable({
+    conversationId: v.id("conversations"),
+    companionId: v.id("companions"),
+    profileId: v.id("profiles"),
+    membershipJoinedAt: v.number(),
+    granted: v.boolean(),
+    revision: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_conversation_companion_profile", ["conversationId", "companionId", "profileId"]),
+
+  // A pre-provider authorization record only. No LLM/model calls, auto-runs,
+  // private context copy, tool approvals or durable background tasks yet.
+  companionInvocations: defineTable({
+    conversationId: v.id("conversations"),
+    companionId: v.id("companions"),
+    requesterProfileId: v.id("profiles"),
+    sourceMessageId: v.id("messages"),
+    sourceEditedAt: v.optional(v.number()),
+    clientNonce: v.string(),
+    companionRevision: v.number(),
+    consents: v.array(v.object({
+      profileId: v.id("profiles"),
+      membershipJoinedAt: v.number(),
+      revision: v.number(),
+    })),
+    status: v.union(v.literal("validated"), v.literal("cancelled")),
+    createdAt: v.number(),
+    cancelledAt: v.optional(v.number()),
+  })
+    .index("by_requester_nonce", ["requesterProfileId", "clientNonce"])
+    .index("by_requester_time", ["requesterProfileId", "createdAt"]),
+
   // A short-lived lease, NOT an authoritative socket connection or background tracker.
   // Only direct peers with the relevant opt-in can see derived presence.
   profileActivity: defineTable({

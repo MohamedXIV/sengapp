@@ -7,6 +7,8 @@ import type * as conversations from "../conversations.js";
 import type * as messages from "../messages.js";
 import type * as groups from "../groups.js";
 import type * as activity from "../activity.js";
+import type * as companions from "../companions.js";
+import type * as companionInvocations from "../companionInvocations.js";
 
 declare const fullApi: ApiFromModules<{
   profiles: typeof profiles;
@@ -16,6 +18,8 @@ declare const fullApi: ApiFromModules<{
   messages: typeof messages;
   groups: typeof groups;
   activity: typeof activity;
+  companions: typeof companions;
+  companionInvocations: typeof companionInvocations;
 }>;
 export declare const api: FilterApi<typeof fullApi, FunctionReference<any, "public">>;
 export declare const internal: FilterApi<typeof fullApi, FunctionReference<any, "internal">>;
