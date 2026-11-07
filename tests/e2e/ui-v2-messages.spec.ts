@@ -25,8 +25,9 @@ test("UI v2 desktop shadcn composer supports sending, replies, reactions and edi
   await expect(page.getByText("Editing your message")).toBeVisible();
   await input.fill("Edited for this local prototype");
   await page.getByRole("button", { name: "Add message to local demo" }).click();
-  await expect(page.getByText("Edited for this local prototype")).toBeVisible();
-  await expect(page.getByText("Pushed the updates! 🎉")).toHaveCount(0);
+  const editedMessage = page.locator('[data-message-id="d5"]');
+  await expect(editedMessage).toContainText("Edited for this local prototype");
+  await expect(editedMessage).not.toContainText("Pushed the updates! 🎉");
 });
 
 test("UI v2 composer uses the official emoji Popover and preserves Shift+Enter", async ({ page }, testInfo) => {
