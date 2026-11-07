@@ -48,4 +48,22 @@ describe("Sengapp shadcn block reference", () => {
     expect(screen.getByText("Plain demo message")).toBeInTheDocument();
     expect(input).toHaveValue("");
   });
+  it("renders the mock companion within the same conversation and keeps approvals local", () => {
+    render(<VanillaMessenger />);
+    expect(screen.getByText("AI companion · mock")).toBeInTheDocument();
+    expect(screen.getByText(/No model or tool was run/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Approve preview" }));
+    expect(screen.getByText("Approved locally · not executed")).toBeInTheDocument();
+  });
+
+  it("does not show companion output without mock consent", () => {
+    render(<VanillaMessenger />);
+    fireEvent.click(screen.getByRole("button", { name: /Sara Ali/ }));
+    const input = screen.getByRole("textbox", { name: "Write a message" });
+    fireEvent.change(input, { target: { value: "@Milo can you help?" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    expect(screen.getByText(/Companion request not activated/)).toBeInTheDocument();
+    expect(screen.queryByText("AI companion · mock")).not.toBeInTheDocument();
+  });
+
 });

@@ -41,6 +41,22 @@ describe("UI v2 shadcn block first isolation", () => {
     expect(composer).not.toContain("style=");
   });
 
+  it("models AI as a participant in the same timeline, not an independent chat page", () => {
+    const data = readFileSync("src/ui-v2/vanilla/data.ts", "utf8");
+    const activity = readFileSync("src/ui-v2/vanilla/agent-activity.tsx", "utf8");
+    const timeline = readFileSync("src/ui-v2/vanilla/timeline.tsx", "utf8");
+    const composer = readFileSync("src/ui-v2/vanilla/composer.tsx", "utf8");
+    const shell = readFileSync("src/ui-v2/vanilla/messenger.tsx", "utf8");
+    expect(data).toContain('kind?: "person" | "agent" | "notice"');
+    expect(data).toContain("exampleAgentConsent");
+    expect(activity).toContain("@/components/ui/trace");
+    expect(activity).toContain("@/components/ui/item");
+    expect(timeline).toContain("AgentActivity");
+    expect(composer).toContain("Mention a companion");
+    expect(shell).toContain("exampleAgentConsent[selectedId]");
+    expect(shell).not.toMatch(/@ai-sdk\/react|useChat\(|convex\/|@clerk\//);
+  });
+
   it("scopes one stock theme to the demo and never targets individual components", () => {
     const theme = readFileSync("src/ui-v2/vanilla/shadcn-theme.css", "utf8");
     expect(theme).toContain("body:has([data-sengapp-shadcn-blocks])");
