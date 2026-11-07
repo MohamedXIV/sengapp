@@ -41,7 +41,7 @@ describe("Sengapp UI v2 isolated reference", () => {
     expect(screen.queryByRole("complementary", { name: "Conversation details" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Appearance" }));
     expect(screen.getByRole("dialog", { name: "Appearance" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Plum" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Plum" }));
     expect(container.querySelector(".s2-root")).toHaveAttribute("data-accent", "plum");
     fireEvent.click(screen.getByRole("button", { name: "Reset appearance" }));
     expect(container.querySelector(".s2-root")).toHaveAttribute("data-accent", "sage");
