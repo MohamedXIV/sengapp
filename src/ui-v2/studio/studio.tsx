@@ -226,7 +226,6 @@ export function SengappStudio() {
     data-corners={appearance.corners} data-elevation={appearance.elevation}
     data-density={appearance.density} data-list-open={listOpen}
     data-details-open={detailsOpen} data-mobile-view={mobileView}>
-    <div className="s2-preview-banner" role="status"><Sparkles size={13} aria-hidden="true"/> UI v2 design study <span aria-hidden="true">·</span> Example conversations, not live messages</div>
 
     <SidebarProvider className="s2-stage" style={{ "--sidebar-width": "15.5rem" } as CSSProperties}>
       <SengappAppSidebar
@@ -242,6 +241,7 @@ export function SengappStudio() {
           <Breadcrumb><BreadcrumbList><BreadcrumbItem>
             <BreadcrumbPage>{section === "chats" ? "Conversations" : section === "people" ? "People" : "Notes"}</BreadcrumbPage>
           </BreadcrumbItem></BreadcrumbList></Breadcrumb>
+          <span role="status" className="ms-auto hidden items-center gap-1.5 text-xs text-muted-foreground sm:inline-flex"><Sparkles aria-hidden="true" className="size-3.5"/> UI v2 design study · Example conversations, not live messages</span>
         </header>
         <div className="s2-stage-body">
       <section className="s2-chat-list" aria-label="Conversations">
