@@ -44,3 +44,10 @@ Next: human visual acceptance for the first reference screen; then Arabic/RTL an
 Use the blocks sidebar-07/08/09 and dashboard-01 for layout patterns only. The final Classic/Cozy shells should adopt shadcn Sidebar, Sheet and appropriate official components *when shells are rebuilt*, instead of transplanting the old Classic shell into v2.
 
 The demo has a floating Appearance Dialog, with shadcn focus management and keyboard Escape, and Scroll Area for message and conversation scrolling. All actions remain sample-data-only until product integration.
+
+
+## Navigation revision: sidebar-08 composition, not a bespoke skin
+
+The first UI v2 study used its own CSS-grid navigation. The owner rejected this approach in favor of using shadcn/ui's actual sidebar-08 components and behavior. This revision replaces the hand-built main navigation with the first-party SidebarProvider, Sidebar (variant="inset" and collapsible="offcanvas"), SidebarInset, SidebarTrigger, SidebarMenu groups, Collapsible menus, and DropdownMenu for the profile footer. The official primitive implementations are installed as local components; only their cn import paths are adjusted to match the project.
+
+The standard offcanvas and mobile Sheet transitions are now owned by shadcn. The stage uses a full-viewport shell rather than trying to force a fixed shadcn sidebar inside a custom offset frame. The messenger-specific conversation list and bubble presentation remain styled as product content, separate from navigation primitives. Visual appearance is still subject to human review; CI alone is not approval.

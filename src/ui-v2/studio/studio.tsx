@@ -165,7 +165,6 @@ export function SengappStudio() {
     const query = search.trim().toLowerCase();
     return !query || (conversation.name + " " + conversation.preview).toLowerCase().includes(query);
   }), [filter, search]);
-  const unreadTotal = demoConversations.reduce((total, conversation) => total + conversation.unread, 0);
 
   function selectConversation(id: string) {
     setSelectedId(id);
@@ -269,7 +268,7 @@ export function SengappStudio() {
         <div className="s2-list-footnote"><Heart size={13} aria-hidden="true"/> The good conversations live here.</div>
       </section>
 
-      <main className="s2-thread">
+      <section className="s2-thread">
         {section === "chats" ? <>
           <header className="s2-thread-header">
             <div className="s2-thread-leading">
@@ -326,7 +325,7 @@ export function SengappStudio() {
             <p className="s2-composer-note">Design preview only · Nothing is sent to anyone</p>
           </div>
         </> : <Overview section={section} onBack={() => changeSection("chats")}/>}
-      </main>
+      </section>
 
       {section === "chats" && detailsOpen && <aside className="s2-details" aria-label="Conversation details">
         <header className="s2-details-header"><strong>Details</strong><Action label="Close details" onClick={() => setDetailsOpen(false)}><X size={17}/></Action></header>
