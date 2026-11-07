@@ -136,7 +136,7 @@ export function VanillaMessenger() {
                     <DialogContent>
                       <form onSubmit={saveCompanion} className="space-y-4">
                         <DialogHeader>
-                          <DialogTitle>Choose your companion's identity</DialogTitle>
+                          <DialogTitle>Choose your companion&apos;s identity</DialogTitle>
                           <DialogDescription>
                             You choose the display name and @mention alias. No default agent name.
                             This is local demo state, not an account setting.
