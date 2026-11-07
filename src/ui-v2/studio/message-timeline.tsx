@@ -32,7 +32,7 @@ function MessageRow({
   message, conversationId, reacted, onReact, onReply, onEdit, onDelete, onCopy,
 }: Omit<MessageTimelineProps, "conversationName" | "messages"> & { message: DemoMessage }) {
   const own = Boolean(message.own);
-  return <Message align={own ? "end" : "start"} data-message-id={message.id}>
+  return <Message align={own ? "end" : "start"}>
     {!own && <MessageAvatar>
       <Avatar className="size-8" aria-hidden="true">
         <AvatarFallback className="bg-secondary text-secondary-foreground">{message.sender.slice(0, 1)}</AvatarFallback>
