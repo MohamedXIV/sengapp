@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode, type CSSProperties } from "react";
 import {
-  Archive, ArrowLeft, Bell, Check, CheckCheck, ChevronDown, ChevronRight,
-  Heart, Leaf, MessageCircle, MoreHorizontal, PanelLeftClose, PanelLeftOpen,
-  PanelRightClose, PanelRightOpen, Palette, Plus, Search, Send, Settings2,
-  Smile, Sparkles, UsersRound, X,
+  ArrowLeft, Bell, Check, CheckCheck, ChevronRight, Heart, Leaf,
+  MoreHorizontal, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen,
+  Plus, Search, Send, Smile, Sparkles, UsersRound, X,
 } from "lucide-react";
 import { demoConversations, initialMessages, type DemoConversation, type DemoMessage } from "./studio-data";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,10 @@ import { Avatar as ShadcnAvatar, AvatarFallback } from "@/components/ui/avatar";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { SengappAppSidebar } from "./app-sidebar";
 
 type Accent = "sage" | "clay" | "plum" | "ocean";
 type Corners = "quiet" | "soft" | "round";
@@ -129,7 +132,6 @@ function Overview({ section, onBack }: { section: MainSection; onBack: () => voi
 export function SengappStudio() {
   const [appearance, setAppearance] = useState<Appearance>(DEFAULT_APPEARANCE);
   const [appearanceOpen, setAppearanceOpen] = useState(false);
-  const [navOpen, setNavOpen] = useState(true);
   const [listOpen, setListOpen] = useState(true);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [section, setSection] = useState<MainSection>("chats");
@@ -222,41 +224,26 @@ export function SengappStudio() {
 
   return <div className="s2-root" data-mode={appearance.mode} data-accent={appearance.accent}
     data-corners={appearance.corners} data-elevation={appearance.elevation}
-    data-density={appearance.density} data-nav-open={navOpen} data-list-open={listOpen}
+    data-density={appearance.density} data-list-open={listOpen}
     data-details-open={detailsOpen} data-mobile-view={mobileView}>
     <div className="s2-preview-banner" role="status"><Sparkles size={13} aria-hidden="true"/> UI v2 design study <span aria-hidden="true">·</span> Example conversations, not live messages</div>
 
-    <div className="s2-stage">
-      <aside className="s2-navigation" aria-label="Main navigation">
-        <div className="s2-brand">
-          <span className="s2-brand-symbol" aria-hidden="true"><Leaf size={24} strokeWidth={2.2}/></span>
-          <div className="s2-brand-words"><strong>Sengapp</strong><span>just a little closer</span></div>
-        </div>
-        <div className="s2-nav-label">YOUR SPACE</div>
-        <nav className="s2-nav-links">
-          <Button variant="ghost" type="button" className="s2-nav-item" aria-current={section === "chats" ? "page" : undefined} onClick={() => changeSection("chats")} title="Chats">
-            <MessageCircle size={19}/><span className="s2-nav-text">Chats</span><Badge className="s2-nav-count">{unreadTotal}</Badge>
-          </Button>
-          <Button variant="ghost" type="button" className="s2-nav-item" aria-current={section === "people" ? "page" : undefined} onClick={() => changeSection("people")} title="People">
-            <UsersRound size={19}/><span className="s2-nav-text">People</span>
-          </Button>
-          <Button variant="ghost" type="button" className="s2-nav-item" aria-current={section === "notes" ? "page" : undefined} onClick={() => changeSection("notes")} title="Notes">
-            <Archive size={19}/><span className="s2-nav-text">Notes</span>
-          </Button>
-        </nav>
-        <div className="s2-nav-spacer"/>
-        <div className="s2-nav-bottom">
-          <Button variant="ghost" type="button" className="s2-nav-item" onClick={() => setAppearanceOpen(true)} title="Appearance">
-            <Palette size={19}/><span className="s2-nav-text">Appearance</span>
-          </Button>
-          <Button variant="ghost" type="button" className="s2-profile" onClick={() => setAppearanceOpen(true)} aria-label="Customize your preview">
-            <span className="s2-self-avatar" aria-hidden="true">Y</span>
-            <span className="s2-profile-meta"><strong>Your space</strong><small>Design preview</small></span>
-            <ChevronDown size={15} className="s2-profile-chevron" aria-hidden="true"/>
-          </Button>
-        </div>
-      </aside>
-
+    <SidebarProvider className="s2-stage" style={{ "--sidebar-width": "15.5rem" } as CSSProperties}>
+      <SengappAppSidebar
+        section={section} filter={filter} selectedId={selectedId}
+        onSection={changeSection} onFilter={setFilter} onSelect={selectConversation}
+        onAppearance={() => setAppearanceOpen(true)}
+        onAbout={() => setNotice("Sengapp UI v2 is a design-only preview. No live messages or real accounts.")}
+      />
+      <SidebarInset className="s2-stage-inset">
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-4">
+          <SidebarTrigger aria-label="Toggle Sidebar" />
+          <Separator orientation="vertical" className="mx-1 h-4" />
+          <Breadcrumb><BreadcrumbList><BreadcrumbItem>
+            <BreadcrumbPage>{section === "chats" ? "Conversations" : section === "people" ? "People" : "Notes"}</BreadcrumbPage>
+          </BreadcrumbItem></BreadcrumbList></Breadcrumb>
+        </header>
+        <div className="s2-stage-body">
       <section className="s2-chat-list" aria-label="Conversations">
         <header className="s2-list-header">
           <div className="s2-heading-row"><div><span className="s2-overline">MESSAGES</span><h1>Conversations</h1></div>
@@ -265,14 +252,7 @@ export function SengappStudio() {
           <label className="s2-search"><Search size={17} aria-hidden="true"/><span className="s2-sr-only">Search conversations</span>
             <Input value={search} onChange={event => setSearch(event.target.value)} placeholder="Find a conversation…" />
           </label>
-          <ToggleGroup type="single" variant="outline" spacing={2} className="s2-filters" value={filter}
-            aria-label="Filter conversations" onValueChange={next => { if (next) setFilter(next as Filter); }}>
-            {(["all", "unread", "groups"] as Filter[]).map(item =>
-              <ToggleGroupItem key={item} value={item} className="s2-filter">
-                {item === "all" ? "All" : item === "unread" ? "Unread" : "Groups"}
-                {item === "unread" && <span>3</span>}
-              </ToggleGroupItem>)}
-          </ToggleGroup>
+          
         </header>
         <ScrollArea className="s2-conversation-items"><div className="s2-conversation-padding">
           {visibleChats.map(conversation => <Button variant="ghost" type="button" key={conversation.id}
@@ -294,8 +274,6 @@ export function SengappStudio() {
           <header className="s2-thread-header">
             <div className="s2-thread-leading">
               <Action label="Back to conversation list" className="s2-mobile-back" onClick={() => { setMobileView("list"); setDetailsOpen(false); }}><ArrowLeft size={20}/></Action>
-              <Action label={navOpen ? "Collapse navigation" : "Expand navigation"} className="s2-desktop-action"
-                onClick={() => setNavOpen(value => !value)}>{navOpen ? <PanelLeftClose size={18}/> : <PanelLeftOpen size={18}/>}</Action>
               <Action label={listOpen ? "Hide conversation list" : "Show conversation list"} className="s2-desktop-action"
                 onClick={() => setListOpen(value => !value)}>{listOpen ? <PanelLeftClose size={18}/> : <PanelLeftOpen size={18}/>}</Action>
               <ConversationAvatar conversation={selected} small/>
@@ -363,16 +341,12 @@ export function SengappStudio() {
         <div className="s2-detail-bottom"><Bell size={15}/><span>Quiet by design. You choose what to see.</span></div>
       </aside>}
 
-      <Dialog open={appearanceOpen} onOpenChange={setAppearanceOpen}>
-        {appearanceOpen && <AppearancePopout appearance={appearance} setAppearance={setAppearance}/>}
-      </Dialog>
-    </div>
-    <div className="s2-mobile-tabs" aria-label="Mobile navigation">
-      <Button variant="ghost" type="button" aria-current={section === "chats" ? "page" : undefined} onClick={() => changeSection("chats")}><MessageCircle size={20}/>Chats</Button>
-      <Button variant="ghost" type="button" aria-current={section === "people" ? "page" : undefined} onClick={() => changeSection("people")}><UsersRound size={20}/>People</Button>
-      <Button variant="ghost" type="button" aria-current={section === "notes" ? "page" : undefined} onClick={() => changeSection("notes")}><Archive size={20}/>Notes</Button>
-      <Button variant="ghost" type="button" onClick={() => setAppearanceOpen(true)}><Settings2 size={20}/>Style</Button>
-    </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+    <Dialog open={appearanceOpen} onOpenChange={setAppearanceOpen}>
+      {appearanceOpen && <AppearancePopout appearance={appearance} setAppearance={setAppearance}/>}
+    </Dialog>
     {notice && <div className="s2-notice" role="status">{notice}<Action label="Dismiss notice" onClick={() => setNotice(null)}><X size={15}/></Action></div>}
   </div>;
 }
