@@ -1,6 +1,8 @@
 "use client";
 
+import { BotIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Marker, MarkerContent } from "@/components/ui/marker";
 import { Message, MessageAvatar, MessageContent, MessageFooter, MessageHeader } from "@/components/ui/message";
@@ -8,39 +10,59 @@ import {
   MessageScroller, MessageScrollerButton, MessageScrollerContent, MessageScrollerItem,
   MessageScrollerProvider, MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
+import { AgentActivity, type PreviewDecision } from "./agent-activity";
 import type { MessageData } from "./data";
 
-function ChatMessage({ message }: { message: MessageData }) {
+function ChatMessage({
+  message, decisions, onDecision,
+}: {
+  message: MessageData;
+  decisions: Readonly<Record<string, PreviewDecision>>;
+  onDecision: (key: string, decision: PreviewDecision) => void;
+}) {
+  const agent = message.kind === "agent";
+  const notice = message.kind === "notice";
   return (
     <MessageScrollerItem messageId={message.id}>
       <Message align={message.mine ? "end" : "start"}>
-        {!message.mine && (
+        {!message.mine && !notice && (
           <MessageAvatar>
             <Avatar>
-              <AvatarFallback>{message.sender.slice(0, 1)}</AvatarFallback>
+              <AvatarFallback>{agent ? <BotIcon className="size-4" /> : message.sender.slice(0, 1)}</AvatarFallback>
             </Avatar>
           </MessageAvatar>
         )}
-        <MessageContent>
-          {!message.mine && (
+        <MessageContent className={agent ? "gap-3" : undefined}>
+          {!message.mine && !notice && (
             <MessageHeader>
-              {message.sender}<time className="ms-2">{message.time}</time>
+              <span>{message.sender}</span>
+              <time className="ms-2">{message.time}</time>
+              {agent && <Badge variant="outline">AI companion · mock</Badge>}
             </MessageHeader>
           )}
-          <Bubble variant={message.mine ? "muted" : "secondary"}>
+          <Bubble variant={notice ? "outline" : agent ? "tinted" : message.mine ? "muted" : "secondary"}>
             <BubbleContent>
               <p dir="auto" className="whitespace-pre-wrap">{message.text}</p>
             </BubbleContent>
           </Bubble>
-          {message.mine && <MessageFooter><time>{message.time}</time></MessageFooter>}
+          {agent && message.parts && (
+            <AgentActivity messageId={message.id} parts={message.parts}
+              decisions={decisions} onDecision={onDecision} />
+          )}
+          {(message.mine || notice) && <MessageFooter><time>{message.time}</time></MessageFooter>}
         </MessageContent>
       </Message>
     </MessageScrollerItem>
   );
 }
 
-export function VanillaTimeline({ conversationId, messages }: {
-  conversationId: string; messages: MessageData[];
+export function VanillaTimeline({
+  conversationId, messages, decisions, onDecision,
+}: {
+  conversationId: string;
+  messages: MessageData[];
+  decisions: Readonly<Record<string, PreviewDecision>>;
+  onDecision: (key: string, decision: PreviewDecision) => void;
 }) {
   return (
     <MessageScrollerProvider key={conversationId} defaultScrollPosition="end" autoScroll>
@@ -50,7 +72,9 @@ export function VanillaTimeline({ conversationId, messages }: {
             <MessageScrollerItem messageId={conversationId + "-date"}>
               <Marker variant="separator"><MarkerContent>Today</MarkerContent></Marker>
             </MessageScrollerItem>
-            {messages.map(message => <ChatMessage key={message.id} message={message} />)}
+            {messages.map(message => (
+              <ChatMessage key={message.id} message={message} decisions={decisions} onDecision={onDecision} />
+            ))}
           </MessageScrollerContent>
         </MessageScrollerViewport>
         <MessageScrollerButton />
