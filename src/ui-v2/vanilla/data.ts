@@ -14,7 +14,7 @@ export type AgentPart =
   | { type: "approval"; id: string; title: string; description: string }
   | { type: "source"; label: string; url: string };
 
-export const companion = { handle: "Milo", name: "Milo", initials: "M" } as const;
+export type PreviewCompanion = { name: string; handle: string };
 
 // A demo group with imaginary prior group consent, not a real permission grant.
 export const exampleAgentConsent: Record<string, boolean> = {
@@ -34,17 +34,7 @@ export const sampleMessages: Record<string, MessageData[]> = {
     { id: "t2", sender: "Khaled", time: "10:27 AM", text: "Awesome! Can you share the changes?" },
     { id: "t3", sender: "You", time: "10:42 AM", text: "We are testing the vanilla shadcn chat components first.", mine: true },
     { id: "t4", sender: "Aya", time: "11:03 AM", text: "Great. No extra layers this time 🌿" },
-    { id: "t5", sender: "Milo", time: "11:04 AM", kind: "agent",
-      text: "Illustrative review: a companion can help in the same group thread. These steps are sample UI data; no model or tool was run.",
-      parts: [
-        { type: "plan", title: "Review the design discussion (sample)", steps: [
-          { title: "Read the explicitly shared demo request", status: "done" },
-          { title: "Organize feedback", status: "done" },
-          { title: "Wait for permission before external actions", status: "pending" },
-        ] },
-        { type: "approval", id: "example-reminder", title: "Create a reminder?", description: "Preview only. Approve/Deny changes local UI state; nothing will be scheduled." },
-        { type: "source", label: "shadcn AI Elements", url: "https://ui.shadcn.com/docs/ai-elements" },
-      ] },
+
 
   ],
   sara: [
@@ -57,3 +47,16 @@ export const sampleMessages: Record<string, MessageData[]> = {
     { id: "f3", sender: "You", time: "Yesterday", text: "واضحة جدًا 🌱", mine: true },
   ],
 };
+
+// No default companion: inject this example only after the owner chooses an alias.
+export const sampleCompanionActivity: MessageData = { id: "t5", sender: "", time: "11:04 AM", kind: "agent",
+      text: "Illustrative review: a companion can help in the same group thread. These steps are sample UI data; no model or tool was run.",
+      parts: [
+        { type: "plan", title: "Review the design discussion (sample)", steps: [
+          { title: "Read the explicitly shared demo request", status: "done" },
+          { title: "Organize feedback", status: "done" },
+          { title: "Wait for permission before external actions", status: "pending" },
+        ] },
+        { type: "approval", id: "example-reminder", title: "Create a reminder?", description: "Preview only. Approve/Deny changes local UI state; nothing will be scheduled." },
+        { type: "source", label: "shadcn AI Elements", url: "https://ui.shadcn.com/docs/ai-elements" },
+      ] };

@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } from "@/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { companion } from "./data";
+import type { PreviewCompanion } from "./data";
 
 export function VanillaComposer({
-  text, onTextChange, onSend,
+  text, onTextChange, onSend, companion,
 }: {
+  companion: PreviewCompanion | null;
   text: string;
   onTextChange: (value: string) => void;
   onSend: () => void;
@@ -25,7 +26,7 @@ export function VanillaComposer({
   }
   function mentionAgent() {
     const divider = text && !/\s$/.test(text) ? " " : "";
-    onTextChange(text + divider + "@" + companion.handle + " ");
+    if (companion) onTextChange(text + divider + "@" + companion.handle + " ");
   }
   return (
     <form ref={formRef} onSubmit={submit} aria-label="Demo message composer" className="w-full">
@@ -34,7 +35,7 @@ export function VanillaComposer({
           value={text}
           onChange={event => onTextChange(event.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Write a message… or mention @Milo"
+          placeholder={companion ? `Write a message… or mention @${companion.handle}` : "Write a message…"}
           aria-label="Write a message"
           rows={2}
           className="min-h-14"
@@ -63,9 +64,15 @@ export function VanillaComposer({
               <p className="text-xs text-muted-foreground">
                 This is UI-only. Group and peer consent must be verified by the server before any AI receives messages.
               </p>
-              <Button type="button" variant="secondary" className="w-full justify-start" onClick={mentionAgent}>
-                <BotIcon className="size-4" /> Mention @{companion.handle} (preview)
-              </Button>
+              {companion ? (
+                <Button type="button" variant="secondary" className="w-full justify-start" onClick={mentionAgent}>
+                  <BotIcon className="size-4" /> Mention @{companion.handle} (preview)
+                </Button>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Choose your companion's name and alias in the conversation header first.
+                </p>
+              )}
             </PopoverContent>
           </Popover>
           <InputGroupButton

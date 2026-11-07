@@ -1,17 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { BotIcon, MessageCircleDashedIcon, SquarePenIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./sidebar-08/app-sidebar";
-import { companion, conversations, exampleAgentConsent, sampleMessages, type MessageData } from "./data";
+import { conversations, exampleAgentConsent, sampleCompanionActivity, sampleMessages, type MessageData, type PreviewCompanion } from "./data";
 import type { PreviewDecision } from "./agent-activity";
 import { VanillaComposer } from "./composer";
 import { VanillaTimeline } from "./timeline";
@@ -24,12 +27,34 @@ export function VanillaMessenger() {
   const [filter, setFilter] = useState<Filter>("All chats");
   const [selectedId, setSelectedId] = useState("team");
   const [draft, setDraft] = useState("");
+  const [companion, setCompanion] = useState<PreviewCompanion | null>(null);
+  const [setupOpen, setSetupOpen] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
+  const [handleDraft, setHandleDraft] = useState("");
   const [threads, setThreads] = useState<Record<string, MessageData[]>>(sampleMessages);
   const [decisions, setDecisions] = useState<Record<string, PreviewDecision>>({});
   const conversation = conversations.find(item => item.id === selectedId);
   const title = selectedId === "new" ? "New conversation" : (conversation?.name ?? "Dev Team");
   const subtitle = selectedId === "new" ? "A fresh conversation, just for this preview" : (conversation?.people ?? "");
   const messages = threads[selectedId] ?? [];
+
+  function saveCompanion(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const name = nameDraft.trim();
+    const handle = handleDraft.trim().toLowerCase();
+    if (!name || name.length > 40 || !/^[a-z][a-z0-9_]{1,23}$/.test(handle)) return;
+    setCompanion({ name, handle });
+    setThreads(previous => {
+      const next = Object.fromEntries(Object.entries(previous).map(([id, rows]) => [
+        id, rows.map(row => row.kind === "agent" ? { ...row, sender: name } : row),
+      ])) as Record<string, MessageData[]>;
+      if (!(next.team ?? []).some(row => row.id === sampleCompanionActivity.id)) {
+        next.team = [...(next.team ?? []), { ...sampleCompanionActivity, sender: name }];
+      }
+      return next;
+    });
+    setSetupOpen(false);
+  }
 
   function select(id: string) { setSelectedId(id); setDraft(""); setView("Chats"); }
   function navigate(name: string) {
@@ -49,8 +74,8 @@ export function VanillaMessenger() {
     const additions: MessageData[] = [
       { id, sender: "You", time: "Now", text, mine: true },
     ];
-    const mentioned = new RegExp("(?:^|\\s)@" + companion.handle + "(?=$|\\s|[,.!?])", "i").test(text);
-    if (mentioned && exampleAgentConsent[selectedId]) {
+    const mentioned = companion !== null && new RegExp("(?:^|\\s)@" + companion.handle + "(?=$|\\s|[,.!?])", "i").test(text);
+    if (mentioned && companion && exampleAgentConsent[selectedId]) {
       additions.push({
         id: id + "-companion", sender: companion.name, kind: "agent",
         time: "Now", text: "Local UI example: I can be addressed in this thread. No AI model, memory, connected app or tool has been called.",
@@ -94,10 +119,49 @@ export function VanillaMessenger() {
                       <CardDescription>{subtitle}</CardDescription>
                       <Badge variant="outline" className="mt-1">
                         <BotIcon className="me-1 size-3" />
-                        {exampleAgentConsent[selectedId] ? "Companion demo · sample consent" : "Companion mentions · consent required"}
+                        {!companion ? "Choose your own companion alias" : exampleAgentConsent[selectedId] ? `@${companion.handle} · sample consent` : `@${companion.handle} · consent required`}
                       </Badge>
                     </div>
                   </div>
+                  <Dialog open={setupOpen} onOpenChange={setSetupOpen}>
+                    <DialogTrigger asChild>
+                      <Button type="button" variant="outline" size="sm" onClick={() => {
+                        setNameDraft(companion?.name ?? "");
+                        setHandleDraft(companion?.handle ?? "");
+                      }}>
+                        <BotIcon className="size-4" />
+                        {companion ? "Edit companion" : "Name your companion"}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <form onSubmit={saveCompanion} className="space-y-4">
+                        <DialogHeader>
+                          <DialogTitle>Choose your companion's identity</DialogTitle>
+                          <DialogDescription>
+                            You choose the display name and @mention alias. No default agent name.
+                            This is local demo state, not an account setting.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-2">
+                          <Label htmlFor="companion-display-name">Companion display name</Label>
+                          <Input id="companion-display-name" maxLength={40} required
+                            placeholder="Any name, including Arabic"
+                            value={nameDraft} onChange={event => setNameDraft(event.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="companion-mention-alias">Mention alias</Label>
+                          <Input id="companion-mention-alias" maxLength={24} minLength={2} required
+                            pattern="[a-zA-Z][a-zA-Z0-9_]{1,23}"
+                            placeholder="e.g. star_helper" autoCapitalize="none" spellCheck={false}
+                            value={handleDraft} onChange={event => setHandleDraft(event.target.value)} />
+                          <p className="text-xs text-muted-foreground">
+                            Used as @alias; Latin letters, digits and underscores, 2–24 characters.
+                          </p>
+                        </div>
+                        <DialogFooter><Button type="submit">Save companion</Button></DialogFooter>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
                   <Button variant="outline" size="icon" aria-label="New conversation"
                     onClick={() => select("new")}>
                     <SquarePenIcon />
@@ -122,7 +186,7 @@ export function VanillaMessenger() {
                   )}
                 </CardContent>
                 <CardFooter className="border-t p-4">
-                  <VanillaComposer text={draft} onTextChange={setDraft} onSend={send} />
+                  <VanillaComposer text={draft} onTextChange={setDraft} onSend={send} companion={companion} />
                 </CardFooter>
               </>
             ) : (
