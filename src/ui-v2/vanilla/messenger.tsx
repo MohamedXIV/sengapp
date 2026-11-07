@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircleDashedIcon, SquarePenIcon } from "lucide-react";
+import { BotIcon, MessageCircleDashedIcon, SquarePenIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,8 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./sidebar-08/app-sidebar";
-import { conversations, sampleMessages, type MessageData } from "./data";
+import { companion, conversations, exampleAgentConsent, sampleMessages, type MessageData } from "./data";
+import type { PreviewDecision } from "./agent-activity";
 import { VanillaComposer } from "./composer";
 import { VanillaTimeline } from "./timeline";
 
@@ -24,6 +25,7 @@ export function VanillaMessenger() {
   const [selectedId, setSelectedId] = useState("team");
   const [draft, setDraft] = useState("");
   const [threads, setThreads] = useState<Record<string, MessageData[]>>(sampleMessages);
+  const [decisions, setDecisions] = useState<Record<string, PreviewDecision>>({});
   const conversation = conversations.find(item => item.id === selectedId);
   const title = selectedId === "new" ? "New conversation" : (conversation?.name ?? "Dev Team");
   const subtitle = selectedId === "new" ? "A fresh conversation, just for this preview" : (conversation?.people ?? "");
@@ -38,18 +40,37 @@ export function VanillaMessenger() {
       setView(name as View);
     }
   }
+  // UI-only: a mention is available in every thread. It never calls an AI model or
+  // sends conversation context to a provider. Real consent is a server-side gate.
   function send() {
     const text = draft.trim();
     if (!text) return;
+    const id = "local-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+    const additions: MessageData[] = [
+      { id, sender: "You", time: "Now", text, mine: true },
+    ];
+    const mentioned = new RegExp("(?:^|\\s)@" + companion.handle + "(?=$|\\s|[,.!?])", "i").test(text);
+    if (mentioned && exampleAgentConsent[selectedId]) {
+      additions.push({
+        id: id + "-companion", sender: companion.name, kind: "agent",
+        time: "Now", text: "Local UI example: I can be addressed in this thread. No AI model, memory, connected app or tool has been called.",
+        parts: [
+          { type: "tool", title: "Awaiting a permissioned AI backend", status: "pending" },
+        ],
+      });
+    } else if (mentioned) {
+      additions.push({
+        id: id + "-permission", sender: "System", kind: "notice", time: "Now",
+        text: "Companion request not activated. Every participant must explicitly consent before an agent can receive context here. Nothing was sent to a provider.",
+      });
+    }
     setThreads(previous => ({
       ...previous,
-      [selectedId]: [...(previous[selectedId] ?? []), {
-        id: "local-" + Date.now() + "-" + Math.random().toString(36).slice(2),
-        sender: "You", time: "Now", text, mine: true,
-      }],
+      [selectedId]: [...(previous[selectedId] ?? []), ...additions],
     }));
     setDraft("");
   }
+
   return (
     <SidebarProvider data-sengapp-shadcn-blocks>
       <AppSidebar selectedId={selectedId} onChooseConversation={select} onNavigate={navigate} filter={filter} />
@@ -71,6 +92,10 @@ export function VanillaMessenger() {
                     <div className="min-w-0">
                       <CardTitle role="heading" aria-level={1}>{title}</CardTitle>
                       <CardDescription>{subtitle}</CardDescription>
+                      <Badge variant="outline" className="mt-1">
+                        <BotIcon className="me-1 size-3" />
+                        {exampleAgentConsent[selectedId] ? "Companion demo · sample consent" : "Companion mentions · consent required"}
+                      </Badge>
                     </div>
                   </div>
                   <Button variant="outline" size="icon" aria-label="New conversation"
@@ -80,7 +105,10 @@ export function VanillaMessenger() {
                 </CardHeader>
                 <CardContent className="min-h-0 flex-1 p-0">
                   {messages.length > 0 ? (
-                    <VanillaTimeline key={selectedId} conversationId={selectedId} messages={messages} />
+                    <VanillaTimeline key={selectedId} conversationId={selectedId} messages={messages}
+                      decisions={decisions} onDecision={(key, decision) =>
+                        setDecisions(previous => ({ ...previous, [key]: decision }))
+                      } />
                   ) : (
                     <Empty className="h-full">
                       <EmptyHeader>
