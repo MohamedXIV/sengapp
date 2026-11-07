@@ -57,7 +57,7 @@ test("AI companion and human messages share one native scroller with Trace and a
   test.skip(testInfo.project.name !== "chromium", "Desktop shared AI-human conversation");
   await page.goto("/ui-v2");
   await expect(page.locator('[data-slot="message-scroller-item"][data-message-id="t5"]')).toBeVisible();
-  await expect(page.locator('[data-slot="trace"]')).toBeVisible();
+  await expect(page.locator('[data-agent-activity="preview"] [data-slot="trace"]').first()).toBeVisible();
   await expect(page.locator('[data-agent-activity="preview"]')).toHaveCount(1);
   await expect(page.getByText("AI companion · mock")).toBeVisible();
   await page.getByRole("button", { name: "Approve preview" }).click();
