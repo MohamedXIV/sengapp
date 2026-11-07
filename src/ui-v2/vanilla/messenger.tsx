@@ -52,7 +52,7 @@ export function VanillaMessenger() {
   }
   return (
     <SidebarProvider data-sengapp-shadcn-blocks>
-      <AppSidebar selectedId={selectedId} onSelect={select} onNavigate={navigate} filter={filter} />
+      <AppSidebar selectedId={selectedId} onChooseConversation={select} onNavigate={navigate} filter={filter} />
       <SidebarInset className="h-dvh min-h-0 overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" aria-label="Toggle Sidebar" />

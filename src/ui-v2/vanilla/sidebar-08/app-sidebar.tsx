@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/sidebar"
 import { conversations } from "../data"
 
-export function AppSidebar({ selectedId, onSelect, onNavigate, filter, ...props }: React.ComponentProps<typeof Sidebar> & {
+export function AppSidebar({ selectedId, onChooseConversation, onNavigate, filter, ...props }: React.ComponentProps<typeof Sidebar> & {
   selectedId: string
-  onSelect: (id: string) => void
+  onChooseConversation: (id: string) => void
   onNavigate: (name: string) => void
   filter: "All chats" | "Unread" | "Groups"
 }) {
@@ -64,7 +64,7 @@ export function AppSidebar({ selectedId, onSelect, onNavigate, filter, ...props 
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} onNavigate={onNavigate} />
-        <NavProjects projects={data.projects} selectedId={selectedId} onSelect={onSelect} />
+        <NavProjects projects={data.projects} selectedId={selectedId} onSelect={onChooseConversation} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter><NavUser user={data.user} /></SidebarFooter>
