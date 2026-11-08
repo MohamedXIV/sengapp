@@ -70,7 +70,7 @@ describe("Sengapp UI v2: shared shadcn Classic and Cozy shells", () => {
     expect(cozy).toContain("DockviewReact");
     expect(cozy).toContain("floating:");
     expect(cozy).toContain("<RoomCanvas");
-    expect(cozy).toContain("initialFloating");
+    expect(cozy).toContain("windowBounds");
     expect(mobile).toContain("onPointerDown");
     expect(mobile).toContain("Resize chat window");
   });
