@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useRef, useState, type PointerEvent } from "react";
 import { GripIcon, Maximize2Icon, MessageCircleIcon, PaletteIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -28,16 +28,10 @@ function clamp(value: number, min: number, max: number) {
 /** Touch-capable moving and sizing window, intentionally separate from the chat content. */
 export function CozyMobileWindows() {
   const [rect, setRect] = useState<Rect>({ x: 12, y: 140, width: 358, height: 580 });
-  const [initialized, setInitialized] = useState(false);
   const [visible, setVisible] = useState(true);
   const [chatsOpen, setChatsOpen] = useState(false);
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const gesture = useRef<Gesture | null>(null);
-
-  useEffect(() => {
-    setRect(initialRect());
-    setInitialized(true);
-  }, []);
 
   function begin(action: Gesture["action"], event: PointerEvent<HTMLButtonElement>) {
     gesture.current = { action, x: event.clientX, y: event.clientY, rect };
@@ -78,7 +72,7 @@ export function CozyMobileWindows() {
           style={{
             left: rect.x, top: rect.y, width: rect.width, height: rect.height,
             boxShadow: "var(--sengapp-window-shadow)",
-            pointerEvents: "auto", visibility: initialized ? "visible" : "hidden",
+            pointerEvents: "auto", maxWidth: "calc(100vw - 24px)", maxHeight: "calc(100dvh - 160px)",
           }}
         >
           <div className="flex h-10 shrink-0 items-center gap-2 border-b bg-muted/80 px-2">

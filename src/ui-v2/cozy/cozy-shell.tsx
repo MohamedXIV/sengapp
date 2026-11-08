@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 import { MessageCircleIcon, PaletteIcon, RefreshCcwIcon } from "lucide-react";
 import {
   DockviewReact, type DockviewApi, type DockviewReadyEvent,
@@ -67,18 +67,18 @@ function CozyWorld() {
   );
 }
 
+const DESKTOP_QUERY = "(min-width: 1024px)";
+function subscribeDesktopViewport(onChange: () => void) {
+  const query = window.matchMedia(DESKTOP_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+function desktopViewport() { return window.matchMedia(DESKTOP_QUERY).matches; }
+
 /** Phaser owns the world; Dockview owns only independent window placement and tabs. */
 export function CozyShell() {
-  const [desktop, setDesktop] = useState(false);
+  const desktop = useSyncExternalStore(subscribeDesktopViewport, desktopViewport, () => false);
   const apiRef = useRef<DockviewApi | null>(null);
-
-  useEffect(() => {
-    const query = window.matchMedia("(min-width: 1024px)");
-    const update = () => setDesktop(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
 
   const onReady = useCallback((event: DockviewReadyEvent) => {
     apiRef.current = event.api;

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import {
   conversations, exampleAgentConsent, sampleCompanionActivity, sampleMessages,
   type MessageData, type PreviewCompanion,
@@ -18,6 +18,22 @@ export const DEFAULT_APPEARANCE: Appearance = {
   accent: "sage", corners: "balanced", shadow: "soft",
 };
 const APPEARANCE_STORAGE = "sengapp-ui-v2-appearance-v1";
+const APPEARANCE_EVENT = "sengapp-ui-v2-appearance-update";
+
+function appearanceSnapshot(): string {
+  try { return window.localStorage.getItem(APPEARANCE_STORAGE) ?? ""; }
+  catch { return ""; }
+}
+function subscribeAppearance(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(APPEARANCE_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(APPEARANCE_EVENT, onChange);
+  };
+}
+function defaultAppearanceSnapshot() { return ""; }
+
 
 export type Workspace = {
   shell: ShellMode;
@@ -54,8 +70,17 @@ function isAppearance(value: unknown): value is Appearance {
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [shell, setShell] = useState<ShellMode>("classic");
-  const [appearance, setAppearance] = useState(DEFAULT_APPEARANCE);
-  const [appearanceLoaded, setAppearanceLoaded] = useState(false);
+  // SSR-safe: React reads the server snapshot during hydration, then the
+  // browser preference. No synchronous setState in effects or flash of errors.
+  const persisted = useSyncExternalStore(subscribeAppearance, appearanceSnapshot, defaultAppearanceSnapshot);
+  const storedAppearance = useMemo<Appearance>(() => {
+    try {
+      const value: unknown = JSON.parse(persisted);
+      return isAppearance(value) ? value : DEFAULT_APPEARANCE;
+    } catch { return DEFAULT_APPEARANCE; }
+  }, [persisted]);
+  const [memoryFallback, setMemoryFallback] = useState<Appearance | null>(null);
+  const appearance = memoryFallback ?? storedAppearance;
   const [view, setView] = useState<WorkspaceView>("Chats");
   const [filter, setFilter] = useState<ConversationFilter>("All chats");
   const [selectedId, setSelectedId] = useState("team");
@@ -64,24 +89,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [threads, setThreads] = useState<Record<string, MessageData[]>>(sampleMessages);
   const [decisions, setDecisions] = useState<Record<string, PreviewDecision>>({});
 
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(APPEARANCE_STORAGE);
-      if (saved) {
-        const parsed: unknown = JSON.parse(saved);
-        if (isAppearance(parsed)) setAppearance(parsed);
-      }
-    } catch { /* Private browsing can disable localStorage; continue with defaults. */ }
-    setAppearanceLoaded(true);
-  }, []);
-  useEffect(() => {
-    if (!appearanceLoaded) return;
-    try { window.localStorage.setItem(APPEARANCE_STORAGE, JSON.stringify(appearance)); }
-    catch { /* Preview remains usable without persistence. */ }
-  }, [appearance, appearanceLoaded]);
-
   function updateAppearance(update: Partial<Appearance>) {
-    setAppearance(previous => ({ ...previous, ...update }));
+    const next = { ...appearance, ...update };
+    try {
+      window.localStorage.setItem(APPEARANCE_STORAGE, JSON.stringify(next));
+      window.dispatchEvent(new Event(APPEARANCE_EVENT));
+      setMemoryFallback(null);
+    } catch {
+      // Browser storage can be disabled; keep the preview fully interactive.
+      setMemoryFallback(next);
+    }
   }
   function saveCompanion(nameInput: string, handleInput: string) {
     const name = nameInput.trim();
