@@ -40,6 +40,8 @@ export type Workspace = {
   setShell: (mode: ShellMode) => void;
   appearance: Appearance;
   updateAppearance: (update: Partial<Appearance>) => void;
+  appearanceOpen: boolean;
+  setAppearanceOpen: (open: boolean) => void;
   view: WorkspaceView;
   filter: ConversationFilter;
   selectedId: string;
@@ -70,6 +72,7 @@ function isAppearance(value: unknown): value is Appearance {
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [shell, setShell] = useState<ShellMode>("classic");
+  const [appearanceOpen, setAppearanceOpen] = useState(false);
   // SSR-safe: React reads the server snapshot during hydration, then the
   // browser preference. No synchronous setState in effects or flash of errors.
   const persisted = useSyncExternalStore(subscribeAppearance, appearanceSnapshot, defaultAppearanceSnapshot);
@@ -154,7 +157,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const conversation = conversations.find(item => item.id === selectedId);
   const value: Workspace = {
-    shell, setShell, appearance, updateAppearance, view, filter, selectedId,
+    shell, setShell, appearance, updateAppearance, appearanceOpen, setAppearanceOpen,
+    view, filter, selectedId,
     conversation, title: selectedId === "new" ? "New conversation" : conversation?.name ?? "Dev Team",
     subtitle: selectedId === "new" ? "A fresh conversation, just for this preview" : conversation?.people ?? "",
     messages: threads[selectedId] ?? [], draft, setDraft, companion, saveCompanion,
