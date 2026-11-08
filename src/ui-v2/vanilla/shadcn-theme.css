@@ -1,32 +1,143 @@
-/* Stock shadcn-style light palette, scoped only while the /ui-v2 reference
-   is mounted. No component selectors or UI customization rules. */
+/* Sengapp Figma direction: ONE token palette for Classic and Cozy.
+   Only shell chrome is custom; messages, menus and inputs retain shadcn styling.
+   Scoped to /ui-v2 so legacy/main stay unaffected. */
 body:has([data-sengapp-shadcn-blocks]) {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --background: 40 25% 97%;
+  --foreground: 150 15% 17%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 150 15% 17%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
-  --radius: 0.75rem;
-  --sidebar: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --popover-foreground: 150 15% 17%;
+  --primary: 147 19% 37%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 140 18% 93%;
+  --secondary-foreground: 150 22% 25%;
+  --muted: 130 10% 96%;
+  --muted-foreground: 140 8% 43%;
+  --accent: 141 19% 91%;
+  --accent-foreground: 148 22% 25%;
+  --destructive: 4 74% 46%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 128 10% 89%;
+  --input: 128 10% 89%;
+  --ring: 147 19% 37%;
+  --radius: .875rem;
+  --sidebar: hsl(40 22% 97%);
+  --sidebar-foreground: hsl(150 15% 17%);
+  --sidebar-primary: hsl(147 19% 37%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(141 19% 91%);
+  --sidebar-accent-foreground: hsl(148 22% 25%);
+  --sidebar-border: hsl(128 10% 89%);
+  --sidebar-ring: hsl(147 19% 37%);
+  --sengapp-window-shadow: 0 12px 30px rgba(34, 55, 42, .14);
+}
+
+body:has([data-sengapp-shadcn-blocks][data-accent="rose"]) {
+  --primary: 13 40% 44%;
+  --secondary: 17 36% 94%;
+  --secondary-foreground: 13 34% 28%;
+  --accent: 15 40% 91%;
+  --accent-foreground: 13 34% 28%;
+  --ring: 13 40% 44%;
+  --sidebar-primary: hsl(13 40% 44%);
+  --sidebar-accent: hsl(15 40% 91%);
+  --sidebar-ring: hsl(13 40% 44%);
+}
+body:has([data-sengapp-shadcn-blocks][data-accent="lavender"]) {
+  --primary: 237 22% 43%;
+  --secondary: 238 28% 95%;
+  --secondary-foreground: 237 23% 27%;
+  --accent: 237 27% 91%;
+  --accent-foreground: 237 23% 27%;
+  --ring: 237 22% 43%;
+  --sidebar-primary: hsl(237 22% 43%);
+  --sidebar-accent: hsl(237 27% 91%);
+  --sidebar-ring: hsl(237 22% 43%);
+}
+body:has([data-sengapp-shadcn-blocks][data-accent="honey"]) {
+  --primary: 38 47% 36%;
+  --secondary: 43 47% 94%;
+  --secondary-foreground: 35 38% 26%;
+  --accent: 43 48% 88%;
+  --accent-foreground: 35 38% 26%;
+  --ring: 38 47% 36%;
+  --sidebar-primary: hsl(38 47% 36%);
+  --sidebar-accent: hsl(43 48% 88%);
+  --sidebar-ring: hsl(38 47% 36%);
+}
+body:has([data-sengapp-shadcn-blocks][data-corners="soft"]) { --radius: .5rem; }
+body:has([data-sengapp-shadcn-blocks][data-corners="round"]) { --radius: 1.5rem; }
+body:has([data-sengapp-shadcn-blocks][data-shadow="none"]) { --sengapp-window-shadow: none; }
+body:has([data-sengapp-shadcn-blocks][data-shadow="deep"]) {
+  --sengapp-window-shadow: 0 18px 44px rgba(30, 51, 40, .28);
+}
+[data-sengapp-shadcn-blocks] [data-testid="shared-conversation-panel"],
+[data-sengapp-shadcn-blocks] [data-testid="shared-appearance-panel"] {
+  border-radius: var(--radius);
+  box-shadow: var(--sengapp-window-shadow);
+}
+[data-sengapp-shadcn-blocks] [data-testid="shared-conversation-panel"].rounded-none,
+[data-sengapp-shadcn-blocks] [data-testid="shared-appearance-panel"].rounded-none {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Cozy background: the existing real Phaser 4 room owns the full viewport. */
+.sengapp-cozy-stage { isolation: isolate; }
+.sengapp-cozy-stage .cottage-renderer {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  background: transparent;
+}
+.sengapp-cozy-stage .cottage-renderer canvas {
+  display: block; width: 100%; height: 100%;
+  background: transparent; touch-action: none;
+}
+.sengapp-cozy-stage .cottage-renderer[data-error="true"]::after {
+  content: "Room rendering is unavailable. Chats are still accessible.";
+  position: absolute; bottom: 18px; left: 16px;
+  padding: 8px 12px; border-radius: 8px; background: #fff9ed; color: #3b4b3e;
+}
+
+/* Dockview owns floating/docking/tabs, not conversation visuals.
+   Transparent empty grid lets the Phaser world receive pointer input. */
+.sengapp-cozy-dock, .sengapp-cozy-dock .dv-dockview,
+.sengapp-cozy-dock .dv-grid-view {
+  background: transparent; pointer-events: none;
+}
+.sengapp-cozy-dock .dv-resize-container {
+  pointer-events: auto;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--card));
+  box-shadow: var(--sengapp-window-shadow);
+}
+.sengapp-cozy-dock .dv-resize-container > .dv-floating-titlebar {
+  min-height: 32px;
+  height: 32px;
+  cursor: grab;
+  background: hsl(var(--muted));
+}
+.sengapp-cozy-dock .dv-resize-container > .dv-floating-titlebar:active { cursor: grabbing; }
+.sengapp-cozy-dock .dv-groupview {
+  --dv-background-color: hsl(var(--card));
+  --dv-group-view-background-color: hsl(var(--card));
+  --dv-tabs-and-actions-container-background-color: hsl(var(--muted));
+  --dv-activegroup-visiblepanel-tab-background-color: hsl(var(--accent));
+  --dv-activegroup-visiblepanel-tab-color: hsl(var(--foreground));
+  --dv-inactivegroup-visiblepanel-tab-color: hsl(var(--muted-foreground));
+}
+.sengapp-cozy-dock .dv-content-container,
+.sengapp-cozy-dock .dv-content-container > * {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: hsl(var(--card));
+}
+.sengapp-cozy-dock .dv-resize-container > .dv-resize-handle-bottomright {
+  min-width: 18px; min-height: 18px; cursor: nwse-resize;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sengapp-cozy-stage * { scroll-behavior: auto; }
 }
