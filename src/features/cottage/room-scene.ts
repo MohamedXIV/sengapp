@@ -7,6 +7,7 @@ type Callbacks = {
   onChange(items: RoomItem[]): void;
   onHover(label: string | null): void;
   onViewChange(view: CameraView): void;
+  onReady?(): void;
 };
 
 export class RoomScene extends Phaser.Scene {
@@ -132,6 +133,9 @@ export class RoomScene extends Phaser.Scene {
       const factor = dy < 0 ? CAMERA.wheelFactor : 1 / CAMERA.wheelFactor;
       this.zoomBy(factor, { x: pointer.x, y: pointer.y });
     });
+    // Called after the SVG textures, shell and furniture are created.
+    // Allows shells to remove static fallback art when Phaser is ready.
+    this.callbacks.onReady?.();
   }
 
   private onViewportResize(gameSize: Phaser.Structs.Size) {

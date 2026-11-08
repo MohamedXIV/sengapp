@@ -6,15 +6,15 @@ import type { RoomScene } from "./room-scene";
 
 export type RoomCanvasHandle = { zoomIn(): void; zoomOut(): void; fit(): void; fitWorld(): void };
 
-export function RoomCanvas({ items, editing, light, onChange, onHover, onViewChange, ref }: {
+export function RoomCanvas({ items, editing, light, onChange, onHover, onViewChange, onReady, ref }: {
   items: RoomItem[]; editing: boolean; light: LightPreset;
   onChange(items: RoomItem[]): void; onHover(label: string | null): void;
-  onViewChange(view: CameraView): void;
+  onViewChange(view: CameraView): void; onReady?: () => void;
   ref?: Ref<RoomCanvasHandle>;
 }) {
   const mount = useRef<HTMLDivElement>(null);
   const scene = useRef<RoomScene | null>(null);
-  const callbacks = useRef({ onChange, onHover, onViewChange });
+  const callbacks = useRef({ onChange, onHover, onViewChange, onReady });
 
   const latestItems = useRef(items);
   const latestEditing = useRef(editing);
@@ -46,6 +46,7 @@ export function RoomCanvas({ items, editing, light, onChange, onHover, onViewCha
         onChange: value => callbacks.current.onChange(value),
         onHover: value => callbacks.current.onHover(value),
         onViewChange: view => callbacks.current.onViewChange(view),
+        onReady: () => callbacks.current.onReady?.(),
       });
       scene.current = room;
       room.setEditMode(latestEditing.current);
@@ -77,9 +78,9 @@ export function RoomCanvas({ items, editing, light, onChange, onHover, onViewCha
   useEffect(() => { latestLight.current = light; scene.current?.setLight(light); }, [light]);
   useEffect(() => { latestItems.current = items; scene.current?.setItems(items); }, [items]);
   useEffect(() => {
-    callbacks.current = { onChange, onHover, onViewChange };
+    callbacks.current = { onChange, onHover, onViewChange, onReady };
     scene.current?.setCallbacks(callbacks.current);
-  }, [onChange, onHover, onViewChange]);
+  }, [onChange, onHover, onViewChange, onReady]);
 
   return <div ref={mount} data-testid="cottage-canvas" role="img"
     aria-label="An isometric woodland cottage with individually movable furniture. Enable Edit room to rearrange."
