@@ -68,6 +68,7 @@ export function SharedConversationPanel({ embedded = false, className }: {
                 <DialogTrigger asChild>
                   <Button
                     type="button" variant="outline" size="sm"
+                    aria-label={companion ? "Edit companion" : "Name your companion"}
                     onClick={() => {
                       setNameDraft(companion?.name ?? "");
                       setHandleDraft(companion?.handle ?? "");
@@ -75,7 +76,6 @@ export function SharedConversationPanel({ embedded = false, className }: {
                   >
                     <BotIcon className="size-4" />
                     <span className="hidden sm:inline">{companion ? "Edit companion" : "Name your companion"}</span>
-                    <span className="sr-only sm:hidden">{companion ? "Edit companion" : "Name your companion"}</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
