@@ -40,7 +40,7 @@ describe("Sengapp shadcn block reference", () => {
     expect(screen.queryByRole("button", { name: "Name your companion" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Toggle preferences drawer" }));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Appearance", exact: true })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Appearance" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Companion" }));
     expect(screen.getByRole("form", { name: "Companion identity" })).toBeInTheDocument();
   });
