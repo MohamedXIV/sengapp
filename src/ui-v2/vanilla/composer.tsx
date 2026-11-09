@@ -70,7 +70,7 @@ export function VanillaComposer({
                 </Button>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Choose your companion&apos;s name and alias in the conversation header first.
+                  Open Preferences, then Companion, to choose a name and mention alias.
                 </p>
               )}
             </PopoverContent>
