@@ -41,7 +41,7 @@ describe("Sengapp shadcn block reference", () => {
     fireEvent.click(screen.getByRole("button", { name: "Toggle preferences drawer" }));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Appearance", exact: true })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Companion", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Companion" }));
     expect(screen.getByRole("form", { name: "Companion identity" })).toBeInTheDocument();
   });
 
@@ -56,7 +56,7 @@ describe("Sengapp shadcn block reference", () => {
   it("renders the mock companion within the same conversation and keeps approvals local", () => {
     render(<VanillaMessenger />);
     fireEvent.click(screen.getByRole("button", { name: "Toggle preferences drawer" }));
-    fireEvent.click(screen.getByRole("button", { name: "Companion", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Companion" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Display name" }), { target: { value: "فراشة" } });
     fireEvent.change(screen.getByRole("textbox", { name: "Mention alias" }), { target: { value: "farasha" } });
     fireEvent.click(screen.getByRole("button", { name: "Save companion" }));
@@ -70,7 +70,7 @@ describe("Sengapp shadcn block reference", () => {
   it("does not show companion output without mock consent", () => {
     render(<VanillaMessenger />);
     fireEvent.click(screen.getByRole("button", { name: "Toggle preferences drawer" }));
-    fireEvent.click(screen.getByRole("button", { name: "Companion", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Companion" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Display name" }), { target: { value: "Sparrow" } });
     fireEvent.change(screen.getByRole("textbox", { name: "Mention alias" }), { target: { value: "sparrow" } });
     fireEvent.click(screen.getByRole("button", { name: "Save companion" }));
