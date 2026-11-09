@@ -1,6 +1,7 @@
 "use client";
 
 import { BotIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
@@ -20,6 +21,7 @@ function ChatMessage({
   decisions: Readonly<Record<string, PreviewDecision>>;
   onDecision: (key: string, decision: PreviewDecision) => void;
 }) {
+  const t = useTranslations("UiV2");
   const agent = message.kind === "agent";
   const notice = message.kind === "notice";
   return (
@@ -36,8 +38,8 @@ function ChatMessage({
           {!message.mine && !notice && (
             <MessageHeader>
               <span>{message.sender}</span>
-              <time className="ms-2">{message.time}</time>
-              {agent && <Badge variant="outline">AI companion · mock</Badge>}
+              <time className="ms-2">{message.time==="Now"?t("now"):message.time}</time>
+              {agent && <Badge variant="outline">{t("mockCompanion")}</Badge>}
             </MessageHeader>
           )}
           <Bubble variant={notice ? "outline" : agent ? "tinted" : message.mine ? "muted" : "secondary"}>
@@ -64,13 +66,14 @@ export function VanillaTimeline({
   decisions: Readonly<Record<string, PreviewDecision>>;
   onDecision: (key: string, decision: PreviewDecision) => void;
 }) {
+  const t = useTranslations("UiV2");
   return (
     <MessageScrollerProvider key={conversationId} defaultScrollPosition="end" autoScroll>
       <MessageScroller>
         <MessageScrollerViewport>
           <MessageScrollerContent className="gap-6 px-6 py-6">
             <MessageScrollerItem messageId={conversationId + "-date"}>
-              <Marker variant="separator"><MarkerContent>Today</MarkerContent></Marker>
+              <Marker variant="separator"><MarkerContent>{t("today")}</MarkerContent></Marker>
             </MessageScrollerItem>
             {messages.map(message => (
               <ChatMessage key={message.id} message={message} decisions={decisions} onDecision={onDecision} />

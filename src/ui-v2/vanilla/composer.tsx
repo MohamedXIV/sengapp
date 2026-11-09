@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type FormEvent, type KeyboardEvent } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowUpIcon, BotIcon, PaperclipIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -16,6 +17,7 @@ export function VanillaComposer({
   onTextChange: (value: string) => void;
   onSend: () => void;
 }) {
+  const t = useTranslations("UiV2");
   const formRef = useRef<HTMLFormElement>(null);
   function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); onSend(); }
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -29,55 +31,55 @@ export function VanillaComposer({
     if (companion) onTextChange(text + divider + "@" + companion.handle + " ");
   }
   return (
-    <form ref={formRef} onSubmit={submit} aria-label="Demo message composer" className="w-full">
-      <InputGroup className="bg-muted/50">
+    <form ref={formRef} onSubmit={submit} aria-label={t("writeMessage")} className="mx-auto w-full max-w-[860px]">
+      <InputGroup className="overflow-hidden rounded-2xl border bg-card shadow-[0_12px_30px_-12px_rgba(28,54,43,0.26)]">
         <InputGroupTextarea
           value={text}
           onChange={event => onTextChange(event.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={companion ? `Write a message… or mention @${companion.handle}` : "Write a message…"}
-          aria-label="Write a message"
-          rows={2}
-          className="min-h-14"
+          placeholder={companion ? t("writeMention",{alias:companion.handle}) : t("writePlaceholder")}
+          aria-label={t("writeMessage")}
+          rows={1}
+          className="max-h-32 min-h-10 px-4 pb-1 pt-3 text-[15px] leading-relaxed"
         />
-        <InputGroupAddon align="block-end" className="pt-1">
+        <InputGroupAddon align="block-end" className="gap-1 px-2 pb-2 pt-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <InputGroupButton type="button" variant="outline" size="icon-sm" aria-label="Add attachment">
+              <InputGroupButton type="button" variant="ghost" size="icon-sm" className="rounded-full" aria-label={t("attachment")}>
                 <PlusIcon />
               </InputGroupButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top">
               <DropdownMenuItem disabled>
-                <PaperclipIcon /> Photos and files (later)
+                <PaperclipIcon /> {t("filesLater")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Popover>
             <PopoverTrigger asChild>
-              <InputGroupButton type="button" variant="outline" size="icon-sm" aria-label="Mention a companion">
+              <InputGroupButton type="button" variant="ghost" size="icon-sm" className="rounded-full" aria-label={t("mentionCompanion")}>
                 <BotIcon />
               </InputGroupButton>
             </PopoverTrigger>
             <PopoverContent align="start" side="top" className="space-y-3">
-              <p className="text-sm font-medium">Companions in this conversation</p>
+              <p className="text-sm font-medium">{t("companionInConversation")}</p>
               <p className="text-xs text-muted-foreground">
-                This is UI-only. Group and peer consent must be verified by the server before any AI receives messages.
+                {t("consentWarning")}
               </p>
               {companion ? (
                 <Button type="button" variant="secondary" className="w-full justify-start" onClick={mentionAgent}>
-                  <BotIcon className="size-4" /> Mention @{companion.handle} (preview)
+                  <BotIcon className="size-4" /> {t("mentionPreview",{alias:companion.handle})}
                 </Button>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Choose your companion&apos;s name and alias in the conversation header first.
+                  {t("chooseCompanion")}
                 </p>
               )}
             </PopoverContent>
           </Popover>
           <InputGroupButton
-            type="submit" variant="default" size="icon-sm" className="ml-auto rounded-full"
-            aria-label="Send" disabled={!text.trim()}
+            type="submit" variant="default" size="icon-sm" className="ml-auto size-9 rounded-full"
+            aria-label={t("send")} disabled={!text.trim()}
           >
             <ArrowUpIcon />
           </InputGroupButton>

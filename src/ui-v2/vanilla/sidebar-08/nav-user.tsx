@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import {
   BadgeCheck,
   Bell,
@@ -32,13 +33,16 @@ import {
 
 export function NavUser({
   user,
+  onOpenPanel,
 }: {
+  onOpenPanel: (section: "appearance" | "companion") => void
   user: {
     name: string
     email: string
     avatar: string
   }
 }) {
+  const t = useTranslations("UiV2");
   const { isMobile } = useSidebar()
 
   return (
@@ -58,7 +62,7 @@ export function NavUser({
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="ms-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -81,30 +85,34 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem disabled>
+              <DropdownMenuItem onSelect={() => onOpenPanel("appearance")}>
                 <Sparkles />
-                Appearance (later)
+                {t("appearance")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onOpenPanel("companion")}>
+                <Sparkles />
+                {t("companion")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem disabled>
                 <BadgeCheck />
-                Account
+                {t("account")}
               </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <CreditCard />
-                Privacy (later)
+                {t("privacyLater")}
               </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <Bell />
-                Notifications
+                {t("notifications")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled>
               <LogOut />
-              Sign out (demo only)
+              {t("signOutDemo")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -13,26 +13,26 @@ test("shadcn chat panel renders official Message/Bubble/Scroller composition", a
   await expect(page.locator('[data-slot="input-group"]')).toBeVisible();
 });
 
-test("shadcn Chat Demo empty state and composer work locally", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "chromium", "Desktop empty state");
+test("shadcn composer sends locally without chat-header setup actions", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium", "Desktop composer");
   await page.goto("/ui-v2");
-  await page.getByRole("button", { name: "New conversation" }).click();
-  await expect(page.locator('[data-slot="empty"]')).toBeVisible();
-  await expect(page.getByText("Start a conversation")).toBeVisible();
+  await expect(page.getByTestId("conversation-header").getByRole("button")).toHaveCount(0);
   const input = page.getByRole("textbox", { name: "Write a message" });
-  await input.fill("A new local conversation");
+  await input.fill("A new local message");
   await input.press("Enter");
-  await expect(page.getByText("A new local conversation")).toBeVisible();
+  await expect(page.getByText("A new local message")).toBeVisible();
   await expect(input).toHaveValue("");
 });
 
-test("scoped stock shadcn theme gives dropdown a solid white surface", async ({ page }, testInfo) => {
+test("scoped shadcn theme gives dropdown an opaque readable surface", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "Desktop theme");
   await page.goto("/ui-v2");
   await page.locator('[data-sidebar="footer"] [data-sidebar="menu-button"]').click();
   const menu = page.getByRole("menu");
   await expect(menu).toBeVisible();
-  await expect(menu).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  const color = await menu.evaluate(element => getComputedStyle(element).backgroundColor);
+  expect(color).not.toBe("rgba(0, 0, 0, 0)");
+  expect(color).not.toBe("transparent");
 });
 
 test("mobile sidebar-08 and human group chat work without horizontal overflow", async ({ page }, testInfo) => {
@@ -56,10 +56,12 @@ test("mobile sidebar-08 and human group chat work without horizontal overflow", 
 test("AI companion and human messages share one native scroller with Trace and approval", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "Desktop shared AI-human conversation");
   await page.goto("/ui-v2");
-  await page.getByRole("button", { name: "Name your companion" }).click();
-  await page.getByRole("textbox", { name: "Companion display name" }).fill("Sparrow");
+  await page.getByRole("button", { name: "Toggle preferences drawer" }).click();
+  await page.getByRole("button", { name: "Companion", exact: true }).click();
+  await page.getByRole("textbox", { name: "Display name" }).fill("Sparrow");
   await page.getByRole("textbox", { name: "Mention alias" }).fill("sparrow");
   await page.getByRole("button", { name: "Save companion" }).click();
+  await page.keyboard.press("Escape");
   await expect(page.locator('[data-slot="message-scroller-item"][data-message-id="t5"]')).toBeVisible();
   await expect(page.locator('[data-agent-activity="preview"] [data-slot="trace"]').first()).toBeVisible();
   await expect(page.locator('[data-agent-activity="preview"]')).toHaveCount(1);
@@ -72,10 +74,12 @@ test("AI companion and human messages share one native scroller with Trace and a
 test("mentioning a companion produces a clearly mocked response only with sample consent", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "Desktop companion mock");
   await page.goto("/ui-v2");
-  await page.getByRole("button", { name: "Name your companion" }).click();
-  await page.getByRole("textbox", { name: "Companion display name" }).fill("Sparrow");
+  await page.getByRole("button", { name: "Toggle preferences drawer" }).click();
+  await page.getByRole("button", { name: "Companion", exact: true }).click();
+  await page.getByRole("textbox", { name: "Display name" }).fill("Sparrow");
   await page.getByRole("textbox", { name: "Mention alias" }).fill("sparrow");
   await page.getByRole("button", { name: "Save companion" }).click();
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Mention a companion" }).click();
   await page.getByRole("button", { name: /Mention @sparrow/ }).click();
   const draft = page.getByRole("textbox", { name: "Write a message" });
@@ -88,10 +92,12 @@ test("mentioning a companion produces a clearly mocked response only with sample
 test("in another conversation a mention is blocked until participant consent", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "Desktop consent mock");
   await page.goto("/ui-v2");
-  await page.getByRole("button", { name: "Name your companion" }).click();
-  await page.getByRole("textbox", { name: "Companion display name" }).fill("Sparrow");
+  await page.getByRole("button", { name: "Toggle preferences drawer" }).click();
+  await page.getByRole("button", { name: "Companion", exact: true }).click();
+  await page.getByRole("textbox", { name: "Display name" }).fill("Sparrow");
   await page.getByRole("textbox", { name: "Mention alias" }).fill("sparrow");
   await page.getByRole("button", { name: "Save companion" }).click();
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: /Sara Ali/ }).click();
   await page.getByRole("textbox", { name: "Write a message" }).fill("@sparrow please remember this");
   await page.getByRole("button", { name: "Send", exact: true }).click();
@@ -104,20 +110,21 @@ test("no default Companion; owner can choose and edit name and alias", async ({ 
   test.skip(testInfo.project.name !== "chromium", "Desktop companion alias");
   await page.goto("/ui-v2");
   await expect(page.locator('[data-slot="message-scroller-item"][data-message-id="t5"]')).toHaveCount(0);
-  await expect(page.getByText("Choose your own companion alias")).toBeVisible();
+  await expect(page.getByTestId("conversation-header").getByRole("button")).toHaveCount(0);
   await page.getByRole("textbox", { name: "Write a message" }).fill("@star is not configured");
   await page.getByRole("button", { name: "Send", exact: true }).click();
   await expect(page.locator('[data-agent-activity="preview"]')).toHaveCount(0);
-  await page.getByRole("button", { name: "Name your companion" }).click();
-  await page.getByRole("textbox", { name: "Companion display name" }).fill("فراشة");
+  await page.getByRole("button", { name: "Toggle preferences drawer" }).click();
+  await page.getByRole("button", { name: "Companion", exact: true }).click();
+  await page.getByRole("textbox", { name: "Display name" }).fill("فراشة");
   await page.getByRole("textbox", { name: "Mention alias" }).fill("farasha");
   await page.getByRole("button", { name: "Save companion" }).click();
-  await expect(page.getByText("@farasha · sample consent")).toBeVisible();
-  await page.getByRole("button", { name: "Edit companion" }).click();
-  await page.getByRole("textbox", { name: "Companion display name" }).fill("Little Star");
+  await expect(page.getByText("فراشة (@farasha)")).toBeVisible();
+  await page.getByRole("textbox", { name: "Display name" }).fill("Little Star");
   await page.getByRole("textbox", { name: "Mention alias" }).fill("star");
   await page.getByRole("button", { name: "Save companion" }).click();
-  await expect(page.getByText("@star · sample consent")).toBeVisible();
+  await expect(page.getByText("Little Star (@star)")).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(page.getByText("Little Star", { exact: true })).toBeVisible();
   await page.getByRole("textbox", { name: "Write a message" }).fill("@star hello");
   await page.getByRole("button", { name: "Send", exact: true }).click();

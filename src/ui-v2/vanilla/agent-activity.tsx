@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { BotIcon, CheckCircle2Icon, Clock3Icon, ExternalLinkIcon, ShieldQuestionIcon, XCircleIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export function AgentActivity({
   decisions: Readonly<Record<string, PreviewDecision>>;
   onDecision: (key: string, decision: PreviewDecision) => void;
 }) {
+  const t = useTranslations("UiV2");
   return (
     <div className="flex min-w-0 flex-col gap-3" data-agent-activity="preview">
       <Trace>
@@ -72,14 +74,14 @@ export function AgentActivity({
               {decision && (
                 <Badge variant="outline" data-preview-decision={decision}>
                   {decision === "approved" ? <CheckCircle2Icon className="me-1 size-3" /> : <XCircleIcon className="me-1 size-3" />}
-                  {decision === "approved" ? "Approved locally · not executed" : "Denied locally"}
+                  {decision === "approved" ? t("approvedLocal") : t("deniedLocal")}
                 </Badge>
               )}
             </ItemContent>
             {!decision && (
               <ItemActions>
-                <Button type="button" size="sm" variant="outline" onClick={() => onDecision(key, "denied")}>Deny</Button>
-                <Button type="button" size="sm" onClick={() => onDecision(key, "approved")}>Approve preview</Button>
+                <Button type="button" size="sm" variant="outline" onClick={() => onDecision(key, "denied")}>{t("deny")}</Button>
+                <Button type="button" size="sm" onClick={() => onDecision(key, "approved")}>{t("approvePreview")}</Button>
               </ItemActions>
             )}
           </Item>
