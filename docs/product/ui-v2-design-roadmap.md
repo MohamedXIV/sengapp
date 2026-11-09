@@ -2,6 +2,8 @@
 
 > **Owner decisions captured 9 November 2026.** Sequence and acceptance gates, not deadlines. This is the **canonical plan for visual/UI v2 work**, linked from the [overall product roadmap](roadmap.md). The existing [messaging/privacy release plan](roadmap.md#v01--build-a-messenger-people-trust) remains authoritative for live features and security.
 >
+> **Tracking issue:** [#39 — UI v2 bilingual, colorful personal messenger and motion roadmap](https://github.com/MohamedXIV/sengapp/issues/39).
+>
 > **Current work:** [Draft PR #36](https://github.com/MohamedXIV/sengapp/pull/36) is the clean-room shadcn baseline; [Draft PR #38](https://github.com/MohamedXIV/sengapp/pull/38) adds shared Classic/Cozy shells and the first cleanup. Neither is merged into `main`. The `/ui-v2` demo uses local/mock state, **not** authenticated Clerk/Convex messaging, real companion consent, providers or AI execution. PR #37's permission contract is separately gated.
 
 ## Why this track exists
