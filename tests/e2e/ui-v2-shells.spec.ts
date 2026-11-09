@@ -115,13 +115,12 @@ test("Desktop Cozy floating tabs, chat buttons and composer really accept clicks
 test("UI v2 switches English/Arabic and RTL without losing a draft across shells", async ({ page }, info) => {
   test.skip(info.project.name !== "chromium", "Desktop bilingual shell test");
   await page.goto("/ui-v2");
-  await page.getByRole("button", { name: "Write a message" }).count();
   await page.getByRole("textbox", { name: "Write a message" }).fill("Hello / مرحبًا");
   await page.getByRole("button", { name: "Toggle preferences drawer" }).click();
   await page.getByRole("button", { name: "العربية" }).click();
   await expect(page.locator("[data-sengapp-shadcn-blocks]")).toHaveAttribute("lang", "ar");
   await expect(page.locator("[data-sengapp-shadcn-blocks]")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByRole("heading", { name: "المظهر" })).toBeVisible();
+  await expect(page.getByTestId("shared-appearance-panel").getByText("المظهر", { exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("textbox", { name: "اكتب رسالة" })).toHaveValue("Hello / مرحبًا");
   await page.getByRole("button", { name: "الانتقال إلى كوزي" }).click();
