@@ -62,7 +62,7 @@ describe("Sengapp UI v2: shared shadcn Classic and Cozy shells", () => {
     expect(activity).toContain("@/components/ui/trace");
     expect(activity).toContain("@/components/ui/item");
     expect(timeline).toContain("AgentActivity");
-    expect(composer).toContain("Mention a companion");
+    expect(composer).toContain('t("mentionCompanion")');
     expect(state).toContain("exampleAgentConsent[selectedId]");
     expect(state).toContain("saveCompanion");
     expect(state).not.toMatch(/@ai-sdk\/react|useChat\(|convex\/|@clerk\//);
@@ -86,15 +86,16 @@ describe("Sengapp UI v2: shared shadcn Classic and Cozy shells", () => {
     expect(cozy).toContain("<RoomCanvas");
     expect(cozy).toContain("windowBounds");
     expect(mobile).toContain("onPointerDown");
-    expect(mobile).toContain("Resize chat window");
+    expect(mobile).toContain('t("resizeWindow")');
   });
 
   it("shares editable colors, corners and shadows via scoped tokens", () => {
     const theme = read("src/ui-v2/vanilla/shadcn-theme.css");
     expect(theme).toContain("body:has([data-sengapp-shadcn-blocks])");
-    expect(theme).toContain('data-accent="rose"');
-    expect(theme).toContain('data-corners="round"');
-    expect(theme).toContain('data-shadow="deep"');
+    expect(theme).toContain("--background");
+    expect(entry).toContain("themeVariables");
+    expect(entry).toContain("NextIntlClientProvider");
+    expect(state).toContain("sengapp-ui-v2-appearance-v2");
     expect(theme).not.toContain(".s2-");
     expect(appearance).toContain("updateAppearance");
     expect(state).toContain("sengapp-ui-v2-appearance-v1");
