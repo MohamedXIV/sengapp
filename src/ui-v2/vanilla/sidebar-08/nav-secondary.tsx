@@ -15,6 +15,7 @@ export function NavSecondary({
 }: {
   items: {
     title: string
+    label: string
     url: string
     icon: LucideIcon
   }[]
@@ -28,7 +29,7 @@ export function NavSecondary({
               <SidebarMenuButton asChild size="sm">
                 <a href={item.url}>
                   <item.icon />
-                  <span>{item.title}</span>
+                  <span>{item.label}</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>

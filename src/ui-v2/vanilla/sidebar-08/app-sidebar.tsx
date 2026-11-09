@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslations } from "next-intl"
 import { Command, LifeBuoy, MessageCircle, MessageSquare, NotebookTabs, Send, Settings2, Users } from "lucide-react"
 
 import { NavMain } from "./nav-main"
@@ -21,21 +22,22 @@ export function AppSidebar({ selectedId, onChooseConversation, onNavigate, onOpe
   onOpenPanel: (section: RightPanelSection) => void
   filter: "All chats" | "Unread" | "Groups"
 }) {
+  const t = useTranslations("UiV2");
   const data = {
-    user: { name: "Your space", email: "Sengapp UI v2 preview", avatar: "" },
+    user: { name: t("previewName"), email: t("previewDescription"), avatar: "" },
     navMain: [
-      { title: "Chats", url: "#", icon: MessageCircle, isActive: true, items: [
-        { title: "All chats", url: "#" },
-        { title: "Unread", url: "#" },
-        { title: "Groups", url: "#" },
+      { title: "Chats", label: t("chats"), url: "#", icon: MessageCircle, isActive: true, items: [
+        { title: "All chats", label: t("allChats"), url: "#" },
+        { title: "Unread", label: t("unread"), url: "#" },
+        { title: "Groups", label: t("groups"), url: "#" },
       ] },
-      { title: "People", url: "#", icon: Users },
-      { title: "Notes", url: "#", icon: NotebookTabs },
-      { title: "Settings", url: "#", icon: Settings2 },
+      { title: "People", label: t("people"), url: "#", icon: Users },
+      { title: "Notes", label: t("notes"), url: "#", icon: NotebookTabs },
+      { title: "Settings", label: t("settings"), url: "#", icon: Settings2 },
     ],
     navSecondary: [
-      { title: "Support", url: "https://github.com/MohamedXIV/sengapp", icon: LifeBuoy },
-      { title: "Feedback", url: "https://github.com/MohamedXIV/sengapp/issues", icon: Send },
+      { title: "Support", label: t("support"), url: "https://github.com/MohamedXIV/sengapp", icon: LifeBuoy },
+      { title: "Feedback", label: t("feedback"), url: "https://github.com/MohamedXIV/sengapp/issues", icon: Send },
     ],
     projects: conversations.filter(conversation => filter === "Unread" ? conversation.unread > 0 : filter === "Groups" ? conversation.id !== "sara" : true).map(conversation => ({
       id: conversation.id,
@@ -57,7 +59,7 @@ export function AppSidebar({ selectedId, onChooseConversation, onNavigate, onOpe
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">Sengapp</span>
-                  <span className="truncate text-xs">A little closer</span>
+                  <span className="truncate text-xs">{t("tagline")}</span>
                 </div>
               </button>
             </SidebarMenuButton>

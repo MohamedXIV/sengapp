@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import {
   BadgeCheck,
   Bell,
@@ -41,6 +42,7 @@ export function NavUser({
     avatar: string
   }
 }) {
+  const t = useTranslations("UiV2");
   const { isMobile } = useSidebar()
 
   return (
@@ -60,7 +62,7 @@ export function NavUser({
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="ms-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -85,32 +87,32 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem onSelect={() => onOpenPanel("appearance")}>
                 <Sparkles />
-                Appearance
+                {t("appearance")}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => onOpenPanel("companion")}>
                 <Sparkles />
-                Companion
+                {t("companion")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem disabled>
                 <BadgeCheck />
-                Account
+                {t("account")}
               </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <CreditCard />
-                Privacy (later)
+                {t("privacyLater")}
               </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <Bell />
-                Notifications
+                {t("notifications")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled>
               <LogOut />
-              Sign out (demo only)
+              {t("signOutDemo")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import {
   Collapsible,
@@ -26,16 +27,19 @@ export function NavMain({
 }: {
   items: {
     title: string
+    label: string
     url: string
     icon: LucideIcon
     isActive?: boolean
     items?: {
       title: string
+      label: string
       url: string
     }[]
   }[]
   onNavigate: (name: string) => void
 }) {
+  const t = useTranslations("UiV2");
   const { setOpenMobile } = useSidebar()
   function navigate(name: string) {
     onNavigate(name)
@@ -44,15 +48,15 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Your space</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("yourSpace")}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title}>
+              <SidebarMenuButton asChild tooltip={item.label}>
                 <button type="button" onClick={() => navigate(item.title)}>
                   <item.icon />
-                  <span>{item.title}</span>
+                  <span>{item.label}</span>
                 </button>
               </SidebarMenuButton>
               {item.items?.length ? (
@@ -69,7 +73,7 @@ export function NavMain({
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
                             <button type="button" onClick={() => navigate(subItem.title)}>
-                              <span>{subItem.title}</span>
+                              <span>{subItem.label}</span>
                             </button>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

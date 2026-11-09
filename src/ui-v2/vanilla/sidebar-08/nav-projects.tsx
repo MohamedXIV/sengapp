@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import {
   Folder,
   MoreHorizontal,
@@ -39,12 +40,13 @@ export function NavProjects({
   selectedId: string
   onSelect: (id: string) => void
 }) {
+  const t = useTranslations("UiV2");
   const { isMobile, setOpenMobile } = useSidebar()
   function select(id: string) { onSelect(id); setOpenMobile(false) }
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Conversations</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("conversations")}</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
@@ -68,16 +70,16 @@ export function NavProjects({
               >
                 <DropdownMenuItem onSelect={() => select(item.id)}>
                   <Folder className="text-muted-foreground" />
-                  <span>Open conversation</span>
+                  <span>{t("openConversation")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>
                   <Share className="text-muted-foreground" />
-                  <span>Share conversation (coming later)</span>
+                  <span>{t("shareLater")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem disabled>
                   <Trash2 className="text-muted-foreground" />
-                  <span>Remove conversation (coming later)</span>
+                  <span>{t("removeLater")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -86,7 +88,7 @@ export function NavProjects({
         <SidebarMenuItem>
           <SidebarMenuButton>
             <MoreHorizontal />
-            <span>More (preview)</span>
+            <span>{t("more")}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
