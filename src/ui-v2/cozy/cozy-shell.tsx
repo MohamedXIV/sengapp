@@ -145,7 +145,7 @@ export function CozyShell() {
           </>
         ) : <CozyMobileWindows />}
       </div>
-      {desktop && <AppearanceDrawer />}
+      <AppearanceDrawer />
     </section>
   );
 }

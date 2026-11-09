@@ -4,10 +4,10 @@ import { useRef, useState, type PointerEvent } from "react";
 import { GripIcon, Maximize2Icon, MessageCircleIcon, PaletteIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { AppearancePanel } from "../shared/appearance-panel";
 import { SharedConversationPanel } from "../shared/conversation-panel";
 import { ShellSwitcher } from "../shared/shell-switcher";
 import { ConversationListPanel } from "./conversation-list";
+import { useWorkspace } from "../shared/workspace-state";
 
 type Rect = { x: number; y: number; width: number; height: number };
 type Gesture = { action: "drag" | "resize"; x: number; y: number; rect: Rect };
@@ -30,7 +30,7 @@ export function CozyMobileWindows() {
   const [rect, setRect] = useState<Rect>({ x: 12, y: 140, width: 358, height: 580 });
   const [visible, setVisible] = useState(true);
   const [chatsOpen, setChatsOpen] = useState(false);
-  const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const { openRightPanel } = useWorkspace();
   const gesture = useRef<Gesture | null>(null);
 
   function begin(action: Gesture["action"], event: PointerEvent<HTMLButtonElement>) {
@@ -102,7 +102,7 @@ export function CozyMobileWindows() {
         <Button type="button" variant="ghost" size="icon" aria-label="Open chats" onClick={() => setChatsOpen(true)}>
           <MessageCircleIcon />
         </Button>
-        <Button type="button" variant="ghost" size="icon" aria-label="Open appearance" onClick={() => setAppearanceOpen(true)}>
+        <Button type="button" variant="ghost" size="icon" aria-label="Open appearance" onClick={() => openRightPanel("appearance")}>
           <PaletteIcon />
         </Button>
         {!visible && <Button type="button" variant="secondary" size="sm" onClick={() => setVisible(true)}>Open chat</Button>}
@@ -111,12 +111,6 @@ export function CozyMobileWindows() {
         <SheetContent side="left" className="w-[min(85vw,330px)] p-0">
           <SheetHeader className="sr-only"><SheetTitle>Chats</SheetTitle><SheetDescription>Choose a conversation</SheetDescription></SheetHeader>
           <ConversationListPanel onSelect={() => setChatsOpen(false)} />
-        </SheetContent>
-      </Sheet>
-      <Sheet open={appearanceOpen} onOpenChange={setAppearanceOpen}>
-        <SheetContent side="right" className="w-[min(85vw,330px)] p-0">
-          <SheetHeader className="sr-only"><SheetTitle>Appearance</SheetTitle><SheetDescription>Customize both shells</SheetDescription></SheetHeader>
-          <AppearancePanel embedded />
         </SheetContent>
       </Sheet>
     </div>

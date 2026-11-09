@@ -29,21 +29,21 @@ export function VanillaComposer({
     if (companion) onTextChange(text + divider + "@" + companion.handle + " ");
   }
   return (
-    <form ref={formRef} onSubmit={submit} aria-label="Demo message composer" className="w-full">
-      <InputGroup className="bg-muted/50">
+    <form ref={formRef} onSubmit={submit} aria-label="Demo message composer" className="mx-auto w-full max-w-[860px]">
+      <InputGroup className="overflow-hidden rounded-2xl border bg-card shadow-[0_12px_30px_-12px_rgba(28,54,43,0.26)]">
         <InputGroupTextarea
           value={text}
           onChange={event => onTextChange(event.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={companion ? `Write a message… or mention @${companion.handle}` : "Write a message…"}
           aria-label="Write a message"
-          rows={2}
-          className="min-h-14"
+          rows={1}
+          className="max-h-32 min-h-10 px-4 pb-1 pt-3 text-[15px] leading-relaxed"
         />
-        <InputGroupAddon align="block-end" className="pt-1">
+        <InputGroupAddon align="block-end" className="gap-1 px-2 pb-2 pt-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <InputGroupButton type="button" variant="outline" size="icon-sm" aria-label="Add attachment">
+              <InputGroupButton type="button" variant="ghost" size="icon-sm" className="rounded-full" aria-label="Add attachment">
                 <PlusIcon />
               </InputGroupButton>
             </DropdownMenuTrigger>
@@ -55,7 +55,7 @@ export function VanillaComposer({
           </DropdownMenu>
           <Popover>
             <PopoverTrigger asChild>
-              <InputGroupButton type="button" variant="outline" size="icon-sm" aria-label="Mention a companion">
+              <InputGroupButton type="button" variant="ghost" size="icon-sm" className="rounded-full" aria-label="Mention a companion">
                 <BotIcon />
               </InputGroupButton>
             </PopoverTrigger>
@@ -76,7 +76,7 @@ export function VanillaComposer({
             </PopoverContent>
           </Popover>
           <InputGroupButton
-            type="submit" variant="default" size="icon-sm" className="ml-auto rounded-full"
+            type="submit" variant="default" size="icon-sm" className="ml-auto size-9 rounded-full"
             aria-label="Send" disabled={!text.trim()}
           >
             <ArrowUpIcon />

@@ -1,66 +1,49 @@
 "use client";
 
-import { PanelRightCloseIcon, PaletteIcon } from "lucide-react";
+import { PaletteIcon, SparklesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AppearancePanel } from "./appearance-panel";
-import { useDesktopLayout } from "./use-desktop-layout";
+import { CompanionSettingsPanel } from "./companion-settings-panel";
 import { useWorkspace } from "./workspace-state";
 
-/** Desktop: a real flex sibling that PUSHES content. Mobile: the familiar shadcn Sheet. */
+/** One shadcn overlay Sheet on all screen sizes; no desktop layout shrink. */
 export function AppearanceDrawer() {
-  const { appearanceOpen, setAppearanceOpen } = useWorkspace();
-  const desktop = useDesktopLayout();
-
-  if (!desktop) {
-    return (
-      <Sheet open={appearanceOpen} onOpenChange={setAppearanceOpen}>
-        <SheetContent side="right" className="w-[min(88vw,340px)] overflow-y-auto p-0">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Appearance</SheetTitle>
-            <SheetDescription>Customize the shared Sengapp appearance.</SheetDescription>
-          </SheetHeader>
-          <AppearancePanel embedded />
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
-  if (!appearanceOpen) return null;
-
+  const { rightPanelOpen, setRightPanelOpen, rightPanelSection, openRightPanel } = useWorkspace();
   return (
-    <aside
-      data-testid="appearance-right-sidebar"
-      aria-label="Appearance"
-      className="flex h-full w-[320px] min-w-[280px] shrink-0 flex-col overflow-hidden border-s bg-card"
-    >
-      <div className="flex h-11 shrink-0 items-center justify-between border-b px-4">
-        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <PaletteIcon className="size-4" /> Customize
+    <Sheet open={rightPanelOpen} onOpenChange={setRightPanelOpen}>
+      <SheetContent side="right" data-testid="utility-right-drawer"
+        className="flex h-dvh w-[min(92vw,390px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-[390px]">
+        <SheetHeader className="shrink-0 border-b px-5 pb-4 pt-5 pe-12 text-start">
+          <SheetTitle>Your space</SheetTitle>
+          <SheetDescription>Make Sengapp feel like yours.</SheetDescription>
+        </SheetHeader>
+        <div role="group" aria-label="Settings sections" className="grid shrink-0 grid-cols-2 gap-2 border-b p-3">
+          <Button type="button" size="sm" variant={rightPanelSection === "appearance" ? "secondary" : "ghost"}
+            aria-pressed={rightPanelSection === "appearance"} onClick={() => openRightPanel("appearance")}>
+            <PaletteIcon className="size-4" /> Appearance
+          </Button>
+          <Button type="button" size="sm" variant={rightPanelSection === "companion" ? "secondary" : "ghost"}
+            aria-pressed={rightPanelSection === "companion"} onClick={() => openRightPanel("companion")}>
+            <SparklesIcon className="size-4" /> Companion
+          </Button>
         </div>
-        <Button
-          type="button" variant="ghost" size="icon" className="size-8"
-          aria-label="Close appearance sidebar"
-          onClick={() => setAppearanceOpen(false)}
-        ><PanelRightCloseIcon className="size-4" /></Button>
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <AppearancePanel embedded />
-      </div>
-    </aside>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {rightPanelSection === "appearance" ? <AppearancePanel embedded /> : <CompanionSettingsPanel />}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
 export function AppearanceToggle() {
-  const { appearanceOpen, setAppearanceOpen } = useWorkspace();
+  const { rightPanelOpen, rightPanelSection, setRightPanelOpen, openRightPanel } = useWorkspace();
+  const expanded = rightPanelOpen && rightPanelSection === "appearance";
   return (
-    <Button
-      variant={appearanceOpen ? "secondary" : "ghost"}
-      size="icon"
-      type="button"
-      aria-label="Toggle appearance sidebar"
-      aria-expanded={appearanceOpen}
-      onClick={() => setAppearanceOpen(!appearanceOpen)}
-    ><PaletteIcon className="size-4" /></Button>
+    <Button variant={expanded ? "secondary" : "ghost"} size="icon" type="button"
+      aria-label="Toggle preferences drawer" aria-expanded={rightPanelOpen}
+      onClick={() => expanded ? setRightPanelOpen(false) : openRightPanel("appearance")}>
+      <PaletteIcon className="size-4" />
+    </Button>
   );
 }

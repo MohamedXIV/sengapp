@@ -13,6 +13,7 @@ export type ConversationFilter = "All chats" | "Unread" | "Groups";
 export type Accent = "sage" | "rose" | "lavender" | "honey";
 export type Corners = "soft" | "balanced" | "round";
 export type Shadow = "none" | "soft" | "deep";
+export type RightPanelSection = "appearance" | "companion";
 export type Appearance = { accent: Accent; corners: Corners; shadow: Shadow };
 export const DEFAULT_APPEARANCE: Appearance = {
   accent: "sage", corners: "balanced", shadow: "soft",
@@ -40,8 +41,10 @@ export type Workspace = {
   setShell: (mode: ShellMode) => void;
   appearance: Appearance;
   updateAppearance: (update: Partial<Appearance>) => void;
-  appearanceOpen: boolean;
-  setAppearanceOpen: (open: boolean) => void;
+  rightPanelOpen: boolean;
+  setRightPanelOpen: (open: boolean) => void;
+  rightPanelSection: RightPanelSection;
+  openRightPanel: (section: RightPanelSection) => void;
   view: WorkspaceView;
   filter: ConversationFilter;
   selectedId: string;
@@ -72,7 +75,12 @@ function isAppearance(value: unknown): value is Appearance {
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [shell, setShell] = useState<ShellMode>("classic");
-  const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState(false);
+  const [rightPanelSection, setRightPanelSection] = useState<RightPanelSection>("appearance");
+  function openRightPanel(section: RightPanelSection) {
+    setRightPanelSection(section);
+    setRightPanelOpen(true);
+  }
   // SSR-safe: React reads the server snapshot during hydration, then the
   // browser preference. No synchronous setState in effects or flash of errors.
   const persisted = useSyncExternalStore(subscribeAppearance, appearanceSnapshot, defaultAppearanceSnapshot);
@@ -157,7 +165,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const conversation = conversations.find(item => item.id === selectedId);
   const value: Workspace = {
-    shell, setShell, appearance, updateAppearance, appearanceOpen, setAppearanceOpen,
+    shell, setShell, appearance, updateAppearance, rightPanelOpen, setRightPanelOpen, rightPanelSection, openRightPanel,
     view, filter, selectedId,
     conversation, title: selectedId === "new" ? "New conversation" : conversation?.name ?? "Dev Team",
     subtitle: selectedId === "new" ? "A fresh conversation, just for this preview" : conversation?.people ?? "",
