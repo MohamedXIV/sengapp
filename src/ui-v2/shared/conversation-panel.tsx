@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageCircleDashedIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +15,10 @@ import { useWorkspace } from "./workspace-state";
 export function SharedConversationPanel({ embedded = false, className }: {
   embedded?: boolean; className?: string;
 }) {
+  const t = useTranslations("UiV2");
   const workspace = useWorkspace();
-  const { title, subtitle, conversation, messages, view } = workspace;
+  const { title, conversation, messages, view } = workspace;
+  const subtitle = conversation?.id === "sara" ? t("directMessage") : conversation?.id === "team" ? t("memberCount",{count:6}) : conversation?.id === "friends" ? t("memberCount",{count:3}) : workspace.selectedId==="new" ? t("newConversationDesc") : "";
   return (
     <Card data-testid="shared-conversation-panel"
       className={cn("flex h-full min-h-0 min-w-0 w-full flex-1 flex-col gap-0 overflow-hidden",
@@ -40,8 +43,8 @@ export function SharedConversationPanel({ embedded = false, className }: {
               <Empty className="h-full">
                 <EmptyHeader>
                   <EmptyMedia variant="icon"><MessageCircleDashedIcon /></EmptyMedia>
-                  <EmptyTitle>Start a conversation</EmptyTitle>
-                  <EmptyDescription>A place for the little things worth sharing. This is a local preview; nothing is sent.</EmptyDescription>
+                  <EmptyTitle>{t("startConversation")}</EmptyTitle>
+                  <EmptyDescription>{t("startConversationDesc")}</EmptyDescription>
                 </EmptyHeader>
               </Empty>
             )}
@@ -57,9 +60,9 @@ export function SharedConversationPanel({ embedded = false, className }: {
             <EmptyHeader>
               <EmptyMedia variant="icon"><MessageCircleDashedIcon /></EmptyMedia>
               <EmptyTitle>{view}</EmptyTitle>
-              <EmptyDescription>This section returns after the shared messaging design is approved.</EmptyDescription>
+              <EmptyDescription>{t("placeholderView")}</EmptyDescription>
             </EmptyHeader>
-            <Button variant="outline" onClick={() => workspace.navigate("Chats")}>Back to conversations</Button>
+            <Button variant="outline" onClick={() => workspace.navigate("Chats")}>{t("backToConversations")}</Button>
           </Empty>
         </CardContent>
       )}

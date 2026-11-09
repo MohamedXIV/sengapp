@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { BotIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { useWorkspace } from "./workspace-state";
 function IdentityForm({ initialName, initialHandle }: {
   initialName: string; initialHandle: string;
 }) {
+  const t = useTranslations("UiV2");
   const { saveCompanion } = useWorkspace();
   const [name, setName] = useState(initialName);
   const [handle, setHandle] = useState(initialHandle);
@@ -21,50 +23,50 @@ function IdentityForm({ initialName, initialHandle }: {
     saveCompanion(displayName, mentionHandle);
   }
   return (
-    <form aria-label="Companion identity" onSubmit={submit} className="space-y-5">
+    <form aria-label={t("companionTitle")} onSubmit={submit} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="companion-display-name">Display name</Label>
+        <Label htmlFor="companion-display-name">{t("companionName")}</Label>
         <Input id="companion-display-name" required maxLength={40}
-          placeholder="Any name, including Arabic" value={name}
+          placeholder={t("companionNamePlaceholder")} value={name}
           onChange={event => setName(event.target.value)} />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="companion-mention-alias">Mention alias</Label>
+        <Label htmlFor="companion-mention-alias">{t("mentionAlias")}</Label>
         <Input id="companion-mention-alias" required minLength={2} maxLength={24}
           pattern="[a-zA-Z][a-zA-Z0-9_]{1,23}" autoCapitalize="none" spellCheck={false}
-          placeholder="e.g. little_star" value={handle}
+          placeholder={t("mentionExample")} value={handle}
           onChange={event => setHandle(event.target.value)} />
-        <p className="text-xs text-muted-foreground">Latin letters, digits and underscores; 2–24 characters.</p>
+        <p className="text-xs text-muted-foreground">{t("mentionHint")}</p>
       </div>
-      <Button type="submit" className="w-full">Save companion</Button>
+      <Button type="submit" className="w-full">{t("saveCompanion")}</Button>
     </form>
   );
 }
 
 /** Centralized identity settings; future avatar and personality options belong here. */
 export function CompanionSettingsPanel() {
+  const t = useTranslations("UiV2");
   const { companion } = useWorkspace();
   return (
-    <section aria-label="Companion settings" data-testid="companion-settings" className="space-y-5 p-5">
+    <section aria-label={t("companionTitle")} data-testid="companion-settings" className="space-y-5 p-5">
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
           <BotIcon className="size-4 text-muted-foreground" />
-          <h2 className="font-semibold">Your companion</h2>
+          <h2 className="font-semibold">{t("companionTitle")}</h2>
         </div>
         <p className="text-sm text-muted-foreground">
-          Your companion has one identity across all of your conversations.
+          {t("companionDescription")}
         </p>
       </div>
       {companion && (
         <p className="rounded-lg bg-muted px-3 py-2 text-sm">
-          Current identity: <span className="font-medium">{companion.name} (@{companion.handle})</span>
+          {t("currentIdentity")} <span className="font-medium">{companion.name} (@{companion.handle})</span>
         </p>
       )}
       <IdentityForm key={(companion?.name ?? "") + ":" + (companion?.handle ?? "")}
         initialName={companion?.name ?? ""} initialHandle={companion?.handle ?? ""} />
       <p className="text-xs leading-relaxed text-muted-foreground">
-        Avatar and personality customization will live here too; they are not active in this UI-only preview.
-        Nothing here contacts an AI provider.
+        {t("companionLater")}
       </p>
     </section>
   );
