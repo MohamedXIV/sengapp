@@ -1,6 +1,7 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
+import { useTranslations } from "next-intl";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "../vanilla/sidebar-08/app-sidebar";
 import { AppearanceDrawer, AppearanceToggle } from "../shared/appearance-drawer";
@@ -10,6 +11,7 @@ import { useWorkspace } from "../shared/workspace-state";
 
 /** Standard app layout. Chat and Appearance are the same components as Cozy. */
 export function ClassicShell() {
+  const t = useTranslations("UiV2");
   const workspace = useWorkspace();
   return (
     <SidebarProvider className="h-dvh min-h-0" data-testid="classic-shell">
@@ -26,7 +28,7 @@ export function ClassicShell() {
           <Separator orientation="vertical" className="mx-1 h-5" />
           <div className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold">Sengapp</span>
-            <span className="hidden text-xs text-muted-foreground sm:block">A little closer</span>
+            <span className="hidden text-xs text-muted-foreground sm:block">{t("tagline")}</span>
           </div>
           <AppearanceToggle />
           <ShellSwitcher />

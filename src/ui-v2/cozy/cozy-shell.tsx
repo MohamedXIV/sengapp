@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { HouseIcon, MaximizeIcon, MessageCircleIcon, RefreshCcwIcon } from "lucide-react";
 import { DockviewReact, type DockviewApi, type DockviewReadyEvent } from "dockview-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { AppearanceDrawer, AppearanceToggle } from "../shared/appearance-drawer"
 import { SharedConversationPanel } from "../shared/conversation-panel";
 import { ShellSwitcher } from "../shared/shell-switcher";
 import { useDesktopLayout } from "../shared/use-desktop-layout";
+import { useWorkspace } from "../shared/workspace-state";
 import { ConversationListPanel } from "./conversation-list";
 import { CozyMobileWindows } from "./mobile-windows";
 
@@ -41,11 +43,11 @@ function windowBounds(id: PanelId, width: number, height: number) {
   };
 }
 
-function addFloating(api: DockviewApi, id: PanelId, width: number, height: number) {
+function addFloating(api: DockviewApi, id: PanelId, width: number, height: number, title: string) {
   const existing = api.getPanel(id);
   if (existing) { existing.api.setActive(); return; }
   api.addPanel({
-    id, component: id, title: id === "chats" ? "Chats" : "Conversation",
+    id, component: id, title,
     floating: windowBounds(id, width, height),
     minimumWidth: id === "conversation" ? 320 : 220,
     minimumHeight: id === "conversation" ? 320 : 220,
@@ -76,6 +78,8 @@ function CozyWorld() {
 
 /** Desktop matches mobile's quiet, touch-friendly window look; Dockview still does docking. */
 export function CozyShell() {
+  const t = useTranslations("UiV2");
+  const { appearance } = useWorkspace();
   const desktop = useDesktopLayout();
   const apiRef = useRef<DockviewApi | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -83,15 +87,15 @@ export function CozyShell() {
     apiRef.current = event.api;
     const width = stageRef.current?.clientWidth ?? window.innerWidth;
     const height = stageRef.current?.clientHeight ?? window.innerHeight;
-    addFloating(event.api, "chats", width, height);
-    addFloating(event.api, "conversation", width, height);
-  }, []);
+    addFloating(event.api, "chats", width, height, t("chats"));
+    addFloating(event.api, "conversation", width, height, t("conversation"));
+  }, [t]);
 
   function showChats() {
     if (!apiRef.current) return;
     addFloating(apiRef.current, "chats",
       stageRef.current?.clientWidth ?? window.innerWidth,
-      stageRef.current?.clientHeight ?? window.innerHeight);
+      stageRef.current?.clientHeight ?? window.innerHeight, t("chats"));
   }
   function resetWindows() {
     const api = apiRef.current;
@@ -99,8 +103,8 @@ export function CozyShell() {
     api.clear();
     const width = stageRef.current?.clientWidth ?? window.innerWidth;
     const height = stageRef.current?.clientHeight ?? window.innerHeight;
-    addFloating(api, "chats", width, height);
-    addFloating(api, "conversation", width, height);
+    addFloating(api, "chats", width, height, t("chats"));
+    addFloating(api, "conversation", width, height, t("conversation"));
   }
 
   return (
@@ -112,7 +116,7 @@ export function CozyShell() {
           <>
             <div className="pointer-events-none absolute inset-0 z-10">
               <div className="sengapp-cozy-dock h-full w-full" data-testid="cozy-dockview">
-                <DockviewReact
+                <DockviewReact key={appearance.locale}
                   className="dockview-theme-light h-full w-full"
                   onReady={onReady}
                   components={panels}
@@ -121,15 +125,15 @@ export function CozyShell() {
             </div>
             <div className="pointer-events-none absolute inset-x-4 top-4 z-20 flex items-start justify-between gap-3">
               <div className="pointer-events-auto flex items-center gap-2 rounded-xl border bg-card/90 px-3 py-2 text-sm font-medium shadow-sm">
-                <HouseIcon className="size-4 text-primary" /> Woodland room
+                <HouseIcon className="size-4 text-primary" /> {t("woodlandRoom")}
               </div>
               <div className="pointer-events-auto flex flex-wrap items-center gap-1 rounded-xl border bg-card/95 p-1 shadow-sm">
                 <Button
-                  type="button" aria-label="Show chats window" variant="ghost" size="icon"
+                  type="button" aria-label={t("showChats")} variant="ghost" size="icon"
                   onClick={showChats}
                 ><MessageCircleIcon className="size-4" /></Button>
                 <Button
-                  type="button" aria-label="Reset floating windows" variant="ghost" size="icon"
+                  type="button" aria-label={t("resetWindows")} variant="ghost" size="icon"
                   onClick={resetWindows}
                 ><MaximizeIcon className="size-4" /></Button>
                 <AppearanceToggle />
@@ -139,7 +143,7 @@ export function CozyShell() {
             <div className="pointer-events-none absolute bottom-4 left-4 z-20">
               <div className="pointer-events-auto rounded-full border bg-card/85 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
                 <RefreshCcwIcon className="me-1 inline size-3" />
-                Drag a tab to dock · use the window edges to resize
+                {t("dragToDock")}
               </div>
             </div>
           </>

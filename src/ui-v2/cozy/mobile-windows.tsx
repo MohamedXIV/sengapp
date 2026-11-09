@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type PointerEvent } from "react";
+import { useTranslations } from "next-intl";
 import { GripIcon, Maximize2Icon, MessageCircleIcon, PaletteIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -27,6 +28,7 @@ function clamp(value: number, min: number, max: number) {
 
 /** Touch-capable moving and sizing window, intentionally separate from the chat content. */
 export function CozyMobileWindows() {
+  const t = useTranslations("UiV2");
   const [rect, setRect] = useState<Rect>({ x: 12, y: 140, width: 358, height: 580 });
   const [visible, setVisible] = useState(true);
   const [chatsOpen, setChatsOpen] = useState(false);
@@ -61,7 +63,7 @@ export function CozyMobileWindows() {
     <div className="absolute inset-0 z-20" data-testid="cozy-mobile-windows" style={{ pointerEvents: "none" }}>
       <div className="pointer-events-auto absolute start-3 end-3 top-3 flex items-center justify-between gap-2">
         <span className="rounded-lg border bg-card/90 px-3 py-2 text-xs font-medium shadow-sm">
-          ☀ Woodland room
+          ☀ {t("woodlandRoom")}
         </span>
         <ShellSwitcher />
       </div>
@@ -77,21 +79,21 @@ export function CozyMobileWindows() {
         >
           <div className="flex h-10 shrink-0 items-center gap-2 border-b bg-muted/80 px-2">
             <button
-              type="button" aria-label="Drag chat window" className="flex size-8 touch-none items-center justify-center rounded hover:bg-accent"
+              type="button" aria-label={t("dragWindow")} className="flex size-8 touch-none items-center justify-center rounded hover:bg-accent"
               onPointerDown={event => begin("drag", event)} onPointerMove={move}
               onPointerUp={end} onPointerCancel={end}
             ><GripIcon className="size-4 text-muted-foreground" /></button>
-            <span className="min-w-0 flex-1 truncate text-xs font-semibold">Conversation · dockable mobile preview</span>
-            <Button size="icon" variant="ghost" aria-label="Fit chat window" className="size-8" onClick={() => setRect(initialRect())}>
+            <span className="min-w-0 flex-1 truncate text-xs font-semibold">{t("conversation")}</span>
+            <Button size="icon" variant="ghost" aria-label={t("fitWindow")} className="size-8" onClick={() => setRect(initialRect())}>
               <Maximize2Icon className="size-4" />
             </Button>
-            <Button size="icon" variant="ghost" aria-label="Close chat window" className="size-8" onClick={() => setVisible(false)}>
+            <Button size="icon" variant="ghost" aria-label={t("closeWindow")} className="size-8" onClick={() => setVisible(false)}>
               <XIcon className="size-4" />
             </Button>
           </div>
           <div className="min-h-0 flex-1"><SharedConversationPanel embedded /></div>
           <button
-            type="button" aria-label="Resize chat window"
+            type="button" aria-label={t("resizeWindow")}
             className="absolute bottom-0 end-0 z-10 flex size-9 touch-none items-end justify-end p-2 text-muted-foreground"
             onPointerDown={event => begin("resize", event)} onPointerMove={move}
             onPointerUp={end} onPointerCancel={end}
@@ -99,17 +101,17 @@ export function CozyMobileWindows() {
         </section>
       )}
       <div className="pointer-events-auto absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2 rounded-full border bg-card/95 p-2 shadow-lg">
-        <Button type="button" variant="ghost" size="icon" aria-label="Open chats" onClick={() => setChatsOpen(true)}>
+        <Button type="button" variant="ghost" size="icon" aria-label={t("openChats")} onClick={() => setChatsOpen(true)}>
           <MessageCircleIcon />
         </Button>
-        <Button type="button" variant="ghost" size="icon" aria-label="Open appearance" onClick={() => openRightPanel("appearance")}>
+        <Button type="button" variant="ghost" size="icon" aria-label={t("openAppearance")} onClick={() => openRightPanel("appearance")}>
           <PaletteIcon />
         </Button>
-        {!visible && <Button type="button" variant="secondary" size="sm" onClick={() => setVisible(true)}>Open chat</Button>}
+        {!visible && <Button type="button" variant="secondary" size="sm" onClick={() => setVisible(true)}>{t("openChat")}</Button>}
       </div>
       <Sheet open={chatsOpen} onOpenChange={setChatsOpen}>
         <SheetContent side="left" className="w-[min(85vw,330px)] p-0">
-          <SheetHeader className="sr-only"><SheetTitle>Chats</SheetTitle><SheetDescription>Choose a conversation</SheetDescription></SheetHeader>
+          <SheetHeader className="sr-only"><SheetTitle>{t("chats")}</SheetTitle><SheetDescription>{t("conversations")}</SheetDescription></SheetHeader>
           <ConversationListPanel onSelect={() => setChatsOpen(false)} />
         </SheetContent>
       </Sheet>
