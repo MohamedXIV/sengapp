@@ -32,7 +32,9 @@ import {
 
 export function NavUser({
   user,
+  onOpenPanel,
 }: {
+  onOpenPanel: (section: "appearance" | "companion") => void
   user: {
     name: string
     email: string
@@ -81,9 +83,13 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem disabled>
+              <DropdownMenuItem onSelect={() => onOpenPanel("appearance")}>
                 <Sparkles />
-                Appearance (later)
+                Appearance
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onOpenPanel("companion")}>
+                <Sparkles />
+                Companion
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

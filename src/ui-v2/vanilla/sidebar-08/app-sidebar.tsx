@@ -12,11 +12,13 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { conversations } from "../data"
+import type { RightPanelSection } from "../../shared/workspace-state"
 
-export function AppSidebar({ selectedId, onChooseConversation, onNavigate, filter, ...props }: React.ComponentProps<typeof Sidebar> & {
+export function AppSidebar({ selectedId, onChooseConversation, onNavigate, onOpenPanel, filter, ...props }: React.ComponentProps<typeof Sidebar> & {
   selectedId: string
   onChooseConversation: (id: string) => void
   onNavigate: (name: string) => void
+  onOpenPanel: (section: RightPanelSection) => void
   filter: "All chats" | "Unread" | "Groups"
 }) {
   const data = {
@@ -67,7 +69,7 @@ export function AppSidebar({ selectedId, onChooseConversation, onNavigate, filte
         <NavProjects projects={data.projects} selectedId={selectedId} onSelect={onChooseConversation} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter><NavUser user={data.user} /></SidebarFooter>
+      <SidebarFooter><NavUser user={data.user} onOpenPanel={onOpenPanel} /></SidebarFooter>
     </Sidebar>
   )
 }

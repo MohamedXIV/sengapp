@@ -19,18 +19,20 @@ test("Classic and Cozy share the same message history and shadcn UI", async ({ p
   await expect(page.getByText("Same chat in two places")).toBeVisible();
 });
 
-test("Appearance tokens persist when switching from Classic to Cozy", async ({ page }, info) => {
-  test.skip(info.project.name !== "chromium", "Desktop Appearance controls");
+test("Right preferences Sheet overlays Classic and Cozy without pushing layout, and owns companion identity", async ({ page }, info) => {
+  test.skip(info.project.name !== "chromium", "Desktop shared utility drawer");
   await page.goto("/ui-v2");
   const chat = page.getByTestId("shared-conversation-panel");
   const before = await chat.boundingBox();
-  await expect(page.getByTestId("appearance-right-sidebar")).toHaveCount(0);
-  await page.getByRole("button", { name: "Toggle appearance sidebar" }).click();
-  await expect(page.getByTestId("appearance-right-sidebar")).toBeVisible();
+  await expect(page.getByTestId("conversation-header").getByRole("button")).toHaveCount(0);
+  await expect(page.getByTestId("utility-right-drawer")).toHaveCount(0);
+  await page.getByRole("button", { name: "Toggle preferences drawer" }).click();
+  await expect(page.getByTestId("utility-right-drawer")).toBeVisible();
   const after = await chat.boundingBox();
   expect(before).not.toBeNull();
   expect(after).not.toBeNull();
-  expect(before!.width - after!.width).toBeGreaterThan(240);
+  expect(Math.abs(before!.width - after!.width)).toBeLessThan(2);
+
   await page.getByRole("button", { name: "Rose accent" }).click();
   await page.getByRole("button", { name: "Round" }).click();
   await page.getByRole("button", { name: "Deep" }).click();
@@ -38,12 +40,26 @@ test("Appearance tokens persist when switching from Classic to Cozy", async ({ p
   await expect(page.locator("[data-sengapp-shadcn-blocks]")).toHaveAttribute("data-corners", "round");
   await expect(page.locator("[data-sengapp-shadcn-blocks]")).toHaveAttribute("data-shadow", "deep");
 
+  await page.getByRole("button", { name: "Companion", exact: true }).click();
+  await page.getByLabel("Display name").fill("Layla");
+  await page.getByLabel("Mention alias").fill("layla");
+  await page.getByRole("button", { name: "Save companion" }).click();
+  await expect(page.getByText("Layla (@layla)")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("utility-right-drawer")).toHaveCount(0);
+
+  await page.getByRole("textbox", { name: "Write a message" }).fill("Hi @layla");
+  await page.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(page.getByText("Hi @layla")).toBeVisible();
+  await expect(page.getByText(/Local UI example: I can be addressed/)).toBeVisible();
+
   await page.getByRole("button", { name: "Switch to Cozy" }).click();
   await expect(page.locator("[data-sengapp-shadcn-blocks]")).toHaveAttribute("data-accent", "rose");
-  await expect(page.locator("[data-sengapp-shadcn-blocks]")).toHaveAttribute("data-corners", "round");
-  await expect(page.getByTestId("appearance-right-sidebar")).toBeVisible();
-  await page.getByRole("button", { name: "Close appearance sidebar" }).click();
-  await expect(page.getByTestId("appearance-right-sidebar")).toHaveCount(0);
+  await expect(page.getByText("Hi @layla")).toBeVisible();
+  await page.getByRole("button", { name: "Toggle preferences drawer" }).click();
+  await page.getByRole("button", { name: "Companion", exact: true }).click();
+  await expect(page.getByText("Layla (@layla)")).toBeVisible();
+  await page.keyboard.press("Escape");
 });
 
 test("mobile Cozy window is draggable/resizable and chats remain accessible", async ({ page }, info) => {
@@ -83,11 +99,11 @@ test("Desktop Cozy floating tabs, chat buttons and composer really accept clicks
 
   const stage = page.getByTestId("cozy-world-stage");
   const originalWidth = (await stage.boundingBox())!.width;
-  await page.getByRole("button", { name: "Toggle appearance sidebar" }).click();
-  await expect(page.getByTestId("appearance-right-sidebar")).toBeVisible();
-  const reducedWidth = (await stage.boundingBox())!.width;
-  expect(originalWidth - reducedWidth).toBeGreaterThan(240);
-  await page.getByRole("button", { name: "Close appearance sidebar" }).click();
+  await page.getByRole("button", { name: "Toggle preferences drawer" }).click();
+  await expect(page.getByTestId("utility-right-drawer")).toBeVisible();
+  const overlayWidth = (await stage.boundingBox())!.width;
+  expect(Math.abs(originalWidth - overlayWidth)).toBeLessThan(2);
+  await page.keyboard.press("Escape");
 
   await expect(page.getByTestId("cottage-canvas").locator("canvas")).toBeVisible();
   await expect(page.getByTestId("cozy-room-fallback")).toHaveCount(0);

@@ -9,6 +9,8 @@ describe("Sengapp UI v2: shared shadcn Classic and Cozy shells", () => {
   const state = read("src/ui-v2/shared/workspace-state.tsx");
   const chat = read("src/ui-v2/shared/conversation-panel.tsx");
   const appearance = read("src/ui-v2/shared/appearance-panel.tsx");
+  const drawer = read("src/ui-v2/shared/appearance-drawer.tsx");
+  const companion = read("src/ui-v2/shared/companion-settings-panel.tsx");
   const classic = read("src/ui-v2/classic/classic-shell.tsx");
   const cozy = read("src/ui-v2/cozy/cozy-shell.tsx");
   const mobile = read("src/ui-v2/cozy/mobile-windows.tsx");
@@ -64,6 +66,18 @@ describe("Sengapp UI v2: shared shadcn Classic and Cozy shells", () => {
     expect(state).toContain("exampleAgentConsent[selectedId]");
     expect(state).toContain("saveCompanion");
     expect(state).not.toMatch(/@ai-sdk\/react|useChat\(|convex\/|@clerk\//);
+  });
+
+  it("keeps headers minimal, a floating shadcn composer, and companion identity in the right Sheet", () => {
+    expect(chat).toContain("conversation-header");
+    expect(chat).toContain("floating-composer");
+    expect(chat).not.toContain("Name your companion");
+    expect(chat).not.toContain("New conversation");
+    expect(companion).toContain("saveCompanion");
+    expect(drawer).toContain("CompanionSettingsPanel");
+    expect(drawer).toContain("<Sheet");
+    expect(drawer).not.toContain("<aside");
+    expect(mobile).toContain("openRightPanel");
   });
 
   it("places Dockview windows over the real Phaser room, not a separate app", () => {

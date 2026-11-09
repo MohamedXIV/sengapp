@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "../vanilla/sidebar-08/app-sidebar";
@@ -17,11 +16,12 @@ export function ClassicShell() {
       <AppSidebar
         selectedId={workspace.selectedId}
         onChooseConversation={workspace.select}
-        onNavigate={workspace.navigate}
+        onNavigate={name => name === "Settings" ? workspace.openRightPanel("appearance") : workspace.navigate(name)}
+        onOpenPanel={workspace.openRightPanel}
         filter={workspace.filter}
       />
       <SidebarInset className="flex h-dvh min-h-0 min-w-0 flex-col overflow-hidden bg-background">
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-card px-3 sm:px-5">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 sm:px-5">
           <SidebarTrigger className="-ms-1" aria-label="Toggle Sidebar" />
           <Separator orientation="vertical" className="mx-1 h-5" />
           <div className="min-w-0 flex-1">
@@ -37,10 +37,6 @@ export function ClassicShell() {
           </div>
           <AppearanceDrawer />
         </main>
-        <footer className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2 text-xs text-muted-foreground">
-          <span>Shared components · Classic shell</span>
-          <Badge variant="outline">UI preview only</Badge>
-        </footer>
       </SidebarInset>
     </SidebarProvider>
   );
