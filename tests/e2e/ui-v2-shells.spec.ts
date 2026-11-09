@@ -120,9 +120,14 @@ test("UI v2 switches English/Arabic and RTL without losing a draft across shells
   await page.getByRole("button", { name: "العربية" }).click();
   await expect(page.locator("[data-sengapp-shadcn-blocks]")).toHaveAttribute("lang", "ar");
   await expect(page.locator("[data-sengapp-shadcn-blocks]")).toHaveAttribute("dir", "rtl");
+  await expect(page.locator('[data-variant="inset"][data-side="right"]')).toBeVisible();
+  const rtlSidebar = await page.locator('[data-variant="inset"][data-side="right"] [data-sidebar="sidebar"]').boundingBox();
+  expect(rtlSidebar).not.toBeNull();
+  expect(rtlSidebar!.x).toBeGreaterThan(650);
   await expect(page.getByTestId("shared-appearance-panel").getByText("المظهر", { exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("textbox", { name: "اكتب رسالة" })).toHaveValue("Hello / مرحبًا");
+  await expect(page.getByTestId("utility-right-drawer")).toHaveCount(0);
   await page.getByRole("button", { name: "الانتقال إلى كوزي" }).click();
   await expect(page.getByTestId("cozy-shell")).toBeVisible();
   await expect(page.getByRole("textbox", { name: "اكتب رسالة" })).toHaveValue("Hello / مرحبًا");

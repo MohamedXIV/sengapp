@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useTranslations } from "next-intl"
+import { useDirection } from "@/components/ui/direction"
 import { Command, LifeBuoy, MessageCircle, MessageSquare, NotebookTabs, Send, Settings2, Users } from "lucide-react"
 
 import { NavMain } from "./nav-main"
@@ -23,6 +24,7 @@ export function AppSidebar({ selectedId, onChooseConversation, onNavigate, onOpe
   filter: "All chats" | "Unread" | "Groups"
 }) {
   const t = useTranslations("UiV2");
+  const direction = useDirection()
   const data = {
     user: { name: t("previewName"), email: t("previewDescription"), avatar: "" },
     navMain: [
@@ -48,7 +50,7 @@ export function AppSidebar({ selectedId, onChooseConversation, onNavigate, onOpe
   }
 
   return (
-    <Sidebar variant="inset" collapsible="offcanvas" {...props}>
+    <Sidebar variant="inset" collapsible="offcanvas" side={direction === "rtl" ? "right" : "left"} dir={direction} {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
