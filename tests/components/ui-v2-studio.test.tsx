@@ -42,7 +42,7 @@ describe("Sengapp shadcn block reference", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Appearance" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Companion" }));
-    expect(screen.getByRole("form", { name: "Companion identity" })).toBeInTheDocument();
+    expect(screen.getByRole("form", { name: "Your companion" })).toBeInTheDocument();
   });
 
   it("sends only into local preview state through InputGroup", () => {
