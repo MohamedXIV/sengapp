@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, type CSSProperties } from "react";
+import type { AppLocale } from "@/lib/i18n/locale";
 import { useTheme } from "next-themes";
 import { NextIntlClientProvider } from "next-intl";
 import { DirectionProvider } from "@/components/ui/direction";
@@ -51,6 +52,6 @@ function WorkspaceSurface() {
     </NextIntlClientProvider>
   );
 }
-export function VanillaMessenger() {
-  return <WorkspaceProvider><WorkspaceSurface /></WorkspaceProvider>;
+export function VanillaMessenger({initialLocale="en"}:{initialLocale?:AppLocale}) {
+  return <WorkspaceProvider initialLocale={initialLocale}><WorkspaceSurface /></WorkspaceProvider>;
 }

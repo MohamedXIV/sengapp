@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
-import { useLocale } from "next-intl";
+
 import type { AppLocale } from "@/lib/i18n/locale";
 import {
   conversations, exampleAgentConsent, sampleCompanionActivity, sampleMessages,
@@ -18,7 +18,7 @@ export type Shadow = "none" | "soft" | "deep";
 export type RightPanelSection = "appearance" | "companion";
 export type Appearance = { locale: AppLocale; palettes: PalettePair; corners: Corners; shadow: Shadow };
 export const DEFAULT_APPEARANCE: Appearance = {
-  locale: "en", palettes: THEME_PRESETS[0].palettes, corners: "balanced", shadow: "soft",
+  locale: "en", palettes: THEME_PRESETS[0]!.palettes, corners: "balanced", shadow: "soft",
 };
 const APPEARANCE_STORAGE = "sengapp-ui-v2-appearance-v2";
 const LEGACY_STORAGE = "sengapp-ui-v2-appearance-v1";
@@ -51,7 +51,7 @@ function parseAppearance(raw: string, defaultLocale: AppLocale): Appearance {
     // Migrate the previous fixed-accent preview without discarding corners/shadows.
     const names: Record<string,number> = { sage:0,rose:2,lavender:1,honey:2 };
     const idx = names[String(data.accent)] ?? 0;
-    return { corners, shadow, locale, palettes: THEME_PRESETS[idx].palettes };
+    return { corners, shadow, locale, palettes: (THEME_PRESETS[idx] ?? THEME_PRESETS[0]!).palettes };
   } catch { return defaultValue; }
 }
 
@@ -85,8 +85,8 @@ export type Workspace = {
 };
 const WorkspaceContext = createContext<Workspace | null>(null);
 
-export function WorkspaceProvider({ children }: { children: ReactNode }) {
-  const rootLocale = useLocale() === "ar" ? "ar" : "en";
+export function WorkspaceProvider({ children, initialLocale = "en" }: { children: ReactNode; initialLocale?: AppLocale }) {
+  const rootLocale = initialLocale;
   const [shell, setShell] = useState<ShellMode>("classic");
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [rightPanelSection, setRightPanelSection] = useState<RightPanelSection>("appearance");

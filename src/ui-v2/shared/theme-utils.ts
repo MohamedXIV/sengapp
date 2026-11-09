@@ -34,10 +34,11 @@ export function rgbHex(rgb: number[]): string {
 }
 export function mix(a: string, b: string, shareB: number): string {
   const ca = hexRgb(a), cb = hexRgb(b);
-  return rgbHex(ca.map((channel,i) => channel * (1-shareB) + cb[i] * shareB));
+  return rgbHex(ca.map((channel,i) => channel * (1-shareB) + (cb[i] ?? channel) * shareB));
 }
 export function hexHsl(hex: string): string {
-  const [r,g,b] = hexRgb(hex).map(x => x / 255);
+  const [rr,gg,bb] = hexRgb(hex);
+  const r=rr/255, g=gg/255, b=bb/255;
   const hi = Math.max(r,g,b), lo = Math.min(r,g,b), delta = hi-lo;
   let hue = 0, saturation = 0;
   const lightness = (hi+lo)/2;
@@ -53,8 +54,9 @@ export function hexHsl(hex: string): string {
   return `${Math.round((hue+360)%360)} ${Math.round(saturation*1000)/10}% ${Math.round(lightness*1000)/10}%`;
 }
 function luminance(hex: string): number {
-  const channels = hexRgb(hex).map(x => x/255).map(x => x <= .04045 ? x/12.92 : ((x+.055)/1.055)**2.4);
-  return channels[0]*.2126 + channels[1]*.7152 + channels[2]*.0722;
+  const [r,g,b] = hexRgb(hex);
+  const linear = (channel: number) => {const x=channel/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;};
+  return linear(r)*.2126 + linear(g)*.7152 + linear(b)*.0722;
 }
 export function contrastRatio(a: string, b: string): number {
   const x = luminance(a), y = luminance(b);
