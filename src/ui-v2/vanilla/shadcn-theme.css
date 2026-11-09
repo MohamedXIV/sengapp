@@ -1,76 +1,34 @@
-/* Sengapp Figma direction: ONE token palette for Classic and Cozy.
-   Only shell chrome is custom; messages, menus and inputs retain shadcn styling.
-   Scoped to /ui-v2 so legacy/main stay unaffected. */
+/* UI v2 preview defaults; actual color roles are supplied by semantic tokens.
+   Portaled Radix controls use the same body tokens while /ui-v2 is mounted.
+   Never alter production routes or fight shadcn primitives. */
 body:has([data-sengapp-shadcn-blocks]) {
-  --background: 40 25% 97%;
-  --foreground: 150 15% 17%;
-  --card: 0 0% 100%;
-  --card-foreground: 150 15% 17%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 150 15% 17%;
-  --primary: 147 19% 37%;
+  --background: 39 36% 94%;
+  --foreground: 150 8% 20%;
+  --card: 37 100% 97%;
+  --card-foreground: 150 8% 20%;
+  --popover: 37 100% 97%;
+  --popover-foreground: 150 8% 20%;
+  --primary: 135 12% 45%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 140 18% 93%;
-  --secondary-foreground: 150 22% 25%;
-  --muted: 130 10% 96%;
-  --muted-foreground: 140 8% 43%;
-  --accent: 141 19% 91%;
-  --accent-foreground: 148 22% 25%;
-  --destructive: 4 74% 46%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 128 10% 89%;
-  --input: 128 10% 89%;
-  --ring: 147 19% 37%;
+  --secondary: 350 42% 75%;
+  --secondary-foreground: 150 8% 20%;
+  --accent: 42 66% 65%;
+  --accent-foreground: 150 8% 20%;
+  --muted: 38 44% 95%;
+  --muted-foreground: 140 8% 42%;
+  --border: 128 10% 84%;
+  --input: 128 10% 84%;
+  --ring: 135 12% 45%;
   --radius: .875rem;
-  --sidebar: hsl(40 22% 97%);
-  --sidebar-foreground: hsl(150 15% 17%);
-  --sidebar-primary: hsl(147 19% 37%);
+  --sidebar: hsl(37 100% 97%);
+  --sidebar-foreground: hsl(150 8% 20%);
+  --sidebar-primary: hsl(135 12% 45%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(141 19% 91%);
-  --sidebar-accent-foreground: hsl(148 22% 25%);
-  --sidebar-border: hsl(128 10% 89%);
-  --sidebar-ring: hsl(147 19% 37%);
-  --sengapp-window-shadow: 0 12px 30px rgba(34, 55, 42, .14);
-}
-
-body:has([data-sengapp-shadcn-blocks][data-accent="rose"]) {
-  --primary: 13 40% 44%;
-  --secondary: 17 36% 94%;
-  --secondary-foreground: 13 34% 28%;
-  --accent: 15 40% 91%;
-  --accent-foreground: 13 34% 28%;
-  --ring: 13 40% 44%;
-  --sidebar-primary: hsl(13 40% 44%);
-  --sidebar-accent: hsl(15 40% 91%);
-  --sidebar-ring: hsl(13 40% 44%);
-}
-body:has([data-sengapp-shadcn-blocks][data-accent="lavender"]) {
-  --primary: 237 22% 43%;
-  --secondary: 238 28% 95%;
-  --secondary-foreground: 237 23% 27%;
-  --accent: 237 27% 91%;
-  --accent-foreground: 237 23% 27%;
-  --ring: 237 22% 43%;
-  --sidebar-primary: hsl(237 22% 43%);
-  --sidebar-accent: hsl(237 27% 91%);
-  --sidebar-ring: hsl(237 22% 43%);
-}
-body:has([data-sengapp-shadcn-blocks][data-accent="honey"]) {
-  --primary: 38 47% 36%;
-  --secondary: 43 47% 94%;
-  --secondary-foreground: 35 38% 26%;
-  --accent: 43 48% 88%;
-  --accent-foreground: 35 38% 26%;
-  --ring: 38 47% 36%;
-  --sidebar-primary: hsl(38 47% 36%);
-  --sidebar-accent: hsl(43 48% 88%);
-  --sidebar-ring: hsl(38 47% 36%);
-}
-body:has([data-sengapp-shadcn-blocks][data-corners="soft"]) { --radius: .5rem; }
-body:has([data-sengapp-shadcn-blocks][data-corners="round"]) { --radius: 1.5rem; }
-body:has([data-sengapp-shadcn-blocks][data-shadow="none"]) { --sengapp-window-shadow: none; }
-body:has([data-sengapp-shadcn-blocks][data-shadow="deep"]) {
-  --sengapp-window-shadow: 0 18px 44px rgba(30, 51, 40, .28);
+  --sidebar-accent: hsl(350 42% 75%);
+  --sidebar-accent-foreground: hsl(150 8% 20%);
+  --sidebar-border: hsl(128 10% 84%);
+  --sidebar-ring: hsl(135 12% 45%);
+  --sengapp-window-shadow: 0 12px 30px rgba(34,41,42,.14);
 }
 [data-sengapp-shadcn-blocks] [data-testid="shared-conversation-panel"],
 [data-sengapp-shadcn-blocks] [data-testid="shared-appearance-panel"] {
