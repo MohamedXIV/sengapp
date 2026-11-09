@@ -1,29 +1,33 @@
-# Sengapp Classic + Cozy — Figma implementation (UI-only)
+# Sengapp Classic + Cozy — UI v2 implementation ledger (Draft)
 
-This batch implements the approved [four Figma exploration screens](https://www.figma.com/design/FrKROxJwOl0PWQnZLo7Oj9) on top of the shadcn UI v2 Draft PR #36, on a separate Draft PR #38. **It does not integrate Convex, Clerk, Agent Component or the private permission contracts of Draft PR #37.**
+> **Last reviewed: 9 November 2026.** This is an implementation snapshot, not the feature roadmap. For the design decisions and ordered next batches see [UI v2 Design Roadmap](ui-v2-design-roadmap.md). [Draft PR #38](https://github.com/MohamedXIV/sengapp/pull/38) is stacked on [Draft PR #36](https://github.com/MohamedXIV/sengapp/pull/36); neither is merged into `main`.
 
-## Composition
+## Actual shared architecture
 
-- One \`WorkspaceProvider\` retains selected conversation, draft/messages, local mock companion identity and consent decisions while users change shells.
-- One \`SharedConversationPanel\` wraps official shadcn Card, MessageScroller/Message/Bubble/Marker, InputGroup composer and inline agent activity.
-- One \`AppearancePanel\` controls semantic accent tokens, radius and elevation for both shells. UI-only settings persist in localStorage for preview convenience; account customization follows later.
-- Classic is a shadcn Sidebar-08 layout with a full-height chat panel and optional Appearance side panel.
-- Cozy uses the **actual existing Phaser 4** forest cottage RoomCanvas and an overlay of **real Dockview** independent floating Chats, Conversation and Appearance panels. Dockview controls the tabs, floating positions, docking, resize and grouping; its renderer does not own or duplicate message components.
-- Cozy mobile uses the same conversation panel inside a bounded touch drag/resize window, plus shadcn Sheets for Chats and Appearance. Future work may unify mobile window docking and persistence with the desktop Dockview workspace.
+- `WorkspaceProvider` holds selected conversation, local demo messages/draft, owner-set companion identity, mock consent state and scoped UI v2 appearance state across shell switches.
+- `SharedConversationPanel` uses native shadcn Card, MessageScroller, Message/Bubble/Marker, InputGroup and inline demo agent activity. It renders unchanged as content inside Classic and the Cozy desktop/mobile windows.
+- **Classic:** official `sidebar-08` composition with the shared conversation and a compact header; utility settings do not consume content width.
+- **Cozy desktop:** real Phaser 4 room renderer fills the stage behind Dockview independent Chats and Conversation windows. Dockview remains in charge of window drag/resize/tabs; empty space is click-through to Phaser while window controls receive pointer input.
+- **Cozy mobile:** touch-capable chat window and shadcn Sheet for the chat list; shared right settings Sheet for appearance and companion.
+- `AppearancePanel` currently exposes four *fixed* accents, three radius levels and three shadow levels, persisted locally. The owner has now explicitly approved **arbitrary** colors, separate surface/background roles, localization and Light/Dark/System: these are **B2/B7 future work**, not already delivered features.
 
-## Boundaries
+## B1 cleanup implemented on this Draft
 
-The world is not a background wallpaper; the Phaser renderer occupies the full viewport behind the floating panels. All content is mock/local-only. Companion aliases are chosen by the user, not hardcoded product defaults; no model or tool executes.
+1. Chat header reduced to avatar, conversation name, small subtitle. Chat-level **New conversation** and **Name/Edit companion** actions removed from header.
+2. Shared floating/elevated shadcn InputGroup composer, modest width and shadow. Dynamic focus enlargement and send/reaction motion remain upcoming.
+3. One **right overlay Sheet** on desktop and mobile, not a push-sidebar. It contains Appearance and a centralized Companion identity form (display name + @alias). Other companion customization is future scope.
+4. Classic demo footer removed; user settings menu links to the right overlay; Cozy mobile reuses the same drawer.
 
-The theme has four accents (sage, rose, lavender, honey), three corner settings and three shadow settings. It is scoped with \`body:has([data-sengapp-shadcn-blocks])\` and does not modify the classic production UI.
+**Still mock-only:** No authorized Clerk/Convex messaging data, account-synced preferences, real companion consent, AI provider, background agent, or saved AI identity in production. The recent art mockups are visual proposals rather than pixel-perfect implementation contracts.
 
-Figma Starter MCP reached its tool-call quota during code extraction, so this is a **reference-guided first implementation**, not a pixel-perfect export. Visual desktop and mobile reviews against the approved Figma screens are still required.
+## Verification and status
 
-## Validation / acceptance
+- Current Draft PR #38 head at this review: `daa86c7a88fca8d706a6c30c621cae3495f565d0` before documentation-only commits.
+- Vercel built that code and reported READY; **visual acceptance is separate**.
+- On [CI run 42620830746](https://github.com/MohamedXIV/sengapp/actions/runs/42620830746), TypeScript, lint, Vitest/domain tests and Next.js build **passed**, while Playwright **failed** because `tests/e2e/ui-v2-messages.spec.ts` still clicks removed chat-header actions or expects the removed companion alias chip. Update tests to the current utility Sheet and rerun desktop + mobile, then obtain user visual sign-off. Do not describe the entire suite as green.
+- B2+ are **planned**; localization, unrestricted palette and Dark/System behavior are not yet wired to UI v2.
+- Keep PR Draft until visual, responsive, accessibility, reduced-motion and test acceptance. All security/backend integration remains separately reviewed.
 
-- TypeScript, lint, full Vitest regressions, Next.js build and desktop/mobile Playwright.
-- Same messages and owner-selected companion identity remain intact across the Classic ↔ Cozy switch.
-- Desktop Cozy panels are true Dockview instances with movable tabs/resize; mobile windows support touch handles.
-- Tokens persist across switches; no broad old CSS overrides, no extra route per room, and no production data egress.
+## Historical context
 
-Next step after approval: refine Figma parity and responsive ergonomics; then integrate the existing authorized Convex messaging data into the same shared components in a separate, security-reviewed PR.
+The implementation used [approved Figma exploration screens](https://www.figma.com/design/FrKROxJwOl0PWQnZLo7Oj9) as visual reference, not a verified pixel-perfect import. The clean-room foundation used official shadcn compositions; later design feedback asks for much more warmth, color and personality **without** undoing native shadcn semantics. Old accounts/legacy preview code and stacked backend PRs are not source styling for UI v2.

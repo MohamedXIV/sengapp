@@ -2,6 +2,25 @@
 
 > **Sequence, not dates.** These are product stages, not promises or deadlines. Core v0.1 spec approved 2026-10-26; the optional Cozy World + Floating Workspace direction was added 2026-10-31 in [the updated direction](cozy-world-workspace-direction.md). Live Draft PRs remain unmerged.
 
+## UI v2 design and personalization track — current review priority (Draft, parallel to product phases)
+
+The overall v0.1 feature stages below remain in effect. **Do not mistake UI-only previews for live messaging or production readiness.** The UI v2 redesign is a separate, incremental design/review track that must preserve the established auth, privacy and release gates. The [canonical UI v2 design roadmap](ui-v2-design-roadmap.md) documents owner-approved direction, acceptance checks and dependencies.
+
+| UI batch | Focus | Status |
+| --- | --- | --- |
+| **B1** | Compact conversation header, centralized companion settings, floating composer, shared overlay utility drawer | **Implemented on Draft [PR #38](https://github.com/MohamedXIV/sengapp/pull/38); Playwright regression gate still open** |
+| **B2 — next** | English/Arabic `next-intl` and RTL, Light/Dark/System, unrestricted three-role palette plus warm Background/Surface tokens | **Planned** |
+| **B3** | Typography, message density/readability, composer/send micro-interactions | **Planned** |
+| **B4** | Chat-first official shadcn sidebar with meaningful conversation previews and gentle color | **Planned** |
+| **B5** | Optional wallpapers, illustrated empty states and light identity accents | **Planned** |
+| **B6** | Visible Phaser room, improved desktop Dockview windows and responsive Cozy controls | **Planned** |
+| **B7** | Full custom color picker, fonts, wallpapers and account-owned preference migration (separate review) | **Planned** |
+| **B8** | Cross-shell motion/reaction polish, reduced motion and mobile performance | **Planned; simple motion begins during B3** |
+
+**User freedom:** do not constrain color choices to curated presets or monochrome UI. Primary, Secondary, Tertiary, Background and Surface are user-editable; defaults should avoid pure white and soulless black. Presets are optional. Right-hand settings are an **overlay** and cannot shrink the conversation or Phaser world. Localization, theme contrast and reduced motion are acceptance criteria from the start, not post-release extras. See the [detailed decisions](ui-v2-design-roadmap.md).
+
+**Current gate:** the final checked PR #38 CI on 9 November passed TypeScript, lint, domain/component tests and production build, but [Playwright failed on legacy selectors](https://github.com/MohamedXIV/sengapp/actions/runs/42620830746) for controls removed/moved in B1. Update behavior-focused tests and re-verify before marking B1 fully accepted. Keep the UI PR Draft until user visual approval.
+
 ## v0.1 — Build a messenger people trust
 
 ### 0. Foundations

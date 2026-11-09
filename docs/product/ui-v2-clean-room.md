@@ -22,4 +22,6 @@ See [ADR 0003 — Convex Agent with optional Gateway](../architecture/adr/0003-p
 
 ## Companion identity is owner-defined
 
-UI v2 starts without a named AI agent. The owner uses a native shadcn Dialog to choose (and edit) display name and @mention handle, then the example agent event appears. The selection is local preview state only. In the real app, Convex PR #37 stores owner-scoped `handle` and `displayName`.
+UI v2 starts without a named AI agent. **The original shadcn Dialog in this clean-room baseline has been superseded by the centralized Companion section in Draft PR #38's shared right utility Sheet.** The user edits their display name and @mention alias there, not in a conversation header. The selection is local preview state only. Draft PR #37 separately proposes owner-scoped `handle` and `displayName`; it does not run an AI provider.
+
+**9 November 2026 visual direction:** the stock/near-white shadcn baseline documented above was useful to establish native component behavior, **not** approved as Sengapp's finished identity. The current owner-approved plan calls for an illustrated, personal, chat-first feel, bilingual RTL/LTR, warm Light and layered Dark modes, freely editable semantic colors (including Background/Surface), subtle composer/reaction motion and a right-hand overlay Sheet. See the [UI v2 design roadmap](ui-v2-design-roadmap.md) for ordered batches and gates. Keep using original shadcn primitives instead of reimplementing them.
