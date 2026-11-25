@@ -1,6 +1,6 @@
 /* Sengapp Cozy Workspace — Dockview & Mobile Window Shell
    Driven by semantic theme tokens (presets.ts + light/dark) and the 3 unified skins:
-   retro (Warm Retro OS), glass (Warm Liquid Glass), paper (Gamey Cozy Almanac). */
+   retro (Warm Retro OS), glass (Warm Liquid Glass), paper (Sepia-only Cozy Almanac). */
 
 /* World and canvas */
 .cottage-lab {
@@ -14,6 +14,7 @@
   --window-accent-fg: hsl(var(--accent-foreground, 24 45% 20%));
   --window-primary: hsl(var(--primary, 24 74% 42%));
   --window-surface-control: hsl(var(--card, 36 33% 99%));
+  --window-hud-bg: var(--window-bg);
   --window-radius: 17px;
   --window-filter: none;
   --window-shadow: 0 12px 32px hsl(var(--foreground, 24 28% 14%) / 0.16);
@@ -27,6 +28,7 @@
 /* Skin 1: Warm Retro OS */
 .cottage-lab[data-window-material="retro"] {
   --window-bg: hsl(var(--card, 36 33% 99%));
+  --window-hud-bg: hsl(var(--card, 36 33% 99%));
   --window-header: color-mix(in srgb, hsl(var(--accent, 38 82% 88%)) 82%, hsl(var(--primary, 24 74% 42%)) 18%);
   --window-border: hsl(var(--foreground, 24 28% 14%) / 0.8);
   --window-border-width: 1.5px;
@@ -46,6 +48,7 @@
 /* Skin 2: Warm Liquid Glass */
 .cottage-lab[data-window-material="glass"] {
   --window-bg: color-mix(in srgb, hsl(var(--card, 36 33% 99%)) var(--window-opacity, 74%), transparent);
+  --window-hud-bg: color-mix(in srgb, hsl(var(--card, 36 33% 99%)) 76%, transparent);
   --window-header: color-mix(in srgb, hsl(var(--card, 36 33% 99%)) 58%, transparent);
   --window-border: hsl(var(--foreground, 24 28% 14%) / 0.16);
   --window-radius: 20px;
@@ -66,18 +69,27 @@
   --window-tab-active-fg: hsl(24 28% 12%);
 }
 
-/* Skin 3: Gamey Cozy Paper Almanac */
-.cottage-lab[data-window-material="paper"] {
-  --window-bg: hsl(var(--card, 36 33% 99%));
-  --window-header: color-mix(in srgb, hsl(var(--accent, 38 82% 88%)) 52%, hsl(var(--card, 36 33% 99%)) 48%);
-  --window-border: hsl(var(--border, 32 20% 85%));
+/* Skin 3: Warm Sepia Paper Almanac (always sepia, opaque, zero blur) */
+.cottage-lab[data-window-material="paper"],
+.dark .cottage-lab[data-window-material="paper"] {
+  color-scheme: light;
+  --window-bg: #f8f2e7;
+  --window-hud-bg: #f3eadb;
+  --window-header: #ebe0cc;
+  --window-border: #cfbda3;
+  --window-border-width: 1px;
+  --window-ink: #34261b;
+  --window-muted: #6e5a47;
+  --window-accent: #e8dac2;
+  --window-accent-fg: #34261b;
+  --window-surface-control: #fbf6ec;
   --window-radius: 17px;
   --window-filter: none;
   --window-shadow:
-    0 2px 0 hsl(var(--border, 32 20% 85%)),
-    0 14px 30px hsl(var(--foreground, 24 28% 14%) / 0.14);
-  --window-tab-active-bg: hsl(var(--card, 36 33% 99%));
-  --window-tab-active-fg: hsl(var(--foreground, 24 28% 14%));
+    0 2px 0 #cbb89c,
+    0 14px 28px rgba(58, 40, 22, 0.16);
+  --window-tab-active-bg: #f8f2e7;
+  --window-tab-active-fg: #34261b;
 }
 
 .cottage-stage { isolation: isolate; }
@@ -115,8 +127,8 @@
 .cottage-lab[data-window-material="paper"] .dv-content-container,
 .cottage-lab[data-window-material="paper"] .cottage-mobile-window > div:not(.cottage-mobile-titlebar) {
   background-image:
-    linear-gradient(to right, hsl(var(--foreground, 24 28% 14%) / 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, hsl(var(--foreground, 24 28% 14%) / 0.035) 1px, transparent 1px);
+    linear-gradient(to right, rgba(94, 68, 42, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(94, 68, 42, 0.055) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 .cottage-lab .dv-resize-container > .dv-grid-view {
@@ -281,9 +293,12 @@
   background: var(--window-surface-control);
   border-color: var(--window-border);
   box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .cottage-account-panel :is(input, textarea, [role="combobox"]) {
-  background: hsl(var(--background, 36 38% 97%));
+  background: var(--window-surface-control);
+  color: var(--window-ink);
 }
 .cottage-account-panel :is(input, textarea, [role="combobox"]):focus-visible { outline-offset: 1px; }
 
@@ -294,7 +309,7 @@
   color: var(--window-ink);
 }
 .cottage-hud-pill {
-  background: color-mix(in srgb, var(--window-bg) 92%, transparent);
+  background: var(--window-hud-bg);
   border: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
   box-shadow: var(--window-shadow);
@@ -314,7 +329,7 @@
 .cottage-camera-button:disabled { opacity: .3; cursor: not-allowed; }
 .cottage-camera-button:focus-visible { outline: 2px solid var(--window-primary); outline-offset: 1px; }
 .cottage-camera-controls {
-  background: color-mix(in srgb, var(--window-bg) 92%, transparent);
+  background: var(--window-hud-bg);
   border: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
   box-shadow: var(--window-shadow);
@@ -325,7 +340,7 @@
   border-radius: 9999px;
 }
 .cottage-stage-hud {
-  background: color-mix(in srgb, var(--window-bg) 92%, transparent);
+  background: var(--window-hud-bg);
   border: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
   box-shadow: var(--window-shadow);
@@ -340,7 +355,7 @@
   height: 48px; width: 48px; border-radius: 14px;
   border: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
-  background: var(--window-bg);
+  background: var(--window-hud-bg);
   box-shadow: var(--window-shadow);
   backdrop-filter: var(--window-filter);
   -webkit-backdrop-filter: var(--window-filter);
@@ -426,6 +441,7 @@
 @media (prefers-reduced-transparency: reduce) {
   .cottage-lab[data-window-material="glass"] {
     --window-bg: hsl(var(--card, 36 33% 99%));
+    --window-hud-bg: hsl(var(--card, 36 33% 99%));
     --window-header: hsl(var(--secondary, 34 26% 91%));
     --window-filter: none;
   }

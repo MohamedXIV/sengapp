@@ -265,7 +265,7 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
     <Card className={embedded
       ? "flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-border/70 shadow-none"
       : "flex h-[calc(100dvh-9.5rem)] min-h-96 max-h-[54rem] flex-col overflow-hidden rounded-[1.5rem] border-border/70 shadow-sm"}>
-      <header className="flex shrink-0 items-center gap-3 border-b border-border/60 bg-card/75 px-3 py-2.5 backdrop-blur-md sm:px-4">
+      <header className="sengapp-chat-header flex shrink-0 items-center gap-3 border-b border-border/70 bg-card px-3 py-2.5 sm:px-4">
         {onBack
           ? <Button type="button" variant="ghost" size="icon" aria-label={t("backToChats")}
               className="size-10 shrink-0 rounded-xl" onClick={onBack}>
@@ -337,7 +337,7 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
             onEdit={startEdit}
             onDelete={setDeletingMessage}
             onReact={reactTo} />
-          {typingNames.length > 0 && <div role="status" className="mt-3 inline-flex w-fit items-center gap-2 rounded-2xl border border-border/70 bg-card/85 px-3 py-1.5 text-xs text-muted-foreground shadow-xs">
+          {typingNames.length > 0 && <div role="status" className="mt-3 inline-flex w-fit items-center gap-2 rounded-2xl border border-border/70 bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-xs">
             <span className="inline-flex items-center gap-1 text-primary" aria-hidden="true">
               <span className="sengapp-typing-dot" />
               <span className="sengapp-typing-dot" />
@@ -353,7 +353,7 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
       </div>
 
       <form onSubmit={(event) => void submit(event)} className="shrink-0 px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
-        {(replyingTo || editingMessage) && <div className="mb-2 flex items-center gap-2 rounded-2xl border border-border/70 border-s-2 border-s-primary bg-secondary/60 px-3.5 py-2 text-xs backdrop-blur-sm">
+        {(replyingTo || editingMessage) && <div className="mb-2 flex items-center gap-2 rounded-2xl border border-border/70 border-s-2 border-s-primary bg-secondary px-3.5 py-2 text-xs">
           <div className="min-w-0 flex-1">
             <p className="font-semibold">{editingMessage ? t("editing") : t("replying")}</p>
             <p className="truncate text-muted-foreground" dir="auto">{(editingMessage ?? replyingTo)?.body}</p>
@@ -364,7 +364,7 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
             <X className="size-4" aria-hidden="true" />
           </Button>
         </div>}
-        <div className="flex items-end gap-2 rounded-[1.5rem] border border-border/80 bg-background/85 p-1.5 shadow-sm backdrop-blur-md">
+        <div className="sengapp-chat-composer flex items-end gap-2 rounded-[1.5rem] border border-border bg-background p-1.5 shadow-sm">
           <Textarea aria-label={t("messageInput")} aria-describedby="chat-compose-hint" value={draft} maxLength={2000} rows={1}
             className="max-h-36 min-h-10 flex-1 resize-none border-0 bg-transparent px-3 py-2.5 shadow-none focus-visible:ring-0"
             placeholder={editingMessage ? t("editing") : t("messagePlaceholder")} onChange={event => { setDraft(event.target.value); setFailed(null); if (!editingMessage) broadcastTyping(event.target.value); }}

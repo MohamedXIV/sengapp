@@ -91,6 +91,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   const [windowStylePreview, setWindowStylePreview] = useState<WindowStyle | null>(null);
   const styleIdentity = account.identity === undefined ? "loading" : account.identity ?? "guest";
   const windowStyle = styleRecord?.identity === styleIdentity ? styleRecord.value : DEFAULT_WINDOW_STYLE;
+  const activeStyle = windowStylePreview ?? windowStyle;
   const setWindowStyle = (value: WindowStyle) => {
     if (styleIdentity === "loading") return;
     setStyleRecord({ identity: styleIdentity, value: normalizeWindowStyle(value) });
@@ -118,6 +119,22 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   const subscriptions = useRef<{ dispose(): void } | null>(null);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [layoutMessage, setLayoutMessage] = useState("Move the furniture, or rearrange the windows.");
+
+  // Keep document root skin attribute in sync with the active Cozy material so
+  // shadcn primitives inside floating Dockview/mobile panels never leak old skins.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.sengappSkin = activeStyle.material;
+    root.dataset.sengappAtmosphere = activeStyle.atmosphere;
+    root.style.setProperty("--sengapp-glass-opacity", `${activeStyle.opacity}%`);
+    root.style.setProperty("--sengapp-glass-blur", `${activeStyle.blur}px`);
+    return () => {
+      delete root.dataset.sengappSkin;
+      delete root.dataset.sengappAtmosphere;
+      root.style.removeProperty("--sengapp-glass-opacity");
+      root.style.removeProperty("--sengapp-glass-blur");
+    };
+  }, [activeStyle.material, activeStyle.atmosphere, activeStyle.opacity, activeStyle.blur]);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -241,8 +258,8 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   return <WorkspaceNavigationProvider value={{ selectedConversation, openConversation, returnToConversations: () => setSelectedConversation(null) }}>
     <WindowStyleProvider value={windowStyle} onChange={setWindowStyle} onPreview={setWindowStylePreview}
       canSaveAccount={Boolean(account.onSave)} onSaveAccount={saveToAccount} saveStatus={styleSaveStatus}>
-    <main data-window-material={(windowStylePreview ?? windowStyle).material} data-window-atmosphere={(windowStylePreview ?? windowStyle).atmosphere}
-      style={{ "--window-opacity": `${(windowStylePreview ?? windowStyle).opacity}%`, "--window-blur": `${(windowStylePreview ?? windowStyle).blur}px` } as CSSProperties}
+    <main data-window-material={activeStyle.material} data-window-atmosphere={activeStyle.atmosphere}
+      style={{ "--window-opacity": `${activeStyle.opacity}%`, "--window-blur": `${activeStyle.blur}px` } as CSSProperties}
       className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden">
     <header className="cottage-toolbar pointer-events-none absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 px-3 py-2 sm:px-5">
       <Link href="/" className="cottage-hud-pill pointer-events-auto flex min-w-0 items-center gap-2 rounded-2xl border px-2.5 py-1.5 focus-visible:outline-2 focus-visible:outline-ring" aria-label={t("home")}>

@@ -13,7 +13,7 @@ export function CozyHome({ name, operator }: { name: string; operator: boolean }
   return <div className="mx-auto max-w-4xl space-y-8 py-2" data-role={operator ? "operator" : "member"}>
     <section className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
       <div className="max-w-xl space-y-3">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/80 px-3 py-1 text-xs font-semibold text-primary shadow-xs">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-primary shadow-xs">
           <Sparkles aria-hidden="true" className="size-3.5" />{t("eyebrow")}
         </span>
         <h1 className="text-[clamp(1.9rem,4vw,2.8rem)] font-extrabold leading-[1.15] tracking-tight">
@@ -51,7 +51,7 @@ export function CozyHome({ name, operator }: { name: string; operator: boolean }
           </CardHeader>
           <CardContent className="space-y-5">
             <p className="text-sm leading-6 text-muted-foreground">{t("personalDescription")}</p>
-            <Button asChild size="lg" variant="outline" className="min-h-11 w-full rounded-xl bg-card/75">
+            <Button asChild size="lg" variant="outline" className="min-h-11 w-full rounded-xl bg-card">
               <Link href="/settings/profile"><Paintbrush aria-hidden="true" />{t("edit")}</Link>
             </Button>
           </CardContent>
@@ -59,7 +59,7 @@ export function CozyHome({ name, operator }: { name: string; operator: boolean }
       </div>
     </section>
 
-    <p className="rounded-2xl border border-dashed border-border/80 bg-card/45 px-5 py-3.5 text-sm leading-relaxed text-muted-foreground">
+    <p className="rounded-2xl border border-dashed border-border bg-card px-5 py-3.5 text-sm leading-relaxed text-muted-foreground">
       <span aria-hidden="true">🌱 </span>{t("comingSoon")}
     </p>
   </div>;
