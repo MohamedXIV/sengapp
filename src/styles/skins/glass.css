@@ -1,0 +1,120 @@
+/* Sengapp Skin: Warm Liquid Glass
+   Optical translucent surfaces, 1px luminous specular edges, and crisp high-contrast active pills.
+   Zero neumorphism. Automatically degrades cleanly under prefers-reduced-transparency. */
+
+:root[data-sengapp-skin="glass"] {
+  --skin-surface: color-mix(in srgb, hsl(var(--card)) var(--sengapp-glass-opacity, 74%), transparent);
+  --skin-surface-elevated: color-mix(in srgb, hsl(var(--card)) 84%, transparent);
+  --skin-header-bg: color-mix(in srgb, hsl(var(--card)) 56%, transparent);
+  --skin-border-width: 1px;
+  --skin-border-color: hsl(var(--foreground) / 0.14);
+  --skin-specular: rgba(255, 255, 255, 0.58);
+  --skin-shadow:
+    inset 0 1px 0 var(--skin-specular),
+    0 18px 42px hsl(var(--foreground) / 0.12);
+  --skin-shadow-sm:
+    inset 0 1px 0 var(--skin-specular),
+    0 6px 18px hsl(var(--foreground) / 0.08);
+  --skin-backdrop: blur(var(--sengapp-glass-blur, 20px)) saturate(145%);
+  --skin-pill-active-bg: #ffffff;
+  --skin-pill-active-fg: hsl(24 28% 14%);
+}
+
+.dark[data-sengapp-skin="glass"] {
+  --skin-surface: color-mix(in srgb, hsl(var(--card)) var(--sengapp-glass-opacity, 72%), transparent);
+  --skin-surface-elevated: color-mix(in srgb, hsl(var(--card)) 80%, transparent);
+  --skin-header-bg: color-mix(in srgb, hsl(var(--card)) 52%, transparent);
+  --skin-border-color: rgba(255, 245, 232, 0.18);
+  --skin-specular: rgba(255, 245, 232, 0.28);
+  --skin-shadow:
+    inset 0 1px 0 var(--skin-specular),
+    0 22px 48px rgba(0, 0, 0, 0.44);
+  --skin-shadow-sm:
+    inset 0 1px 0 var(--skin-specular),
+    0 8px 22px rgba(0, 0, 0, 0.32);
+  --skin-pill-active-bg: #fffaf3;
+  --skin-pill-active-fg: hsl(24 28% 12%);
+}
+
+:root[data-sengapp-skin="glass"] .sengapp-workspace {
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(ellipse 68% 54% at 16% 12%, hsl(var(--primary) / 0.22), transparent 62%),
+    radial-gradient(ellipse 60% 52% at 86% 18%, hsl(var(--accent) / 0.52), transparent 58%),
+    radial-gradient(ellipse 55% 48% at 62% 92%, hsl(var(--primary) / 0.16), transparent 60%);
+}
+
+.dark[data-sengapp-skin="glass"] .sengapp-workspace {
+  background-image:
+    radial-gradient(ellipse 65% 50% at 18% 14%, hsl(var(--primary) / 0.24), transparent 62%),
+    radial-gradient(ellipse 58% 48% at 84% 22%, hsl(32 72% 46% / 0.18), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 50% 95%, hsl(var(--accent) / 0.32), transparent 62%);
+}
+
+:root[data-sengapp-skin="glass"] [data-slot="card"],
+:root[data-sengapp-skin="glass"] .sengapp-skin-frame {
+  background: var(--skin-surface);
+  border: 1px solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow);
+  backdrop-filter: var(--skin-backdrop);
+  -webkit-backdrop-filter: var(--skin-backdrop);
+}
+
+:root[data-sengapp-skin="glass"] .sengapp-workspace [data-sidebar="sidebar"] {
+  background: var(--skin-surface);
+  border: 1px solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow);
+  backdrop-filter: var(--skin-backdrop);
+  -webkit-backdrop-filter: var(--skin-backdrop);
+}
+
+:root[data-sengapp-skin="glass"] [data-slot="bubble"][data-message-owner="self"] {
+  background: var(--skin-pill-active-bg);
+  color: var(--skin-pill-active-fg);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 8px 20px hsl(var(--foreground) / 0.12);
+}
+
+:root[data-sengapp-skin="glass"] [data-slot="bubble"][data-message-owner="self"] .text-muted-foreground {
+  color: hsl(24 18% 36%);
+}
+
+:root[data-sengapp-skin="glass"] [data-slot="bubble"][data-message-owner="other"] {
+  background: color-mix(in srgb, hsl(var(--card)) 62%, transparent);
+  color: hsl(var(--foreground));
+  border: 1px solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-sengapp-skin="glass"] {
+    --skin-surface: hsl(var(--card));
+    --skin-surface-elevated: hsl(var(--card));
+    --skin-header-bg: hsl(var(--secondary));
+    --skin-backdrop: none;
+  }
+}
+
+/* Preview widget */
+.appearance-window-preview[data-window-material="glass"] {
+  background:
+    radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.35), transparent 55%),
+    radial-gradient(circle at 82% 80%, hsl(var(--accent) / 0.6), transparent 58%),
+    hsl(var(--secondary));
+}
+.appearance-window-preview[data-window-material="glass"] .appearance-window-preview-card {
+  background: color-mix(in srgb, hsl(var(--card)) 68%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  color: hsl(var(--foreground));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 12px 26px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+.appearance-window-preview[data-window-material="glass"] .appearance-window-preview-heading {
+  background: color-mix(in srgb, hsl(var(--card)) 52%, transparent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+}

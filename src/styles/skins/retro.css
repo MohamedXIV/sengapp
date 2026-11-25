@@ -1,0 +1,73 @@
+/* Sengapp Skin: Warm Retro OS
+   Crisp ink borders, subtle hard offset shadows, warm titlebar strip, zero blur.
+   Uses semantic tokens so all 4 presets (acorn/forest/dusk/ocean) and light/dark work automatically. */
+
+:root[data-sengapp-skin="retro"] {
+  --skin-surface: hsl(var(--card));
+  --skin-surface-elevated: hsl(var(--card));
+  --skin-header-bg: color-mix(in srgb, hsl(var(--accent)) 82%, hsl(var(--primary)) 18%);
+  --skin-border-width: 1.5px;
+  --skin-border-color: hsl(var(--foreground) / 0.78);
+  --skin-shadow: 3px 3px 0 hsl(var(--foreground) / 0.82);
+  --skin-shadow-sm: 2px 2px 0 hsl(var(--foreground) / 0.75);
+  --skin-backdrop: none;
+  --skin-inset-highlight: none;
+}
+
+.dark[data-sengapp-skin="retro"] {
+  --skin-border-color: hsl(var(--foreground) / 0.55);
+  --skin-shadow: 3px 3px 0 hsl(0 0% 0% / 0.75);
+  --skin-shadow-sm: 2px 2px 0 hsl(0 0% 0% / 0.65);
+  --skin-header-bg: color-mix(in srgb, hsl(var(--secondary)) 72%, hsl(var(--primary)) 28%);
+}
+
+:root[data-sengapp-skin="retro"] .sengapp-workspace {
+  background-color: color-mix(in srgb, hsl(var(--secondary)) 78%, hsl(var(--background)) 22%);
+  background-image:
+    radial-gradient(hsl(var(--foreground) / 0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+:root[data-sengapp-skin="retro"] [data-slot="card"],
+:root[data-sengapp-skin="retro"] .sengapp-skin-frame {
+  background: var(--skin-surface);
+  border: var(--skin-border-width) solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow);
+}
+
+:root[data-sengapp-skin="retro"] .sengapp-workspace [data-sidebar="sidebar"] {
+  border: var(--skin-border-width) solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow);
+}
+
+:root[data-sengapp-skin="retro"] [data-slot="bubble"][data-message-owner="self"] {
+  border: 1.5px solid var(--skin-border-color);
+  background: color-mix(in srgb, hsl(var(--accent)) 85%, hsl(var(--primary)) 15%);
+  color: hsl(var(--foreground));
+  box-shadow: var(--skin-shadow-sm);
+}
+
+:root[data-sengapp-skin="retro"] [data-slot="bubble"][data-message-owner="other"] {
+  border: 1.5px solid var(--skin-border-color);
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow: var(--skin-shadow-sm);
+}
+
+/* Preview widget */
+.appearance-window-preview[data-window-material="retro"] {
+  background: color-mix(in srgb, hsl(var(--secondary)) 80%, hsl(var(--background)) 20%);
+  background-image: radial-gradient(hsl(var(--foreground) / 0.1) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+.appearance-window-preview[data-window-material="retro"] .appearance-window-preview-card {
+  background: hsl(var(--card));
+  border: 1.5px solid hsl(var(--foreground) / 0.8);
+  color: hsl(var(--foreground));
+  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.8);
+  backdrop-filter: none;
+}
+.appearance-window-preview[data-window-material="retro"] .appearance-window-preview-heading {
+  background: color-mix(in srgb, hsl(var(--accent)) 82%, hsl(var(--primary)) 18%);
+  border-bottom: 1.5px solid hsl(var(--foreground) / 0.8);
+}

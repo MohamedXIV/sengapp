@@ -1,0 +1,87 @@
+/* Sengapp Skin: Gamey Cozy Paper Almanac
+   Tactile cotton-paper surfaces, subtle ruled/grid stationery feel, warm binding accents,
+   and die-cut folder tabs. Pure CSS + lightweight gradients (zero raster images). */
+
+:root[data-sengapp-skin="paper"] {
+  --skin-surface: hsl(var(--card));
+  --skin-surface-elevated: color-mix(in srgb, hsl(var(--card)) 94%, hsl(var(--accent)) 6%);
+  --skin-header-bg: color-mix(in srgb, hsl(var(--secondary)) 68%, hsl(var(--card)) 32%);
+  --skin-border-width: 1px;
+  --skin-border-color: hsl(var(--border));
+  --skin-paper-grid: hsl(var(--foreground) / 0.045);
+  --skin-shadow:
+    0 1px 0 hsl(var(--foreground) / 0.04),
+    0 10px 26px hsl(var(--foreground) / 0.08);
+  --skin-shadow-sm:
+    0 1px 0 hsl(var(--foreground) / 0.05),
+    0 3px 10px hsl(var(--foreground) / 0.06);
+  --skin-backdrop: none;
+}
+
+.dark[data-sengapp-skin="paper"] {
+  --skin-paper-grid: hsl(var(--foreground) / 0.055);
+  --skin-shadow:
+    inset 0 1px 0 hsl(var(--foreground) / 0.07),
+    0 14px 30px rgba(0, 0, 0, 0.42);
+  --skin-shadow-sm:
+    inset 0 1px 0 hsl(var(--foreground) / 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-sengapp-skin="paper"] .sengapp-workspace {
+  background-color: color-mix(in srgb, hsl(var(--background)) 92%, hsl(var(--secondary)) 8%);
+  background-image:
+    radial-gradient(ellipse at 85% 4%, hsl(var(--primary) / 0.08), transparent 40%),
+    linear-gradient(to right, var(--skin-paper-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--skin-paper-grid) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
+}
+
+:root[data-sengapp-skin="paper"] [data-slot="card"],
+:root[data-sengapp-skin="paper"] .sengapp-skin-frame {
+  background: var(--skin-surface);
+  border: 1px solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow);
+}
+
+:root[data-sengapp-skin="paper"] .sengapp-workspace [data-sidebar="sidebar"] {
+  background: var(--skin-surface-elevated);
+  border: 1px solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow);
+}
+
+:root[data-sengapp-skin="paper"] [data-slot="bubble"][data-message-owner="self"] {
+  background: color-mix(in srgb, hsl(var(--primary)) 16%, hsl(var(--card)) 84%);
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--primary) / 0.28);
+  box-shadow: var(--skin-shadow-sm);
+}
+
+:root[data-sengapp-skin="paper"] [data-slot="bubble"][data-message-owner="other"] {
+  background: var(--skin-surface-elevated);
+  color: hsl(var(--card-foreground));
+  border: 1px dashed hsl(var(--border));
+  box-shadow: var(--skin-shadow-sm);
+}
+
+/* Preview widget */
+.appearance-window-preview[data-window-material="paper"] {
+  background-color: color-mix(in srgb, hsl(var(--secondary)) 72%, hsl(var(--card)) 28%);
+  background-image:
+    linear-gradient(to right, hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  box-shadow:
+    0 2px 0 hsl(var(--border)),
+    0 8px 18px hsl(var(--foreground) / 0.1);
+  backdrop-filter: none;
+}
+.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-heading {
+  background: color-mix(in srgb, hsl(var(--accent)) 55%, hsl(var(--card)) 45%);
+  border-bottom: 1px dashed hsl(var(--border));
+}
