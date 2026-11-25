@@ -10,6 +10,15 @@ export type TimelineMessage = Pick<Doc<"messages">,
   "_id" | "senderProfileId" | "body" | "createdAt" | "editedAt" | "deletedAt" | "reactions" | "replyToMessageId">
   & { replyPreview?: { body: string | null; senderProfileId: Id<"profiles"> | null } };
 
+type BubbleGroupPosition = "single" | "first" | "middle" | "last";
+
+function isClustered(a: TimelineMessage | undefined, b: TimelineMessage | undefined, dayFormatter: Intl.DateTimeFormat): boolean {
+  if (!a || !b) return false;
+  return a.senderProfileId === b.senderProfileId
+    && dayFormatter.format(a.createdAt) === dayFormatter.format(b.createdAt)
+    && Math.abs(b.createdAt - a.createdAt) <= 5 * 60 * 1000;
+}
+
 export function ChatMessageTimeline({
   messages, meProfileId, locale, participantNames, readBy = [], onReply, onEdit, onDelete, onReact,
 }: {
@@ -32,31 +41,39 @@ export function ChatMessageTimeline({
   return <ol role="log" aria-label={t("conversationHistory")} aria-live="polite" aria-relevant="additions text" className="space-y-1">
     {ordered.map((message, index) => {
       const previous = ordered[index - 1];
+      const next = ordered[index + 1];
       const newDay = !previous || dayFormatter.format(previous.createdAt) !== dayFormatter.format(message.createdAt);
-      const grouped = !newDay && previous?.senderProfileId === message.senderProfileId
-        && message.createdAt - previous.createdAt <= 5 * 60 * 1000;
+      const groupedWithPrev = !newDay && isClustered(previous, message, dayFormatter);
+      const groupedWithNext = isClustered(message, next, dayFormatter);
+      const groupPosition: BubbleGroupPosition = groupedWithPrev && groupedWithNext
+        ? "middle"
+        : groupedWithPrev
+          ? "last"
+          : groupedWithNext
+            ? "first"
+            : "single";
       const own = message.senderProfileId === meProfileId;
       const name = participantNames?.[message.senderProfileId] ?? t("groupParticipant");
       const canAct = !message.deletedAt && onReply && onReact;
 
       return <li key={message._id} data-message-id={message._id}
-        className={newDay ? "pt-3" : grouped ? "pt-0.5" : "pt-3"}>
+        className={newDay ? "pt-3" : groupedWithPrev ? "pt-0.5" : "pt-3"}>
         {newDay && <Marker variant="separator" className="mb-5">
-          <MarkerContent className="rounded-full border border-border/60 bg-card/90 px-3 py-1 font-medium">
+          <MarkerContent className="rounded-full border border-border/60 bg-card/90 px-3 py-1 text-[0.7rem] font-medium shadow-xs">
             {dayFormatter.format(message.createdAt)}
           </MarkerContent>
         </Marker>}
-        <div className={`group/message flex items-end gap-1 ${own ? "justify-end" : "justify-start"}`}>
+        <div className={`group/message flex items-end gap-1.5 ${own ? "justify-end" : "justify-start"}`}>
           {!own && participantNames && <span aria-hidden="true"
-            className={`flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[0.7rem] font-bold text-secondary-foreground ${grouped ? "invisible" : ""}`}>
+            className={`flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[0.7rem] font-bold text-secondary-foreground ${groupedWithPrev ? "invisible" : ""}`}>
             {name.trim().slice(0, 1).toLocaleUpperCase(locale)}
           </span>}
           <Bubble data-message-owner={own ? "self" : "other"}
-            align={own ? "end" : "start"} variant={own ? "tinted" : "muted"}
-            className={own ? "rounded-ee-md" : "rounded-es-md"}>
+            data-bubble-group={groupPosition}
+            align={own ? "end" : "start"} variant={own ? "tinted" : "muted"}>
             <BubbleContent>
-              {!own && participantNames && !grouped && <p dir="auto" className="mb-1 text-xs font-semibold text-primary">{name}</p>}
-              {message.replyToMessageId && <div className="mb-2 max-w-full border-s-2 border-primary/40 bg-background/45 px-2 py-1 text-xs text-muted-foreground"
+              {!own && participantNames && !groupedWithPrev && <p dir="auto" className="mb-1 text-xs font-semibold text-primary">{name}</p>}
+              {message.replyToMessageId && <div className="mb-2 max-w-full rounded-lg border-s-2 border-primary/50 bg-background/50 px-2.5 py-1.5 text-xs text-muted-foreground"
                 data-testid="reply-preview" dir="auto">
                 <span className="block font-semibold">{t("reply")}</span>
                 <span className="line-clamp-2 break-words">{message.replyPreview?.body ?? t("replyUnavailable")}</span>
