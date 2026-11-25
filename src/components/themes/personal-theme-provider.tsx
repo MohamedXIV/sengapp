@@ -34,6 +34,28 @@ export function PersonalThemeProvider({ children, profileId, preferences, window
   appearance: Mode;
   reducedMotion?: boolean;
 }) {
+  // Prevent nested embedded panels (e.g. inside Cottage Dockview) from fighting
+  // over document.documentElement tokens when a parent provider already owns them.
+  const parent = useContext(Context);
+  if (parent) return <>{children}</>;
+
+  return <PersonalThemeProviderRoot
+    profileId={profileId}
+    preferences={preferences}
+    windowStyle={windowStyle}
+    appearance={appearance}
+    reducedMotion={reducedMotion}
+  >{children}</PersonalThemeProviderRoot>;
+}
+
+function PersonalThemeProviderRoot({ children, profileId, preferences, windowStyle, appearance, reducedMotion = false }: {
+  children: ReactNode;
+  profileId: string;
+  preferences?: Partial<VisualPreferences>;
+  windowStyle?: Partial<WindowStyle> | null;
+  appearance: Mode;
+  reducedMotion?: boolean;
+}) {
   const { resolvedTheme, setTheme } = useTheme();
   const [preview, setPreview] = useState<VisualPreferences | null>(null);
   const [stylePreview, setStylePreview] = useState<WindowStyle | null>(null);
@@ -44,9 +66,13 @@ export function PersonalThemeProvider({ children, profileId, preferences, window
   );
   const effective = preview ?? persisted;
   const effectiveStyle = stylePreview ?? persistedStyle;
+  // Paper is intentionally a warm sepia-only skin (dark mode does not apply to paper).
+  const effectiveAppearance = effectiveStyle.material === "paper"
+    ? "light"
+    : (resolvedTheme === "dark" ? "dark" : "light");
   const tokens = useMemo(() => resolvedTheme
-    ? getThemeTokens(effective, resolvedTheme === "dark" ? "dark" : "light")
-    : null, [effective, resolvedTheme]);
+    ? getThemeTokens(effective, effectiveAppearance)
+    : null, [effective, effectiveAppearance, resolvedTheme]);
 
   // Never apply one member's look to a second member. The parent keys this
   // provider by verified profile ID, and every inline token is restored.

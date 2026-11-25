@@ -35,6 +35,8 @@
   border-radius: 1rem;
   background: hsl(var(--background));
   box-shadow: 6px 6px 0 hsl(var(--foreground) / 0.82);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   overflow: hidden;
 }
 
@@ -49,6 +51,8 @@
   border: var(--skin-border-width) solid var(--skin-border-color);
   box-shadow: var(--skin-shadow);
   border-radius: 0.9rem;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 :root[data-sengapp-skin="retro"] [data-slot="card"] > [data-slot="card-header"] {
@@ -60,12 +64,16 @@
 :root[data-sengapp-skin="retro"] .sengapp-workspace [data-sidebar="sidebar"] {
   border: var(--skin-border-width) solid var(--skin-border-color);
   box-shadow: var(--skin-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Tactile Retro Buttons with press-down micro-interaction */
 :root[data-sengapp-skin="retro"] [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]) {
   border: 1.5px solid var(--skin-border-color);
   box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   font-weight: 700;
   transition: transform 90ms ease, box-shadow 90ms ease, background-color 120ms ease;
 }
@@ -86,11 +94,15 @@
   border: 1.5px solid var(--skin-border-color);
   background: hsl(var(--card));
   box-shadow: inset 1.5px 1.5px 0 hsl(var(--foreground) / 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 :root[data-sengapp-skin="retro"] [data-slot="badge"] {
   border: 1.5px solid var(--skin-border-color);
   box-shadow: 1.5px 1.5px 0 hsl(var(--foreground) / 0.65);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   font-weight: 700;
 }
 
@@ -107,6 +119,8 @@
   background: color-mix(in srgb, hsl(var(--accent)) 85%, hsl(var(--primary)) 15%);
   color: hsl(var(--foreground));
   box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 :root[data-sengapp-skin="retro"] [data-slot="bubble"][data-message-owner="other"] {
@@ -114,6 +128,8 @@
   background: hsl(var(--card));
   color: hsl(var(--card-foreground));
   box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Preview widget */
@@ -128,6 +144,7 @@
   color: hsl(var(--foreground));
   box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.8);
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .appearance-window-preview[data-window-material="retro"] .appearance-window-preview-heading {
   background: color-mix(in srgb, hsl(var(--accent)) 82%, hsl(var(--primary)) 18%);
