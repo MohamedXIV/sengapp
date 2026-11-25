@@ -14,6 +14,11 @@ describe("window material choices", () => {
       .toEqual(DEFAULT_WINDOW_STYLE);
   });
 
+  it("supports retro alongside glass and paper", () => {
+    expect(normalizeWindowStyle({ material: "retro", opacity: 98, blur: 0, atmosphere: "none" }))
+      .toEqual({ material: "retro", opacity: 98, blur: 0, atmosphere: "none" });
+  });
+
   it("clamps expensive blur and transparency and permits controlled weather only", () => {
     expect(normalizeWindowStyle({ material: "glass", opacity: -300, blur: 1000, atmosphere: "rain" }))
       .toEqual({ material: "glass", opacity: 65, blur: 28, atmosphere: "rain" });

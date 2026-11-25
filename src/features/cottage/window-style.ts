@@ -1,4 +1,4 @@
-export const MATERIALS = ["glass", "paper"] as const;
+export const MATERIALS = ["retro", "glass", "paper"] as const;
 export const ATMOSPHERES = ["none", "mist", "rain"] as const;
 export type WindowMaterial = typeof MATERIALS[number];
 export type WindowAtmosphere = typeof ATMOSPHERES[number];

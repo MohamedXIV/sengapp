@@ -17,7 +17,7 @@ export function WindowStyleFields({ value, onChange }: {
   return <div className="space-y-4 text-sm" data-testid="window-style-fields">
     <fieldset className="space-y-2">
       <legend className="font-semibold">{t("material")}</legend>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {MATERIALS.map(material => <button key={material} type="button"
           aria-pressed={value.material === material}
           className="cottage-style-choice min-h-11 rounded-xl border border-border bg-card px-2 py-2 font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-pressed:ring-2 aria-pressed:ring-ring"
@@ -31,14 +31,14 @@ export function WindowStyleFields({ value, onChange }: {
         <label className="flex justify-between gap-2 font-semibold" htmlFor={opacityId}>
           {t("opacity")} <output>{value.opacity}%</output>
         </label>
-        <input className="w-full accent-[#3d755d]" id={opacityId} type="range" min="65" max="100" step="1"
+        <input className="w-full accent-primary" id={opacityId} type="range" min="65" max="100" step="1"
           value={value.opacity} onChange={event => change({ opacity: Number(event.target.value) })}/>
       </div>
       <div className="space-y-2">
         <label className="flex justify-between gap-2 font-semibold" htmlFor={blurId}>
           {t("blur")} <output>{value.blur}px</output>
         </label>
-        <input className="w-full accent-[#3d755d]" id={blurId} type="range" min="0" max="28" step="2"
+        <input className="w-full accent-primary" id={blurId} type="range" min="0" max="28" step="2"
           value={value.blur} onChange={event => change({ blur: Number(event.target.value) })}/>
       </div>
     </div>}

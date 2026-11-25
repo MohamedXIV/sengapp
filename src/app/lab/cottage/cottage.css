@@ -1,61 +1,135 @@
-/* Sengapp Cozy baseline — rebuilt in one pass, not layered over old skins.
-   This file owns layout and surfaces for Dockview and touch windows.
-   No raster/noise effects, refraction facsimiles, decorative overlays or
-   duplicated !important override stacks. Visual redesign remains open. */
+/* Sengapp Cozy Workspace — Dockview & Mobile Window Shell
+   Driven by semantic theme tokens (presets.ts + light/dark) and the 3 unified skins:
+   retro (Warm Retro OS), glass (Warm Liquid Glass), paper (Sepia-only Cozy Almanac). */
 
 /* World and canvas */
 .cottage-lab {
-  --window-bg: #fbfaf5;
-  --window-header: #f0f3ec;
-  --window-border: #bfcfc3;
-  --window-ink: #283c32;
-  --window-muted: #62786c;
-  --window-accent: #dcece1;
+  --window-bg: hsl(var(--card, 36 33% 99%));
+  --window-header: color-mix(in srgb, hsl(var(--secondary, 34 26% 91%)) 72%, hsl(var(--card, 36 33% 99%)) 28%);
+  --window-border: hsl(var(--border, 32 20% 85%));
+  --window-border-width: 1px;
+  --window-ink: hsl(var(--foreground, 24 28% 14%));
+  --window-muted: hsl(var(--muted-foreground, 24 14% 40%));
+  --window-accent: hsl(var(--accent, 38 82% 88%));
+  --window-accent-fg: hsl(var(--accent-foreground, 24 45% 20%));
+  --window-primary: hsl(var(--primary, 24 74% 42%));
+  --window-surface-control: hsl(var(--card, 36 33% 99%));
+  --window-hud-bg: var(--window-bg);
   --window-radius: 17px;
   --window-filter: none;
-  --window-shadow: 0 12px 32px rgba(42,63,49,.19);
-  font-family: var(--font-nunito, "Nunito Variable"), system-ui, sans-serif;
-  color-scheme: light;
+  --window-shadow: 0 12px 32px hsl(var(--foreground, 24 28% 14%) / 0.16);
+  --window-tab-active-bg: var(--window-accent);
+  --window-tab-active-fg: var(--window-accent-fg);
+  font-family: var(--font-sans-app, var(--font-nunito, "Nunito Variable")), system-ui, sans-serif;
+  background-color: hsl(var(--background, 36 38% 97%));
+  color: var(--window-ink);
 }
+
+/* Skin 1: Warm Retro OS */
+.cottage-lab[data-window-material="retro"] {
+  --window-bg: hsl(var(--card, 36 33% 99%));
+  --window-hud-bg: hsl(var(--card, 36 33% 99%));
+  --window-header: color-mix(in srgb, hsl(var(--accent, 38 82% 88%)) 82%, hsl(var(--primary, 24 74% 42%)) 18%);
+  --window-border: hsl(var(--foreground, 24 28% 14%) / 0.8);
+  --window-border-width: 1.5px;
+  --window-radius: 14px;
+  --window-filter: none;
+  --window-shadow: 4px 4px 0 hsl(var(--foreground, 24 28% 14%) / 0.82);
+  --window-tab-active-bg: hsl(var(--card, 36 33% 99%));
+  --window-tab-active-fg: hsl(var(--foreground, 24 28% 14%));
+}
+
+.dark .cottage-lab[data-window-material="retro"] {
+  --window-header: color-mix(in srgb, hsl(var(--secondary)) 72%, hsl(var(--primary)) 28%);
+  --window-border: hsl(var(--foreground) / 0.55);
+  --window-shadow: 4px 4px 0 rgba(0, 0, 0, 0.78);
+}
+
+/* Skin 2: Warm Liquid Glass */
 .cottage-lab[data-window-material="glass"] {
-  --window-bg: color-mix(in srgb,#edf8f4 var(--window-opacity,74%),transparent);
-  --window-header: rgba(225,241,233,.82);
-  --window-border: rgba(155,193,180,.8);
-  --window-filter: blur(var(--window-blur,20px)) saturate(125%);
+  --window-bg: color-mix(in srgb, hsl(var(--card, 36 33% 99%)) var(--window-opacity, 74%), transparent);
+  --window-hud-bg: color-mix(in srgb, hsl(var(--card, 36 33% 99%)) 76%, transparent);
+  --window-header: color-mix(in srgb, hsl(var(--card, 36 33% 99%)) 58%, transparent);
+  --window-border: hsl(var(--foreground, 24 28% 14%) / 0.16);
+  --window-radius: 20px;
+  --window-filter: blur(var(--window-blur, 20px)) saturate(145%);
+  --window-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 18px 42px hsl(var(--foreground, 24 28% 14%) / 0.16);
+  --window-tab-active-bg: #ffffff;
+  --window-tab-active-fg: hsl(24 28% 14%);
 }
-.cottage-lab[data-window-material="paper"] {
-  --window-bg: #faf7f1;
-  --window-header: #f1e9da;
-  --window-border: #d4c6b2;
-  --window-ink: #3b342c;
-  --window-muted: #756a5a;
-  --window-accent: #f2e9d8;
+
+.dark .cottage-lab[data-window-material="glass"] {
+  --window-border: rgba(255, 245, 232, 0.2);
+  --window-shadow:
+    inset 0 1px 0 rgba(255, 245, 232, 0.28),
+    0 22px 46px rgba(0, 0, 0, 0.48);
+  --window-tab-active-bg: #fffaf3;
+  --window-tab-active-fg: hsl(24 28% 12%);
 }
+
+/* Skin 3: Warm Sepia Paper Almanac (always sepia, opaque, zero blur) */
+.cottage-lab[data-window-material="paper"],
+.dark .cottage-lab[data-window-material="paper"] {
+  color-scheme: light;
+  --window-bg: #f8f2e7;
+  --window-hud-bg: #f3eadb;
+  --window-header: #ebe0cc;
+  --window-border: #cfbda3;
+  --window-border-width: 1px;
+  --window-ink: #34261b;
+  --window-muted: #6e5a47;
+  --window-accent: #e8dac2;
+  --window-accent-fg: #34261b;
+  --window-surface-control: #fbf6ec;
+  --window-radius: 17px;
+  --window-filter: none;
+  --window-shadow:
+    0 2px 0 #cbb89c,
+    0 14px 28px rgba(58, 40, 22, 0.16);
+  --window-tab-active-bg: #f8f2e7;
+  --window-tab-active-fg: #34261b;
+}
+
 .cottage-stage { isolation: isolate; }
-.cottage-stage-background { background: radial-gradient(ellipse at 50% 25%,#fbf4d8 0%,#e5efe5 55%,#d4e6dd 100%); }
+.cottage-stage-background {
+  background: radial-gradient(ellipse at 50% 25%, #fbf4d8 0%, #e5efe5 55%, #d4e6dd 100%);
+}
+.dark .cottage-stage-background {
+  background: radial-gradient(ellipse at 50% 22%, #2b2720 0%, #1c2421 58%, #131a18 100%);
+}
 .cottage-renderer { width: 100%; height: 100%; background: transparent; filter: none; }
 .cottage-renderer canvas { display: block; width: 100%; height: 100%; background: transparent; touch-action: none; }
 .cottage-renderer[data-error="true"]::after {
   content: "The 2D renderer did not start. The rest of Sengapp remains available.";
-  display: block; padding: 1rem; background: #fff9e9; text-align: center;
+  display: block; padding: 1rem; background: var(--window-bg); color: var(--window-ink); text-align: center;
 }
 
-/* Window shell — shared by Dockview and mobile; only one material owner */
+/* Window shell — shared by Dockview and mobile; single material owner */
 .cottage-dock-layer { pointer-events: none; }
-.cottage-dock-layer :is(.dockview-theme-light,.dv-dockview) {
+.cottage-dock-layer :is(.dockview-theme-light, .dv-dockview) {
   width: 100%; height: 100%; background: transparent !important; pointer-events: none;
 }
-.cottage-lab :is(.dv-resize-container,.cottage-mobile-window) {
+.cottage-lab :is(.dv-resize-container, .cottage-mobile-window) {
   pointer-events: auto;
   isolation: isolate;
   overflow: hidden;
   color: var(--window-ink);
   background: var(--window-bg) !important;
   background-image: none !important;
-  border: 1px solid var(--window-border) !important;
+  border: var(--window-border-width) solid var(--window-border) !important;
   border-radius: var(--window-radius) !important;
   box-shadow: var(--window-shadow) !important;
   backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
+}
+.cottage-lab[data-window-material="paper"] .dv-content-container,
+.cottage-lab[data-window-material="paper"] .cottage-mobile-window > div:not(.cottage-mobile-titlebar) {
+  background-image:
+    linear-gradient(to right, rgba(94, 68, 42, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(94, 68, 42, 0.055) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 .cottage-lab .dv-resize-container > .dv-grid-view {
   overflow: hidden;
@@ -64,18 +138,18 @@
 .cottage-lab .dv-resize-container:not(.dv-resize-container-with-titlebar) > .dv-grid-view {
   border-radius: calc(var(--window-radius) - 1px);
 }
-.cottage-dock-layer .dv-resize-container :is(.dv-groupview,.dv-content-container) { min-width: 0; min-height: 0; overflow: hidden; }
+.cottage-dock-layer .dv-resize-container :is(.dv-groupview, .dv-content-container) { min-width: 0; min-height: 0; overflow: hidden; }
 .cottage-dock-layer .dv-content-container > * { height: 100%; min-height: 0; }
-.cottage-lab .dv-resize-container :is(.dv-grid-view,.dv-groupview,.dv-view,.dv-content-container),
-.cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) { background: transparent !important; }
-.cottage-lab .cottage-dock-layer .dv-content-container > :is(section,.cottage-panel-body),
-.cottage-lab .cottage-mobile-window :is(.cottage-panel-body,[data-testid="cottage-live-chats"],[data-testid="cottage-live-connections"]) { background: transparent !important; }
-.cottage-lab .dv-groupview,.cottage-lab .dv-tabs-and-actions-container {
+.cottage-lab .dv-resize-container :is(.dv-grid-view, .dv-groupview, .dv-view, .dv-content-container),
+.cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) { background-color: transparent !important; }
+.cottage-lab .cottage-dock-layer .dv-content-container > :is(section, .cottage-panel-body),
+.cottage-lab .cottage-mobile-window :is(.cottage-panel-body, [data-testid="cottage-live-chats"], [data-testid="cottage-live-connections"]) { background: transparent !important; }
+.cottage-lab .dv-groupview, .cottage-lab .dv-tabs-and-actions-container {
   --dv-background-color: transparent;
   --dv-group-view-background-color: transparent;
   --dv-tabs-and-actions-container-background-color: transparent;
-  --dv-activegroup-visiblepanel-tab-background-color: var(--window-accent);
-  --dv-activegroup-visiblepanel-tab-color: var(--window-ink);
+  --dv-activegroup-visiblepanel-tab-background-color: var(--window-tab-active-bg);
+  --dv-activegroup-visiblepanel-tab-color: var(--window-tab-active-fg);
   --dv-inactivegroup-visiblepanel-tab-color: var(--window-muted);
 }
 
@@ -89,21 +163,35 @@
   cursor: grab;
 }
 .cottage-lab .dv-resize-container > .dv-floating-titlebar:active { cursor: grabbing; }
-.cottage-lab .dv-resize-container :is(.dv-floating-titlebar,.dv-tabs-and-actions-container),
+.cottage-lab .dv-resize-container :is(.dv-floating-titlebar, .dv-tabs-and-actions-container),
 .cottage-lab .cottage-mobile-titlebar {
   background: var(--window-header) !important;
-  border-bottom: 1px solid var(--window-border);
+  border-bottom: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
 }
-.cottage-lab .dv-resize-container .dv-tabs-and-actions-container { min-height: 32px !important; padding-inline: 5px; }
+.cottage-lab .dv-resize-container .dv-tabs-and-actions-container { min-height: 34px !important; padding-inline: 6px; }
 .cottage-lab .dv-resize-container .dv-tab {
-  margin: 2px;
+  margin: 3px 2px;
   min-height: 26px;
-  border-radius: 8px;
+  border-radius: 9px;
   font-weight: 650;
 }
-.cottage-lab .dv-resize-container :is(.dv-tab-active,.dv-active-tab) {
-  background: var(--window-accent) !important;
+.cottage-lab[data-window-material="glass"] .dv-resize-container .dv-tab {
+  border-radius: 9999px;
+  padding-inline: 10px;
+}
+.cottage-lab[data-window-material="paper"] .dv-resize-container .dv-tab {
+  margin-bottom: 0;
+  border-radius: 9px 9px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+}
+.cottage-lab[data-window-material="paper"] .dv-resize-container :is(.dv-tab-active, .dv-active-tab) {
+  border-color: var(--window-border);
+}
+.cottage-lab .dv-resize-container :is(.dv-tab-active, .dv-active-tab) {
+  background: var(--window-tab-active-bg) !important;
+  color: var(--window-tab-active-fg) !important;
 }
 .cottage-lab .dv-floating-titlebar.dv-draggable::before {
   content: "";
@@ -113,7 +201,7 @@
   width: 40px;
   height: 11px;
   pointer-events: none;
-  background: radial-gradient(circle,var(--window-muted) 1.2px,transparent 1.7px) 0 0 / 8px 6px;
+  background: radial-gradient(circle, var(--window-muted) 1.2px, transparent 1.7px) 0 0 / 8px 6px;
   opacity: .56;
 }
 .cottage-lab .dv-resize-container > .dv-resize-handle-bottomright {
@@ -132,8 +220,8 @@
   bottom: 5px;
   width: 16px;
   height: 16px;
-  background: radial-gradient(circle,var(--window-muted) 1.2px,transparent 1.7px) 0 0 / 6px 6px;
-  mask-image: linear-gradient(135deg,transparent 34%,#000 35%);
+  background: radial-gradient(circle, var(--window-muted) 1.2px, transparent 1.7px) 0 0 / 6px 6px;
+  mask-image: linear-gradient(135deg, transparent 34%, #000 35%);
   opacity: .64;
 }
 .cottage-mobile-titlebar { min-height: 44px; user-select: none; -webkit-user-select: none; }
@@ -143,104 +231,155 @@
 .cottage-mobile-window { overscroll-behavior: contain; }
 .cottage-mobile-window[data-testid="cottage-mobile-window-chats"] { min-height: 0; }
 .cottage-lab .cottage-mobile-titlebar button:hover { background: var(--window-accent); }
-.cottage-mobile-drag:focus-visible,.cottage-mobile-resize:focus-visible {
-  outline: 2px solid #45785e; outline-offset: -2px;
+.cottage-mobile-drag:focus-visible, .cottage-mobile-resize:focus-visible {
+  outline: 2px solid var(--window-primary); outline-offset: -2px;
 }
 @media (pointer: coarse) { .cottage-mobile-resize { width: 44px; height: 44px; } }
 
-/* Functional content — deliberately neutral, no decorations */
+/* Panel content */
 .cottage-panel-body { padding: 14px; font-size: 13px; color: var(--window-ink); }
 .cottage-panel-body p { line-height: 1.55; }
 .cottage-note {
   border-radius: 11px;
-  border: 1px solid var(--window-border);
-  background: #fffdf8;
+  border: var(--window-border-width) solid var(--window-border);
+  background: var(--window-surface-control);
   color: var(--window-ink);
   padding: 12px;
   line-height: 1.5;
   outline-offset: 3px;
 }
-.cottage-link,.cottage-mini-button {
+.cottage-link, .cottage-mini-button {
   display: inline-flex; align-items: center; justify-content: center;
   gap: 7px; border-radius: 9px; padding: 8px 12px;
   font-size: 12px; font-weight: 700;
-  border: 1px solid var(--window-border);
-  background: #fffdf7;
+  border: var(--window-border-width) solid var(--window-border);
+  background: var(--window-surface-control);
   color: var(--window-ink);
 }
-.cottage-link { width: fit-content; background: var(--window-accent); }
-.cottage-tool,.cottage-icon-button {
+.cottage-link { width: fit-content; background: var(--window-accent); color: var(--window-accent-fg); }
+.cottage-tool, .cottage-icon-button {
   display: inline-flex; align-items: center; justify-content: center;
   gap: 6px; min-height: 36px; padding: 7px 10px;
-  border: 1px solid var(--window-border);
+  border: var(--window-border-width) solid var(--window-border);
   border-radius: 11px;
-  background: #fffdf7;
+  background: var(--window-surface-control);
+  color: var(--window-ink);
   font-size: 12px; font-weight: 700;
-  transition: background .15s;
+  transition: background .15s, transform 90ms ease;
 }
-.cottage-tool:hover,.cottage-icon-button:hover,.cottage-mini-button:hover { background: var(--window-accent); }
-.cottage-tool:focus-visible,.cottage-icon-button:focus-visible,.cottage-link:focus-visible {
-  outline: 2px solid #407960; outline-offset: 2px;
+.cottage-lab[data-window-material="glass"] .cottage-tool {
+  border-radius: 9999px;
+  background: color-mix(in srgb, hsl(var(--card, 36 33% 99%)) 65%, transparent);
 }
-.cottage-active { background: var(--window-accent); }
-
-/* Protected forms reuse the same shadcn controls, without glass/paper overlays */
-.cottage-account-panel { color: var(--window-ink); background: transparent; }
-.cottage-account-panel [data-slot="card"] {
-  background: #fffdf8;
-  border-color: var(--window-border);
+.cottage-lab[data-window-material="retro"] .cottage-tool {
+  box-shadow: 2px 2px 0 var(--window-border);
+}
+.cottage-lab[data-window-material="retro"] .cottage-tool:active {
+  transform: translate(2px, 2px);
   box-shadow: none;
 }
-.cottage-account-panel :is(input,textarea,[role="combobox"]) { background: #fff; }
-.cottage-account-panel :is(input,textarea,[role="combobox"]):focus-visible { outline-offset: 1px; }
+.cottage-tool:hover, .cottage-icon-button:hover, .cottage-mini-button:hover {
+  background: var(--window-accent);
+  color: var(--window-accent-fg);
+}
+.cottage-tool:focus-visible, .cottage-icon-button:focus-visible, .cottage-link:focus-visible {
+  outline: 2px solid var(--window-primary); outline-offset: 2px;
+}
+.cottage-active { background: var(--window-accent); color: var(--window-accent-fg); }
 
-/* Room controls and compact utilities */
+/* Protected forms reuse the same shadcn controls */
+.cottage-account-panel { color: var(--window-ink); background: transparent; }
+.cottage-account-panel [data-slot="card"] {
+  background: var(--window-surface-control);
+  border-color: var(--window-border);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.cottage-account-panel :is(input, textarea, [role="combobox"]) {
+  background: var(--window-surface-control);
+  color: var(--window-ink);
+}
+.cottage-account-panel :is(input, textarea, [role="combobox"]):focus-visible { outline-offset: 1px; }
+
+/* Cozy Productivity Floating Game HUD (no wall-to-wall website navbar) */
 .cottage-toolbar {
   min-height: 60px;
-  background: #fffdf8ed;
-  backdrop-filter: blur(8px);
+  background: transparent;
   color: var(--window-ink);
-  border-color: var(--window-border);
 }
-.cottage-toolbar .cottage-tool { min-height: 40px; padding-inline: 12px; }
+.cottage-hud-pill {
+  background: var(--window-hud-bg);
+  border: var(--window-border-width) solid var(--window-border);
+  color: var(--window-ink);
+  box-shadow: var(--window-shadow);
+  backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
+}
+.cottage-lab[data-window-material="glass"] .cottage-hud-pill {
+  border-radius: 9999px;
+}
+.cottage-toolbar .cottage-tool { min-height: 36px; padding-inline: 11px; }
 .cottage-camera-button {
   display: inline-flex; align-items: center; justify-content: center;
   width: 38px; height: 38px;
-  border-radius: 11px; color: #315742;
+  border-radius: 11px; color: var(--window-ink);
 }
-.cottage-camera-button:hover:not(:disabled) { background: var(--window-accent); }
+.cottage-camera-button:hover:not(:disabled) { background: var(--window-accent); color: var(--window-accent-fg); }
 .cottage-camera-button:disabled { opacity: .3; cursor: not-allowed; }
-.cottage-camera-button:focus-visible { outline: 2px solid #45785e; outline-offset: 1px; }
+.cottage-camera-button:focus-visible { outline: 2px solid var(--window-primary); outline-offset: 1px; }
 .cottage-camera-controls {
-  background: #fffdf8ef;
-  border-color: var(--window-border);
+  background: var(--window-hud-bg);
+  border: var(--window-border-width) solid var(--window-border);
+  color: var(--window-ink);
+  box-shadow: var(--window-shadow);
+  backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
+}
+.cottage-lab[data-window-material="glass"] .cottage-camera-controls {
+  border-radius: 9999px;
+}
+.cottage-stage-hud {
+  background: var(--window-hud-bg);
+  border: var(--window-border-width) solid var(--window-border);
+  color: var(--window-ink);
+  box-shadow: var(--window-shadow);
+  backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
 }
 .cottage-utilities { pointer-events: auto; }
 .cottage-utilities > summary { list-style: none; cursor: pointer; }
 .cottage-utilities > summary::-webkit-details-marker { display: none; }
 .cottage-utilities-trigger {
   display: flex; align-items: center; justify-content: center;
-  height: 48px; width: 48px; border-radius: 13px;
-  border: 1px solid var(--window-border);
+  height: 48px; width: 48px; border-radius: 14px;
+  border: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
-  background: #fffdf8;
-  box-shadow: 0 5px 18px rgba(40,63,48,.14);
+  background: var(--window-hud-bg);
+  box-shadow: var(--window-shadow);
+  backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
 }
-.cottage-utilities-trigger:hover { background: var(--window-accent); }
+.cottage-lab[data-window-material="glass"] .cottage-utilities-trigger {
+  border-radius: 9999px;
+}
+.cottage-utilities-trigger:hover { background: var(--window-accent); color: var(--window-accent-fg); }
 .cottage-utilities-menu {
   position: absolute;
   inset-inline-end: 0;
   bottom: calc(100% + 10px);
   display: flex; flex-direction: column; gap: 2px;
-  width: min(300px,calc(100vw - 25px));
-  max-height: min(70dvh,525px);
+  width: min(300px, calc(100vw - 25px));
+  max-height: min(70dvh, 525px);
   padding: 9px;
   overflow-y: auto;
   color: var(--window-ink);
-  background: #fffdf8;
-  border: 1px solid var(--window-border);
-  border-radius: 13px;
-  box-shadow: 0 14px 35px rgba(40,63,48,.2);
+  background: var(--window-bg);
+  border: var(--window-border-width) solid var(--window-border);
+  border-radius: 14px;
+  box-shadow: var(--window-shadow);
+  backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
 }
 .cottage-utilities-heading {
   margin: 12px 9px 4px;
@@ -249,23 +388,23 @@
   letter-spacing: .04em;
   color: var(--window-muted);
 }
-.cottage-utilities-menu button,.cottage-utilities-fallback {
+.cottage-utilities-menu button, .cottage-utilities-fallback {
   display: flex; align-items: center; gap: 11px;
   min-height: 44px; padding: 9px 12px;
   border-radius: 10px; text-align: start;
   font-size: 13px; font-weight: 600;
 }
-.cottage-utilities-menu :is(button,a):hover { background: var(--window-accent); }
+.cottage-utilities-menu :is(button, a):hover { background: var(--window-accent); color: var(--window-accent-fg); }
 .cottage-utilities-fallback { border-top: 1px solid var(--window-border); margin-top: 5px; }
-.cottage-utilities-trigger:focus-visible,.cottage-utilities-menu :is(button,a):focus-visible {
-  outline: 2px solid #41775c; outline-offset: 2px;
+.cottage-utilities-trigger:focus-visible, .cottage-utilities-menu :is(button, a):focus-visible {
+  outline: 2px solid var(--window-primary); outline-offset: 2px;
 }
 .cottage-style-choice {
-  background: #fffdf8;
+  background: var(--window-surface-control);
   border-color: var(--window-border);
   color: var(--window-ink);
 }
-.cottage-style-choice[aria-pressed="true"] { background: var(--window-accent); }
+.cottage-style-choice[aria-pressed="true"] { background: var(--window-accent); color: var(--window-accent-fg); }
 .cottage-style-panel { color: var(--window-ink); }
 
 /* Atmosphere affects the *room*, never text or window material */
@@ -279,20 +418,20 @@
 }
 .cottage-lab[data-window-atmosphere="mist"] .cottage-stage-center::after {
   opacity: .5;
-  background: linear-gradient(180deg,rgba(235,247,239,.22),transparent 68%);
+  background: linear-gradient(180deg, rgba(235, 247, 239, .22), transparent 68%);
 }
 .cottage-lab[data-window-atmosphere="rain"] .cottage-stage-center::after {
   opacity: .24;
-  background: repeating-linear-gradient(106deg,transparent 0 49px,rgba(195,218,220,.36) 49px 50px,transparent 50px 95px);
+  background: repeating-linear-gradient(106deg, transparent 0 49px, rgba(195, 218, 220, .36) 49px 50px, transparent 50px 95px);
 }
 @media (max-width: 899px) {
   .cottage-toolbar { gap: 7px; }
-  .cottage-tool { min-height: 38px; }
+  .cottage-tool { min-height: 36px; }
   .cottage-camera-controls { top: 68px; }
 }
 @media (max-width: 599px) {
   .cottage-toolbar { padding-inline: 10px; }
-  .cottage-toolbar .cottage-tool { min-height: 40px; padding-inline: 10px; }
+  .cottage-toolbar .cottage-tool { min-height: 36px; padding-inline: 9px; }
   .cottage-camera-controls { top: 66px; }
   .cottage-utilities { bottom: 12px; right: 12px; }
   .cottage-stage aside { max-width: calc(100% - 85px); }
@@ -301,15 +440,17 @@
 @media (pointer: coarse) { .cottage-camera-button { width: 42px; height: 42px; } }
 @media (prefers-reduced-transparency: reduce) {
   .cottage-lab[data-window-material="glass"] {
-    --window-bg: #edf8f4;
+    --window-bg: hsl(var(--card, 36 33% 99%));
+    --window-hud-bg: hsl(var(--card, 36 33% 99%));
+    --window-header: hsl(var(--secondary, 34 26% 91%));
     --window-filter: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cottage-tool,.cottage-icon-button,.cottage-mobile-window,.dv-resize-container { transition: none; }
+  .cottage-tool, .cottage-icon-button, .cottage-mobile-window, .dv-resize-container { transition: none; }
 }
 @media (forced-colors: active) {
-  .cottage-lab :is(.dv-resize-container,.cottage-mobile-window,.cottage-utilities-menu) {
+  .cottage-lab :is(.dv-resize-container, .cottage-mobile-window, .cottage-utilities-menu) {
     border: 1px solid CanvasText !important;
     background: Canvas !important;
     color: CanvasText;

@@ -1,0 +1,201 @@
+/* Sengapp Skin: Warm Sepia Paper Almanac (Sepia-only — no dark mode)
+   Tactile sepia parchment surfaces, subtle warm notebook grid, letterpress buttons,
+   open almanac desk-mat framing, and die-cut folder tabs. Pure CSS (zero raster images).
+   Explicitly resets backdrop-filter and forces opaque sepia tokens so switching
+   from Glass or Retro leaves zero leftover styling. */
+
+:root[data-sengapp-skin="paper"],
+.dark[data-sengapp-skin="paper"] {
+  color-scheme: light;
+  --skin-surface: #f8f2e7;
+  --skin-surface-elevated: #f3eadb;
+  --skin-header-bg: #ebe0cc;
+  --skin-desk-bg: #e4d6be;
+  --skin-ink: #34261b;
+  --skin-muted-ink: #6e5a47;
+  --skin-border-width: 1px;
+  --skin-border-color: #cfbda3;
+  --skin-paper-grid: rgba(94, 68, 42, 0.06);
+  --skin-shadow:
+    0 2px 0 #d2c0a6,
+    0 12px 26px rgba(58, 40, 22, 0.1);
+  --skin-shadow-sm:
+    0 2px 0 #d5c4ab,
+    0 3px 8px rgba(58, 40, 22, 0.07);
+  --skin-backdrop: none;
+}
+
+/* Override semantic surface tokens inside the workspace so Paper is always warm Sepia */
+:root[data-sengapp-skin="paper"] .sengapp-workspace,
+.dark[data-sengapp-skin="paper"] .sengapp-workspace {
+  --background: 37 42% 91%;
+  --foreground: 26 32% 15%;
+  --card: 38 48% 94%;
+  --card-foreground: 26 32% 15%;
+  --popover: 38 48% 94%;
+  --popover-foreground: 26 32% 15%;
+  --secondary: 36 34% 85%;
+  --secondary-foreground: 26 30% 18%;
+  --muted: 36 30% 87%;
+  --muted-foreground: 28 21% 36%;
+  --accent: 37 48% 83%;
+  --accent-foreground: 25 38% 17%;
+  --border: 34 28% 74%;
+  --input: 34 28% 74%;
+  --sidebar: #f3eadb;
+  --sidebar-foreground: #34261b;
+  --sidebar-border: #cfbda3;
+  --sidebar-accent: #e8dac2;
+  --sidebar-accent-foreground: #34261b;
+  color: var(--skin-ink);
+  background-color: var(--skin-desk-bg);
+  background-image:
+    radial-gradient(ellipse at 85% 4%, rgba(168, 92, 46, 0.1), transparent 44%),
+    radial-gradient(ellipse at 12% 96%, rgba(124, 92, 54, 0.14), transparent 48%);
+}
+
+/* Open Sepia Almanac Frame */
+:root[data-sengapp-skin="paper"] .sengapp-shell-frame,
+.dark[data-sengapp-skin="paper"] .sengapp-shell-frame {
+  border: 1.5px solid var(--skin-border-color);
+  border-radius: 1.25rem;
+  background-color: var(--skin-surface);
+  background-image:
+    linear-gradient(to right, var(--skin-paper-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--skin-paper-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  box-shadow:
+    0 4px 0 #cbb89c,
+    0 18px 36px rgba(52, 36, 20, 0.14);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  overflow: hidden;
+}
+
+/* Opaque Sepia Stationery Cards (explicitly reset any glass blur/translucency) */
+:root[data-sengapp-skin="paper"] [data-slot="card"],
+.dark[data-sengapp-skin="paper"] [data-slot="card"],
+:root[data-sengapp-skin="paper"] .sengapp-skin-frame,
+.dark[data-sengapp-skin="paper"] .sengapp-skin-frame {
+  background-color: var(--skin-surface);
+  background-image:
+    linear-gradient(to right, var(--skin-paper-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--skin-paper-grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+  border: 1px solid var(--skin-border-color);
+  border-radius: 1rem;
+  color: var(--skin-ink);
+  box-shadow: var(--skin-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root[data-sengapp-skin="paper"] [data-slot="card"] > [data-slot="card-header"],
+.dark[data-sengapp-skin="paper"] [data-slot="card"] > [data-slot="card-header"] {
+  border-bottom: 1px dashed var(--skin-border-color);
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+:root[data-sengapp-skin="paper"] .sengapp-workspace [data-sidebar="sidebar"],
+.dark[data-sengapp-skin="paper"] .sengapp-workspace [data-sidebar="sidebar"] {
+  background: var(--skin-surface-elevated);
+  border: 1px solid var(--skin-border-color);
+  color: var(--skin-ink);
+  box-shadow: var(--skin-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Tactile Letterpress Stationery Buttons */
+:root[data-sengapp-skin="paper"] [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]),
+.dark[data-sengapp-skin="paper"] [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]) {
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 0 rgba(74, 52, 30, 0.28);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: transform 90ms ease, box-shadow 90ms ease, background-color 120ms ease;
+}
+
+:root[data-sengapp-skin="paper"] [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]):active:not(:disabled),
+.dark[data-sengapp-skin="paper"] [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]):active:not(:disabled) {
+  transform: translateY(1.5px);
+  box-shadow: 0 0.5px 0 rgba(74, 52, 30, 0.28);
+}
+
+/* Ruled Sepia Inputs & Stamp Badges */
+:root[data-sengapp-skin="paper"] [data-slot="input"],
+.dark[data-sengapp-skin="paper"] [data-slot="input"],
+:root[data-sengapp-skin="paper"] [data-slot="textarea"]:not(.border-0),
+.dark[data-sengapp-skin="paper"] [data-slot="textarea"]:not(.border-0) {
+  background: #fbf6ec;
+  color: var(--skin-ink);
+  border: 1px dashed var(--skin-border-color);
+  border-radius: 0.75rem;
+  box-shadow: inset 0 1px 2px rgba(58, 40, 22, 0.06);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root[data-sengapp-skin="paper"] [data-slot="badge"],
+.dark[data-sengapp-skin="paper"] [data-slot="badge"] {
+  border: 1px dashed hsl(var(--primary) / 0.5);
+  border-radius: 0.5rem;
+  background: #efe2cc;
+  color: var(--skin-ink);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Bookmarked Active Conversation Row */
+:root[data-sengapp-skin="paper"] [data-conversation-active="true"],
+.dark[data-sengapp-skin="paper"] [data-conversation-active="true"] {
+  background: #efe2cc;
+  color: var(--skin-ink);
+  border: 1px dashed hsl(var(--primary) / 0.55);
+  box-shadow: var(--skin-shadow-sm);
+}
+
+/* Chat Note-Slip Bubbles */
+:root[data-sengapp-skin="paper"] [data-slot="bubble"][data-message-owner="self"],
+.dark[data-sengapp-skin="paper"] [data-slot="bubble"][data-message-owner="self"] {
+  background: color-mix(in srgb, hsl(var(--primary)) 16%, #f8f1e4 84%);
+  color: var(--skin-ink);
+  border: 1px solid hsl(var(--primary) / 0.35);
+  box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root[data-sengapp-skin="paper"] [data-slot="bubble"][data-message-owner="other"],
+.dark[data-sengapp-skin="paper"] [data-slot="bubble"][data-message-owner="other"] {
+  background: #fbf6ec;
+  color: var(--skin-ink);
+  border: 1px dashed var(--skin-border-color);
+  box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Preview widget */
+.appearance-window-preview[data-window-material="paper"] {
+  background-color: #e4d6be;
+  background-image:
+    linear-gradient(to right, rgba(94, 68, 42, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(94, 68, 42, 0.07) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-card {
+  background: #f8f2e7;
+  border: 1px solid #cfbda3;
+  color: #34261b;
+  box-shadow:
+    0 2px 0 #cbb89c,
+    0 8px 18px rgba(58, 40, 22, 0.12);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.appearance-window-preview[data-window-material="paper"] .appearance-window-preview-heading {
+  background: #ebe0cc;
+  border-bottom: 1px dashed #cfbda3;
+}

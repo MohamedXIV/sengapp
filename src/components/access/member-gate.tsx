@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Doc } from "../../../convex/_generated/dataModel";
@@ -13,8 +14,39 @@ import { AccountLocaleProvider } from "@/components/i18n/account-locale-provider
 import { PersonalThemeProvider } from "@/components/themes/personal-theme-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { chooseLocale } from "@/lib/i18n/locale";
+import { normalizeWindowStyle } from "@/features/cottage/window-style";
 
 type Profile = Doc<"profiles">;
+
+// Shared resolved profile from PersistentClassicShell so navigating between
+// Classic tabs/pages keeps AppShell, SkinChrome, and PersonalThemeProvider mounted.
+const PersistentShellProfileContext = createContext<Profile | null>(null);
+
+const CLASSIC_SHELL_PREFIXES = ["/classic", "/connections", "/chats", "/settings", "/admin"] as const;
+
+function isClassicShellRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return CLASSIC_SHELL_PREFIXES.some(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+/**
+ * Keeps a single AppShell + PersonalThemeProvider mounted across all Classic
+ * routes so tab switches are instant SPA transitions with zero shell reload.
+ * Non-Classic routes (/, /welcome, /login, /invite) pass through untouched.
+ */
+export function PersistentClassicShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  if (!isClassicShellRoute(pathname)) return <>{children}</>;
+  return (
+    <MemberGate>
+      {profile => (
+        <PersistentShellProfileContext.Provider value={profile}>
+          {children}
+        </PersistentShellProfileContext.Provider>
+      )}
+    </MemberGate>
+  );
+}
 
 export function BackendRequired({ children, showExperienceSwitch = false }: {
   children: ReactNode;
@@ -47,10 +79,30 @@ export function MemberGate({
   /** Use the same Clerk + Convex member gate inside a floating panel, without nesting the app sidebar. */
   embedded?: boolean;
 }) {
+  const shellProfile = useContext(PersistentShellProfileContext);
+  if (shellProfile && !embedded) {
+    if (operatorOnly && shellProfile.role !== "operator") {
+      return <OperatorRequiredNotice />;
+    }
+    return <>{children(shellProfile)}</>;
+  }
   return (
     <BackendRequired showExperienceSwitch={!embedded}>
       <AuthenticatedMember operatorOnly={operatorOnly} embedded={embedded}>{children}</AuthenticatedMember>
     </BackendRequired>
+  );
+}
+
+function OperatorRequiredNotice() {
+  const t = useTranslations("Access");
+  const bootstrap = useMutation(api.profiles.bootstrapOperator);
+  return (
+    <div className="mx-auto max-w-md space-y-4 p-8 text-center">
+      <h1 className="text-2xl font-semibold">{t("operatorTitle")}</h1>
+      <p role="alert">{t("operatorRequired")}</p>
+      <OperatorBootstrap bootstrap={() => bootstrap({})} />
+      <Link href="/home" className="inline-block text-primary underline">{t("backSpace")}</Link>
+    </div>
   );
 }
 
@@ -92,7 +144,6 @@ function ResolvedMembership({
   const { user: clerkUser } = useUser();
   const profile = useQuery(api.profiles.getMine);
   const ensureMine = useMutation(api.profiles.ensureMine);
-  const bootstrap = useMutation(api.profiles.bootstrapOperator);
   const [setupState, setSetupState] = useState<"idle" | "failed">("idle");
   const [setupError, setSetupError] = useState<string>("");
   const attemptedSetup = useRef<string | null>(null);
@@ -143,26 +194,21 @@ function ResolvedMembership({
     );
   }
   if (operatorOnly && profile.role !== "operator") {
-    return (
-      <div className="mx-auto max-w-md space-y-4 p-8 text-center">
-        <h1 className="text-2xl font-semibold">{t("operatorTitle")}</h1>
-        <p role="alert">{t("operatorRequired")}</p>
-        <OperatorBootstrap bootstrap={() => bootstrap({})} />
-        <Link href="/home" className="inline-block text-primary underline">{t("backSpace")}</Link>
-      </div>
-    );
+    return <OperatorRequiredNotice />;
   }
+  const normalizedWindowStyle = profile.windowStyle ? normalizeWindowStyle(profile.windowStyle) : undefined;
   if (embedded) {
     return <AccountLocaleProvider locale={profile.locale}>
       <PersonalThemeProvider key={profile._id} profileId={profile._id}
-        preferences={profile.visualPreferences} appearance={profile.themePreference}
-        reducedMotion={profile.reducedMotion}>
+        preferences={profile.visualPreferences} windowStyle={normalizedWindowStyle}
+        appearance={profile.themePreference} reducedMotion={profile.reducedMotion}>
         {children(profile)}
       </PersonalThemeProvider>
     </AccountLocaleProvider>;
   }
   return (
     <AppShell profileId={profile._id} visualPreferences={profile.visualPreferences}
+      windowStyle={normalizedWindowStyle}
       themePreference={profile.themePreference} reducedMotion={profile.reducedMotion}
       userRole={profile.role} displayName={profile.displayName}
       handle={profile.handle ?? "…"} locale={profile.locale}
@@ -190,4 +236,3 @@ function OperatorBootstrap({ bootstrap }: { bootstrap: () => Promise<unknown> })
     </div>
   );
 }
-

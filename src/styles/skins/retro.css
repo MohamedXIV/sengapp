@@ -1,0 +1,152 @@
+/* Sengapp Skin: Warm Retro OS
+   Crisp ink borders, subtle hard offset shadows, warm OS titlebar strip,
+   tactile press-down buttons, zero blur. Driven by semantic tokens so all
+   4 presets (acorn/forest/dusk/ocean) and light/dark work automatically. */
+
+:root[data-sengapp-skin="retro"] {
+  --skin-surface: hsl(var(--card));
+  --skin-surface-elevated: hsl(var(--card));
+  --skin-header-bg: color-mix(in srgb, hsl(var(--accent)) 82%, hsl(var(--primary)) 18%);
+  --skin-border-width: 1.5px;
+  --skin-border-color: hsl(var(--foreground) / 0.8);
+  --skin-shadow: 4px 4px 0 hsl(var(--foreground) / 0.82);
+  --skin-shadow-sm: 2px 2px 0 hsl(var(--foreground) / 0.78);
+  --skin-backdrop: none;
+}
+
+.dark[data-sengapp-skin="retro"] {
+  --skin-border-color: hsl(var(--foreground) / 0.58);
+  --skin-shadow: 4px 4px 0 rgba(0, 0, 0, 0.82);
+  --skin-shadow-sm: 2px 2px 0 rgba(0, 0, 0, 0.75);
+  --skin-header-bg: color-mix(in srgb, hsl(var(--secondary)) 68%, hsl(var(--primary)) 32%);
+}
+
+/* Desk backdrop */
+:root[data-sengapp-skin="retro"] .sengapp-workspace {
+  background-color: color-mix(in srgb, hsl(var(--secondary)) 72%, hsl(var(--background)) 28%);
+  background-image:
+    radial-gradient(hsl(var(--foreground) / 0.09) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Retro OS Window Frame for Classic Shell */
+:root[data-sengapp-skin="retro"] .sengapp-shell-frame {
+  border: var(--skin-border-width) solid var(--skin-border-color);
+  border-radius: 1rem;
+  background: hsl(var(--background));
+  box-shadow: 6px 6px 0 hsl(var(--foreground) / 0.82);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  overflow: hidden;
+}
+
+.dark[data-sengapp-skin="retro"] .sengapp-shell-frame {
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.85);
+}
+
+/* Cards & Headers */
+:root[data-sengapp-skin="retro"] [data-slot="card"],
+:root[data-sengapp-skin="retro"] .sengapp-skin-frame {
+  background: var(--skin-surface);
+  border: var(--skin-border-width) solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow);
+  border-radius: 0.9rem;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root[data-sengapp-skin="retro"] [data-slot="card"] > [data-slot="card-header"] {
+  border-bottom: 1.5px solid hsl(var(--foreground) / 0.14);
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+:root[data-sengapp-skin="retro"] .sengapp-workspace [data-sidebar="sidebar"] {
+  border: var(--skin-border-width) solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Tactile Retro Buttons with press-down micro-interaction */
+:root[data-sengapp-skin="retro"] [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]) {
+  border: 1.5px solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-weight: 700;
+  transition: transform 90ms ease, box-shadow 90ms ease, background-color 120ms ease;
+}
+
+:root[data-sengapp-skin="retro"] [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]):hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.82);
+}
+
+:root[data-sengapp-skin="retro"] [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="link"]):active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* Retro Inputs & Badges */
+:root[data-sengapp-skin="retro"] [data-slot="input"],
+:root[data-sengapp-skin="retro"] [data-slot="textarea"]:not(.border-0) {
+  border: 1.5px solid var(--skin-border-color);
+  background: hsl(var(--card));
+  box-shadow: inset 1.5px 1.5px 0 hsl(var(--foreground) / 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root[data-sengapp-skin="retro"] [data-slot="badge"] {
+  border: 1.5px solid var(--skin-border-color);
+  box-shadow: 1.5px 1.5px 0 hsl(var(--foreground) / 0.65);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-weight: 700;
+}
+
+/* Active conversation row */
+:root[data-sengapp-skin="retro"] [data-conversation-active="true"] {
+  background: var(--skin-header-bg);
+  border-color: var(--skin-border-color);
+  box-shadow: var(--skin-shadow-sm);
+}
+
+/* Chat Bubbles */
+:root[data-sengapp-skin="retro"] [data-slot="bubble"][data-message-owner="self"] {
+  border: 1.5px solid var(--skin-border-color);
+  background: color-mix(in srgb, hsl(var(--accent)) 85%, hsl(var(--primary)) 15%);
+  color: hsl(var(--foreground));
+  box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root[data-sengapp-skin="retro"] [data-slot="bubble"][data-message-owner="other"] {
+  border: 1.5px solid var(--skin-border-color);
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Preview widget */
+.appearance-window-preview[data-window-material="retro"] {
+  background: color-mix(in srgb, hsl(var(--secondary)) 80%, hsl(var(--background)) 20%);
+  background-image: radial-gradient(hsl(var(--foreground) / 0.1) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+.appearance-window-preview[data-window-material="retro"] .appearance-window-preview-card {
+  background: hsl(var(--card));
+  border: 1.5px solid hsl(var(--foreground) / 0.8);
+  color: hsl(var(--foreground));
+  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.8);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.appearance-window-preview[data-window-material="retro"] .appearance-window-preview-heading {
+  background: color-mix(in srgb, hsl(var(--accent)) 82%, hsl(var(--primary)) 18%);
+  border-bottom: 1.5px solid hsl(var(--foreground) / 0.8);
+}

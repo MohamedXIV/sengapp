@@ -3,14 +3,18 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { PersonalThemeProvider, usePersonalTheme } from "@/components/themes/personal-theme-provider";
 import { DEFAULT_VISUAL_PREFERENCES } from "@/lib/themes/preferences";
+import { DEFAULT_WINDOW_STYLE } from "@/features/cottage/window-style";
 
 const setTheme = vi.fn();
 vi.mock("next-themes", () => ({ useTheme: () => ({ resolvedTheme: "light", setTheme }) }));
 
 const unmounts: Array<() => void> = [];
 function ThemeActions() {
-  const { setPreview } = usePersonalTheme();
-  return <button onClick={() => setPreview({ ...DEFAULT_VISUAL_PREFERENCES, preset: "dusk" })}>Preview dusk</button>;
+  const { setPreview, setWindowStylePreview } = usePersonalTheme();
+  return <>
+    <button onClick={() => setPreview({ ...DEFAULT_VISUAL_PREFERENCES, preset: "dusk" })}>Preview dusk</button>
+    <button onClick={() => setWindowStylePreview({ ...DEFAULT_WINDOW_STYLE, material: "retro" })}>Preview retro</button>
+  </>;
 }
 
 function mount(profileId: string, preferences = DEFAULT_VISUAL_PREFERENCES) {
@@ -36,10 +40,15 @@ describe("account-aware personal theme", () => {
   it("previews only in current session and clears on sign-out", () => {
     const { node } = mount("alice");
     expect(document.documentElement.dataset.sengappTheme).toBe("acorn");
-    act(() => (node.querySelector("button") as HTMLButtonElement).click());
+    expect(document.documentElement.dataset.sengappSkin).toBe("paper");
+    const buttons = node.querySelectorAll("button");
+    act(() => buttons[0]?.click());
+    act(() => buttons[1]?.click());
     expect(document.documentElement.dataset.sengappTheme).toBe("dusk");
+    expect(document.documentElement.dataset.sengappSkin).toBe("retro");
     act(() => unmounts.pop()?.());
     expect(document.documentElement.dataset.sengappTheme).toBeUndefined();
+    expect(document.documentElement.dataset.sengappSkin).toBeUndefined();
     expect(document.documentElement.style.getPropertyValue("--background")).toBe("");
   });
 
@@ -48,5 +57,6 @@ describe("account-aware personal theme", () => {
     act(() => (node.querySelector("button") as HTMLButtonElement).click());
     render("bob", { ...DEFAULT_VISUAL_PREFERENCES, preset: "forest" });
     expect(document.documentElement.dataset.sengappTheme).toBe("forest");
+    expect(document.documentElement.dataset.sengappSkin).toBe("paper");
   });
 });

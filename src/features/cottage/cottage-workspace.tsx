@@ -91,6 +91,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   const [windowStylePreview, setWindowStylePreview] = useState<WindowStyle | null>(null);
   const styleIdentity = account.identity === undefined ? "loading" : account.identity ?? "guest";
   const windowStyle = styleRecord?.identity === styleIdentity ? styleRecord.value : DEFAULT_WINDOW_STYLE;
+  const activeStyle = windowStylePreview ?? windowStyle;
   const setWindowStyle = (value: WindowStyle) => {
     if (styleIdentity === "loading") return;
     setStyleRecord({ identity: styleIdentity, value: normalizeWindowStyle(value) });
@@ -118,6 +119,22 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   const subscriptions = useRef<{ dispose(): void } | null>(null);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [layoutMessage, setLayoutMessage] = useState("Move the furniture, or rearrange the windows.");
+
+  // Keep document root skin attribute in sync with the active Cozy material so
+  // shadcn primitives inside floating Dockview/mobile panels never leak old skins.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.sengappSkin = activeStyle.material;
+    root.dataset.sengappAtmosphere = activeStyle.atmosphere;
+    root.style.setProperty("--sengapp-glass-opacity", `${activeStyle.opacity}%`);
+    root.style.setProperty("--sengapp-glass-blur", `${activeStyle.blur}px`);
+    return () => {
+      delete root.dataset.sengappSkin;
+      delete root.dataset.sengappAtmosphere;
+      root.style.removeProperty("--sengapp-glass-opacity");
+      root.style.removeProperty("--sengapp-glass-blur");
+    };
+  }, [activeStyle.material, activeStyle.atmosphere, activeStyle.opacity, activeStyle.blur]);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -241,18 +258,18 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
   return <WorkspaceNavigationProvider value={{ selectedConversation, openConversation, returnToConversations: () => setSelectedConversation(null) }}>
     <WindowStyleProvider value={windowStyle} onChange={setWindowStyle} onPreview={setWindowStylePreview}
       canSaveAccount={Boolean(account.onSave)} onSaveAccount={saveToAccount} saveStatus={styleSaveStatus}>
-    <main data-window-material={(windowStylePreview ?? windowStyle).material} data-window-atmosphere={(windowStylePreview ?? windowStyle).atmosphere}
-      style={{ "--window-opacity": `${(windowStylePreview ?? windowStyle).opacity}%`, "--window-blur": `${(windowStylePreview ?? windowStyle).blur}px` } as CSSProperties}
-      className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden bg-[#e7f0e8] text-[#263d36]">
-    <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 border-b border-[#bfd1bd] px-3 py-2 sm:px-5">
-      <Link href="/" className="flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-2 focus-visible:outline-[#407960]" aria-label={t("home")}>
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#cfe6ce]"><Home className="size-5"/></span>
-        <span className="min-w-0">
-          <strong className="block truncate text-sm tracking-tight">Sengapp</strong>
-          <span className="hidden text-[11px] text-[#657e70] sm:block">{t("yourSpace")}</span>
+    <main data-window-material={activeStyle.material} data-window-atmosphere={activeStyle.atmosphere}
+      style={{ "--window-opacity": `${activeStyle.opacity}%`, "--window-blur": `${activeStyle.blur}px` } as CSSProperties}
+      className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden">
+    <header className="cottage-toolbar pointer-events-none absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 px-3 py-2 sm:px-5">
+      <Link href="/" className="cottage-hud-pill pointer-events-auto flex min-w-0 items-center gap-2 rounded-2xl border px-2.5 py-1.5 focus-visible:outline-2 focus-visible:outline-ring" aria-label={t("home")}>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-accent/80 text-accent-foreground"><Home className="size-4"/></span>
+        <span className="min-w-0 pr-1">
+          <strong className="block truncate text-sm leading-tight tracking-tight">Sengapp</strong>
+          <span className="hidden text-[10.5px] opacity-75 sm:block">{t("yourSpace")}</span>
         </span>
       </Link>
-      <nav aria-label={t("conversations")} className="flex items-center gap-1.5">
+      <nav aria-label={t("conversations")} className="cottage-hud-pill pointer-events-auto flex items-center gap-1.5 rounded-2xl border p-1.5">
         <button type="button" className="cottage-tool" aria-label="Chats" onClick={() => showPanel("chats")}>
           <MessageCircle className="size-4" aria-hidden="true"/><span className="hidden sm:inline">{t("chats")}</span>
         </button>
@@ -269,7 +286,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
         <RoomCanvas ref={roomCamera} items={items} editing={editMode} light={light}
           onChange={changedItems} onHover={changedHover} onViewChange={setCameraView}/>
       </div>
-      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-[68px] z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-[#bbd0c1] bg-[#fffcf2eb] p-1 shadow-sm backdrop-blur-sm">
+      <nav aria-label="Room camera" className="cottage-camera-controls absolute left-1/2 top-[68px] z-20 flex -translate-x-1/2 items-center gap-1 rounded-2xl border p-1">
         <button type="button" aria-label="Zoom out" title="Zoom out" className="cottage-camera-button" disabled={cameraView.level <= CAMERA.minLevel + .001}
           onClick={() => roomCamera.current?.zoomOut()}><ZoomOut className="size-[17px]"/></button>
         <output data-testid="room-zoom-indicator" data-camera-x={cameraView.x.toFixed(2)}
@@ -279,15 +296,15 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
         </output>
         <button type="button" aria-label="Zoom in" title="Zoom in" className="cottage-camera-button" disabled={cameraView.level >= CAMERA.maxLevel - .001}
           onClick={() => roomCamera.current?.zoomIn()}><ZoomIn className="size-[17px]"/></button>
-        <span className="mx-1 h-5 w-px bg-[#c4d7c7]" aria-hidden="true"/>
+        <span className="mx-1 h-5 w-px bg-current opacity-20" aria-hidden="true"/>
         <button type="button" aria-label="Fit room" title="Focus on the cottage" className="cottage-camera-button"
           onClick={() => roomCamera.current?.fit()}><Scan className="size-[17px]"/></button>
         <button type="button" aria-label="Fit world" title="Show the 16:10 world" className="cottage-camera-button"
           onClick={() => roomCamera.current?.fitWorld()}><Maximize2 className="size-[17px]"/></button>
       </nav>
-      <aside className="pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border border-[#c3d2c2] bg-[#fffaf0ed] px-4 py-2 text-xs shadow-sm">
+      <aside className="cottage-stage-hud pointer-events-none absolute bottom-4 left-4 z-20 max-w-[70%] rounded-2xl border px-4 py-2 text-xs shadow-sm">
         <span className="block font-bold">{hovered ?? (editMode ? "Edit mode · drag sprites to new tiles" : "Your cozy space")}</span>
-        <span className="block text-[#63796e]">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "16:10 world · Drag to pan · Scroll or pinch to zoom"}</span>
+        <span className="block opacity-75">{editMode ? "Drag furniture to rearrange · Turn off Edit room to pan" : "16:10 world · Drag to pan · Scroll or pinch to zoom"}</span>
       </aside>
       <details className="cottage-utilities absolute bottom-4 right-4 z-50" data-testid="workspace-utilities">
         <summary className="cottage-utilities-trigger" aria-label={t("tools")} title={t("tools")}>
@@ -327,7 +344,7 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
         <DockviewReact className="cottage-dock" theme={themeLight} components={components}
           floatingGroupDragHandle="titlebar" onReady={onDockReady}/>
       </div>}
-      {!desktop && <MobileWindowLayer openPanels={mobilePanels} onActivate={activateMobile} onClose={closeMobile}/>} 
+      {!desktop && <MobileWindowLayer openPanels={mobilePanels} onActivate={activateMobile} onClose={closeMobile}/>}
       <span className="sr-only" role="status">{layoutMessage}</span>
     </section>
   </main></WindowStyleProvider></WorkspaceNavigationProvider>;

@@ -156,7 +156,6 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
     };
   }, [conversationId, setTyping]);
 
-
   function loadOlder() {
     if (status !== "CanLoadMore") return;
     const el = scroller.current;
@@ -260,47 +259,55 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
     return names;
   }, {});
 
-  return <div className={embedded ? "sengapp-chat-page flex h-full min-h-0 flex-col gap-2" : "sengapp-chat-page space-y-3"}>
-    <header className="flex min-w-0 items-center gap-3 pb-1">
-      {onBack
-        ? <Button type="button" variant="ghost" size="icon" aria-label={t("backToChats")}
-            className="size-11 shrink-0 rounded-xl" onClick={onBack}>
-            <ArrowLeft className="rtl:rotate-180" aria-hidden="true" />
-          </Button>
-        : <Button asChild variant="ghost" size="icon" aria-label={t("backToChats")} className="size-11 shrink-0 rounded-xl">
-            <Link href="/chats"><ArrowLeft className="rtl:rotate-180" aria-hidden="true" /></Link>
-          </Button>}
-      <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        {info?.kind === "group" ? <UsersRound className="size-5" /> : <MessageCircle className="size-5" />}
-      </span>
-      <div className="min-w-0 flex-1">
-        <h1 className="truncate text-lg font-bold sm:text-xl" dir="auto">{info?.displayName ?? t("loadingConversation")}</h1>
-        {info?.kind === "direct" && info.handle && <p dir="ltr" className="text-xs text-muted-foreground">@{info.handle}</p>}
-        {info?.kind === "direct" && peerIsOnline && <p role="status" className="text-xs font-medium text-primary">{t("onlineNow")}</p>}
-        {info?.kind === "direct" && !peerIsOnline && lastSeenLabel && <p className="text-xs text-muted-foreground">{t("lastSeenAt", { date: lastSeenLabel })}</p>}
-        {info?.kind === "group" && <p className="text-xs text-muted-foreground">{t("members")} · {group?.members.length ?? "…"}</p>}
-      </div>
-      {info?.kind === "group" && <Sheet>
-        <SheetTrigger asChild>
-          <Button type="button" size="sm" variant="outline" className="min-h-11 shrink-0 rounded-xl" aria-label={t("groupDetails")}>
-            <UsersRound className="size-4" aria-hidden="true" />
-            <span className="hidden sm:inline">{t("groupDetails")}</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side={locale === "ar" ? "left" : "right"} className="flex h-full w-[min(100vw,30rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
-          <SheetHeader className="shrink-0 space-y-2 border-b px-5 py-6 pe-12">
-            <SheetTitle>{t("groupDetails")}</SheetTitle>
-            <SheetDescription>{t("groupPrivacyNote")}</SheetDescription>
-          </SheetHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-            <GroupPanel conversationId={conversationId} meProfileId={meProfileId} />
-          </div>
-        </SheetContent>
-      </Sheet>}
-    </header>
+  const peerInitials = info?.displayName?.trim().slice(0, 2).toLocaleUpperCase(locale) ?? "";
+
+  return <div className={embedded ? "sengapp-chat-page flex h-full min-h-0 flex-col" : "sengapp-chat-page mx-auto max-w-4xl"}>
     <Card className={embedded
       ? "flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border-border/70 shadow-none"
-      : "flex h-[calc(100dvh-12rem)] min-h-80 max-h-[52rem] flex-col overflow-hidden rounded-[1.5rem] border-border/70 shadow-sm"}>
+      : "flex h-[calc(100dvh-9.5rem)] min-h-96 max-h-[54rem] flex-col overflow-hidden rounded-[1.5rem] border-border/70 shadow-sm"}>
+      <header className="sengapp-chat-header flex shrink-0 items-center gap-3 border-b border-border/70 bg-card px-3 py-2.5 sm:px-4">
+        {onBack
+          ? <Button type="button" variant="ghost" size="icon" aria-label={t("backToChats")}
+              className="size-10 shrink-0 rounded-xl" onClick={onBack}>
+              <ArrowLeft className="rtl:rotate-180" aria-hidden="true" />
+            </Button>
+          : <Button asChild variant="ghost" size="icon" aria-label={t("backToChats")} className="size-10 shrink-0 rounded-xl">
+              <Link href="/chats"><ArrowLeft className="rtl:rotate-180" aria-hidden="true" /></Link>
+            </Button>}
+        <span aria-hidden="true" className="relative flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/12 text-sm font-bold text-primary">
+          {info?.kind === "group" ? <UsersRound className="size-5" /> : (peerInitials || <MessageCircle className="size-5" />)}
+          {info?.kind === "direct" && peerIsOnline && (
+            <span className="absolute -bottom-0.5 -end-0.5 size-3 rounded-full border-2 border-card bg-emerald-500" />
+          )}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-base font-bold leading-tight sm:text-lg" dir="auto">{info?.displayName ?? t("loadingConversation")}</h1>
+          <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+            {info?.kind === "direct" && info.handle && <span dir="ltr">@{info.handle}</span>}
+            {info?.kind === "direct" && peerIsOnline && <span role="status" className="font-semibold text-emerald-600 dark:text-emerald-400">{t("onlineNow")}</span>}
+            {info?.kind === "direct" && !peerIsOnline && lastSeenLabel && <span>{t("lastSeenAt", { date: lastSeenLabel })}</span>}
+            {info?.kind === "group" && <span>{t("members")} · {group?.members.length ?? "…"}</span>}
+          </div>
+        </div>
+        {info?.kind === "group" && <Sheet>
+          <SheetTrigger asChild>
+            <Button type="button" size="sm" variant="outline" className="min-h-10 shrink-0 rounded-xl" aria-label={t("groupDetails")}>
+              <UsersRound className="size-4" aria-hidden="true" />
+              <span className="hidden sm:inline">{t("groupDetails")}</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side={locale === "ar" ? "left" : "right"} className="flex h-full w-[min(100vw,30rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
+            <SheetHeader className="shrink-0 space-y-2 border-b px-5 py-6 pe-12">
+              <SheetTitle>{t("groupDetails")}</SheetTitle>
+              <SheetDescription>{t("groupPrivacyNote")}</SheetDescription>
+            </SheetHeader>
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+              <GroupPanel conversationId={conversationId} meProfileId={meProfileId} />
+            </div>
+          </SheetContent>
+        </Sheet>}
+      </header>
+
       <div ref={scroller} onScroll={() => {
         const el = scroller.current;
         if (el) {
@@ -330,39 +337,47 @@ function ThreadContent({ conversationId, meProfileId, embedded = false, onBack }
             onEdit={startEdit}
             onDelete={setDeletingMessage}
             onReact={reactTo} />
-          {typingNames.length > 0 && <p role="status" className="mt-3 px-3 text-xs text-muted-foreground">
-            {typingNames.length === 1
-              ? t("typingSingle", { name: typingNames[0] ?? "" })
-              : t("typingMultiple", { names: typingNames.slice(0, 3).join(", ") })}
-          </p>}
+          {typingNames.length > 0 && <div role="status" className="mt-3 inline-flex w-fit items-center gap-2 rounded-2xl border border-border/70 bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-xs">
+            <span className="inline-flex items-center gap-1 text-primary" aria-hidden="true">
+              <span className="sengapp-typing-dot" />
+              <span className="sengapp-typing-dot" />
+              <span className="sengapp-typing-dot" />
+            </span>
+            <span>
+              {typingNames.length === 1
+                ? t("typingSingle", { name: typingNames[0] ?? "" })
+                : t("typingMultiple", { names: typingNames.slice(0, 3).join(", ") })}
+            </span>
+          </div>}
         </div>
       </div>
-      <form onSubmit={(event) => void submit(event)} className="shrink-0 border-t border-border/70 bg-card/95 p-3 sm:p-4">
-        {(replyingTo || editingMessage) && <div className="mb-2 flex items-center gap-2 rounded-xl border-s-2 border-primary/60 bg-secondary/45 px-3 py-2 text-xs">
+
+      <form onSubmit={(event) => void submit(event)} className="shrink-0 px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
+        {(replyingTo || editingMessage) && <div className="mb-2 flex items-center gap-2 rounded-2xl border border-border/70 border-s-2 border-s-primary bg-secondary px-3.5 py-2 text-xs">
           <div className="min-w-0 flex-1">
             <p className="font-semibold">{editingMessage ? t("editing") : t("replying")}</p>
             <p className="truncate text-muted-foreground" dir="auto">{(editingMessage ?? replyingTo)?.body}</p>
           </div>
-          <Button type="button" variant="ghost" size="icon" className="size-8 shrink-0"
+          <Button type="button" variant="ghost" size="icon" className="size-8 shrink-0 rounded-full"
             aria-label={t(editingMessage ? "cancelEdit" : "cancelReply")}
             onClick={() => editingMessage ? cancelEdit() : setReplyingTo(null)}>
             <X className="size-4" aria-hidden="true" />
           </Button>
         </div>}
-        <div className="flex items-end gap-2">
+        <div className="sengapp-chat-composer flex items-end gap-2 rounded-[1.5rem] border border-border bg-background p-1.5 shadow-sm">
           <Textarea aria-label={t("messageInput")} aria-describedby="chat-compose-hint" value={draft} maxLength={2000} rows={1}
-            className="max-h-36 min-h-11 flex-1 resize-none rounded-2xl bg-background/75 px-4 py-3 shadow-none"
+            className="max-h-36 min-h-10 flex-1 resize-none border-0 bg-transparent px-3 py-2.5 shadow-none focus-visible:ring-0"
             placeholder={editingMessage ? t("editing") : t("messagePlaceholder")} onChange={event => { setDraft(event.target.value); setFailed(null); if (!editingMessage) broadcastTyping(event.target.value); }}
             onBlur={() => broadcastTyping("")}
             onKeyDown={composerKeyDown} />
-          <Button type="submit" size="icon" className="size-11 shrink-0 rounded-2xl" disabled={busy || !draft.trim()}
+          <Button type="submit" size="icon" className="size-10 shrink-0 rounded-full shadow-xs" disabled={busy || !draft.trim()}
             aria-label={editingMessage ? (busy ? t("savingEdit") : t("saveEdit")) : (busy ? t("sending") : t("send"))}>
-            <SendHorizontal className="size-5 rtl:rotate-180" aria-hidden="true" />
+            <SendHorizontal className="size-4 rtl:rotate-180" aria-hidden="true" />
           </Button>
         </div>
-        <p id="chat-compose-hint" className="mt-2 hidden text-xs text-muted-foreground sm:block">{t("composerHint")}</p>
-        {actionError && <p role="alert" className="mt-2 text-sm text-destructive">{t("actionFailed")}</p>}
-        {failed && <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 text-sm text-destructive">
+        <p id="chat-compose-hint" className="mt-1.5 hidden px-2 text-[0.7rem] text-muted-foreground sm:block">{t("composerHint")}</p>
+        {actionError && <p role="alert" className="mt-2 px-2 text-sm text-destructive">{t("actionFailed")}</p>}
+        {failed && <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 px-2 text-sm text-destructive">
           <span>{t("sendFailed")}</span>
           <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void submit()}>{t("retry")}</Button>
         </div>}
