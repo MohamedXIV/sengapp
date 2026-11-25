@@ -37,6 +37,12 @@ describe("account-owned window materials", () => {
       locale: "ar", themePreference: "light", windowStyle: style,
     });
     await alice.mutation(api.profiles.updateWindowStyle, {
+      material: "retro", opacity: 98, blur: 0, atmosphere: "none",
+    });
+    expect((await alice.query(api.profiles.getMine, {}))?.windowStyle).toEqual({
+      material: "retro", opacity: 98, blur: 0, atmosphere: "none",
+    });
+    await alice.mutation(api.profiles.updateWindowStyle, {
       material: "paper", opacity: 100, blur: 0, atmosphere: "none",
     });
     expect((await alice.query(api.profiles.getMine, {}))?.windowStyle).toEqual({
