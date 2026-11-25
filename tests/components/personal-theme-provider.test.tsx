@@ -42,8 +42,8 @@ describe("account-aware personal theme", () => {
     expect(document.documentElement.dataset.sengappTheme).toBe("acorn");
     expect(document.documentElement.dataset.sengappSkin).toBe("paper");
     const buttons = node.querySelectorAll("button");
-    act(() => buttons[0].click());
-    act(() => buttons[1].click());
+    act(() => buttons[0]?.click());
+    act(() => buttons[1]?.click());
     expect(document.documentElement.dataset.sengappTheme).toBe("dusk");
     expect(document.documentElement.dataset.sengappSkin).toBe("retro");
     act(() => unmounts.pop()?.());

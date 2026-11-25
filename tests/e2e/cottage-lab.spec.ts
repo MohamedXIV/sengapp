@@ -165,13 +165,16 @@ test("desktop Dockview titlebar has visible native drag and resize grips", async
   }
 });
 
-test("unified Appearance offers readable glass, paper and atmospheric effects", async ({ page }, testInfo) => {
+test("unified Appearance offers readable retro, glass, paper and atmospheric effects", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.getByTestId("workspace-utilities").locator("summary").click();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   const panel = page.getByTestId("window-style-panel");
   await expect(panel).toBeVisible();
   await expect(page.getByTestId("workspace-utilities").getByRole("button", { name: "Window style" })).toHaveCount(0);
+  await panel.getByRole("button", { name: "Retro" }).click();
+  await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "retro");
+  await expect(panel.getByLabel("Glass blur")).toHaveCount(0);
   await panel.getByRole("button", { name: "Glass" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "glass");
   await expect(page.getByTestId("window-style-fields").getByRole("button", { name: "Cozy" })).toHaveCount(0);
@@ -203,7 +206,8 @@ test("unified Appearance offers readable glass, paper and atmospheric effects", 
   await page.getByTestId("window-style-panel").getByRole("button", { name: "Paper" }).click();
   await expect(page.locator(".cottage-lab")).toHaveAttribute("data-window-material", "paper");
   await expect(panel.getByLabel("Glass blur")).toHaveCount(0);
-  // A clean baseline intentionally uses no simulated paper grain.\n  await expect(targetWindow).toHaveCSS("background-image", "none");
+  // Keep the outer window frame clean; paper grid lines live on the page body.
+  await expect(targetWindow).toHaveCSS("background-image", "none");
 });
 
 test("Profile and Appearance open as real protected windows, with direct fallback routes", async ({ page }) => {

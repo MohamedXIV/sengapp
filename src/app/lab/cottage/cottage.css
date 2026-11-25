@@ -71,7 +71,7 @@
   --window-bg: hsl(var(--card, 36 33% 99%));
   --window-header: color-mix(in srgb, hsl(var(--accent, 38 82% 88%)) 52%, hsl(var(--card, 36 33% 99%)) 48%);
   --window-border: hsl(var(--border, 32 20% 85%));
-  --window-radius: 16px;
+  --window-radius: 17px;
   --window-filter: none;
   --window-shadow:
     0 2px 0 hsl(var(--border, 32 20% 85%)),
@@ -112,10 +112,11 @@
   backdrop-filter: var(--window-filter);
   -webkit-backdrop-filter: var(--window-filter);
 }
-.cottage-lab[data-window-material="paper"] :is(.dv-resize-container, .cottage-mobile-window) {
+.cottage-lab[data-window-material="paper"] .dv-content-container,
+.cottage-lab[data-window-material="paper"] .cottage-mobile-window > div:not(.cottage-mobile-titlebar) {
   background-image:
     linear-gradient(to right, hsl(var(--foreground, 24 28% 14%) / 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, hsl(var(--foreground, 24 28% 14%) / 0.035) 1px, transparent 1px) !important;
+    linear-gradient(to bottom, hsl(var(--foreground, 24 28% 14%) / 0.035) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 .cottage-lab .dv-resize-container > .dv-grid-view {
@@ -128,7 +129,7 @@
 .cottage-dock-layer .dv-resize-container :is(.dv-groupview, .dv-content-container) { min-width: 0; min-height: 0; overflow: hidden; }
 .cottage-dock-layer .dv-content-container > * { height: 100%; min-height: 0; }
 .cottage-lab .dv-resize-container :is(.dv-grid-view, .dv-groupview, .dv-view, .dv-content-container),
-.cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) { background: transparent !important; }
+.cottage-lab .cottage-mobile-window > div:not(.cottage-mobile-titlebar) { background-color: transparent !important; }
 .cottage-lab .cottage-dock-layer .dv-content-container > :is(section, .cottage-panel-body),
 .cottage-lab .cottage-mobile-window :is(.cottage-panel-body, [data-testid="cottage-live-chats"], [data-testid="cottage-live-connections"]) { background: transparent !important; }
 .cottage-lab .dv-groupview, .cottage-lab .dv-tabs-and-actions-container {
