@@ -253,11 +253,18 @@
   background: var(--window-surface-control);
   color: var(--window-ink);
   font-size: 12px; font-weight: 700;
-  transition: background .15s;
+  transition: background .15s, transform 90ms ease;
 }
 .cottage-lab[data-window-material="glass"] .cottage-tool {
   border-radius: 9999px;
   background: color-mix(in srgb, hsl(var(--card, 36 33% 99%)) 65%, transparent);
+}
+.cottage-lab[data-window-material="retro"] .cottage-tool {
+  box-shadow: 2px 2px 0 var(--window-border);
+}
+.cottage-lab[data-window-material="retro"] .cottage-tool:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 .cottage-tool:hover, .cottage-icon-button:hover, .cottage-mini-button:hover {
   background: var(--window-accent);
@@ -280,16 +287,24 @@
 }
 .cottage-account-panel :is(input, textarea, [role="combobox"]):focus-visible { outline-offset: 1px; }
 
-/* Room controls and compact utilities */
+/* Cozy Productivity Floating Game HUD (no wall-to-wall website navbar) */
 .cottage-toolbar {
   min-height: 60px;
-  background: color-mix(in srgb, var(--window-bg) 90%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: transparent;
   color: var(--window-ink);
-  border-color: var(--window-border);
 }
-.cottage-toolbar .cottage-tool { min-height: 40px; padding-inline: 12px; }
+.cottage-hud-pill {
+  background: color-mix(in srgb, var(--window-bg) 92%, transparent);
+  border: var(--window-border-width) solid var(--window-border);
+  color: var(--window-ink);
+  box-shadow: var(--window-shadow);
+  backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
+}
+.cottage-lab[data-window-material="glass"] .cottage-hud-pill {
+  border-radius: 9999px;
+}
+.cottage-toolbar .cottage-tool { min-height: 36px; padding-inline: 11px; }
 .cottage-camera-button {
   display: inline-flex; align-items: center; justify-content: center;
   width: 38px; height: 38px;
@@ -300,27 +315,38 @@
 .cottage-camera-button:focus-visible { outline: 2px solid var(--window-primary); outline-offset: 1px; }
 .cottage-camera-controls {
   background: color-mix(in srgb, var(--window-bg) 92%, transparent);
-  border-color: var(--window-border);
+  border: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
   box-shadow: var(--window-shadow);
   backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
+}
+.cottage-lab[data-window-material="glass"] .cottage-camera-controls {
+  border-radius: 9999px;
 }
 .cottage-stage-hud {
   background: color-mix(in srgb, var(--window-bg) 92%, transparent);
-  border-color: var(--window-border);
+  border: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
+  box-shadow: var(--window-shadow);
+  backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
 }
 .cottage-utilities { pointer-events: auto; }
 .cottage-utilities > summary { list-style: none; cursor: pointer; }
 .cottage-utilities > summary::-webkit-details-marker { display: none; }
 .cottage-utilities-trigger {
   display: flex; align-items: center; justify-content: center;
-  height: 48px; width: 48px; border-radius: 13px;
+  height: 48px; width: 48px; border-radius: 14px;
   border: var(--window-border-width) solid var(--window-border);
   color: var(--window-ink);
   background: var(--window-bg);
   box-shadow: var(--window-shadow);
   backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
+}
+.cottage-lab[data-window-material="glass"] .cottage-utilities-trigger {
+  border-radius: 9999px;
 }
 .cottage-utilities-trigger:hover { background: var(--window-accent); color: var(--window-accent-fg); }
 .cottage-utilities-menu {
@@ -338,6 +364,7 @@
   border-radius: 14px;
   box-shadow: var(--window-shadow);
   backdrop-filter: var(--window-filter);
+  -webkit-backdrop-filter: var(--window-filter);
 }
 .cottage-utilities-heading {
   margin: 12px 9px 4px;
@@ -384,12 +411,12 @@
 }
 @media (max-width: 899px) {
   .cottage-toolbar { gap: 7px; }
-  .cottage-tool { min-height: 38px; }
+  .cottage-tool { min-height: 36px; }
   .cottage-camera-controls { top: 68px; }
 }
 @media (max-width: 599px) {
   .cottage-toolbar { padding-inline: 10px; }
-  .cottage-toolbar .cottage-tool { min-height: 40px; padding-inline: 10px; }
+  .cottage-toolbar .cottage-tool { min-height: 36px; padding-inline: 9px; }
   .cottage-camera-controls { top: 66px; }
   .cottage-utilities { bottom: 12px; right: 12px; }
   .cottage-stage aside { max-width: calc(100% - 85px); }

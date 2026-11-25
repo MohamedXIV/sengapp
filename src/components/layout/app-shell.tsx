@@ -15,7 +15,7 @@ import {
   SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton,
   SidebarMenuItem, SidebarProvider, SidebarRail, useSidebar,
 } from "@/components/ui/sidebar";
-import { PersonalThemeProvider } from "@/components/themes/personal-theme-provider";
+import { PersonalThemeProvider, usePersonalTheme } from "@/components/themes/personal-theme-provider";
 import { AccountLocaleProvider } from "@/components/i18n/account-locale-provider";
 import { getLocaleDirection, type AppLocale } from "@/lib/i18n/locale";
 import { getNavigationSide, isNavigationItemActive } from "@/components/layout/navigation";
@@ -84,6 +84,9 @@ function AppShellContent({
 }: AppShellProps) {
   const { signOut } = useClerk();
   const endSession = useMutation(api.activity.endSession);
+  const { windowStyle } = usePersonalTheme();
+  const skin = windowStyle.material;
+
   async function signOutCleanly() {
     const id = existingPresenceSessionId();
     if (id) {
@@ -108,10 +111,13 @@ function AppShellContent({
     ...(userRole === "operator" ? [{ href: "/admin/invitations", icon: Shield, label: t("operator") }] : []),
   ];
   const currentTitle = nav.find((item) => isNavigationItemActive(pathname, item.href))?.label ?? t("space");
+  // Retro keeps the classic side rail open by default; Glass and Paper use
+  // top pill/folder-tab navigation inside a framed workspace (sidebar still opens on demand & mobile).
+  const defaultSidebarOpen = skin === "retro";
 
   return (
-    <SidebarProvider defaultOpen dir={direction} className="sengapp-workspace"
-      style={{ "--sidebar-width": "16.75rem" } as CSSProperties}>
+    <SidebarProvider key={skin} defaultOpen={defaultSidebarOpen} dir={direction} className="sengapp-workspace"
+      style={{ "--sidebar-width": "16.5rem" } as CSSProperties}>
       <Sidebar dir={direction} side={getNavigationSide(locale)} variant="floating"
         collapsible="offcanvas" mobileTitle={t("primary")} aria-label={t("primary")}>
         <SidebarHeader className="px-4 pb-2 pt-5">
@@ -157,17 +163,20 @@ function AppShellContent({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="min-w-0 bg-transparent">
-        <SkinChrome
-          nav={nav}
-          pathname={pathname}
-          currentTitle={currentTitle}
-          openLabel={t("open")}
-          subtitle={t("topbarSubtitle")}
-        />
-        <main className="sengapp-content mx-auto w-full max-w-6xl flex-1 space-y-6">
-          {children}
-        </main>
+      <SidebarInset className="min-w-0 bg-transparent p-0 md:p-4 lg:p-5">
+        <div className="sengapp-shell-frame mx-auto flex min-h-full w-full max-w-6xl flex-1 flex-col">
+          <SkinChrome
+            nav={nav}
+            pathname={pathname}
+            currentTitle={currentTitle}
+            openLabel={t("open")}
+            subtitle={t("topbarSubtitle")}
+            displayName={displayName}
+          />
+          <main className="sengapp-content mx-auto w-full flex-1 space-y-6">
+            {children}
+          </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

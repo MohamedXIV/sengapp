@@ -244,15 +244,15 @@ function CottageWorkspaceContent({ account }: { account: AccountStyle }) {
     <main data-window-material={(windowStylePreview ?? windowStyle).material} data-window-atmosphere={(windowStylePreview ?? windowStyle).atmosphere}
       style={{ "--window-opacity": `${(windowStylePreview ?? windowStyle).opacity}%`, "--window-blur": `${(windowStylePreview ?? windowStyle).blur}px` } as CSSProperties}
       className="cottage-lab flex h-dvh min-h-0 flex-col overflow-hidden">
-    <header className="cottage-toolbar absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 border-b px-3 py-2 sm:px-5">
-      <Link href="/" className="flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-2 focus-visible:outline-ring" aria-label={t("home")}>
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent/80 text-accent-foreground"><Home className="size-5"/></span>
-        <span className="min-w-0">
-          <strong className="block truncate text-sm tracking-tight">Sengapp</strong>
-          <span className="hidden text-[11px] opacity-75 sm:block">{t("yourSpace")}</span>
+    <header className="cottage-toolbar pointer-events-none absolute inset-x-0 top-0 z-30 flex min-h-[60px] items-center justify-between gap-2 px-3 py-2 sm:px-5">
+      <Link href="/" className="cottage-hud-pill pointer-events-auto flex min-w-0 items-center gap-2 rounded-2xl border px-2.5 py-1.5 focus-visible:outline-2 focus-visible:outline-ring" aria-label={t("home")}>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-accent/80 text-accent-foreground"><Home className="size-4"/></span>
+        <span className="min-w-0 pr-1">
+          <strong className="block truncate text-sm leading-tight tracking-tight">Sengapp</strong>
+          <span className="hidden text-[10.5px] opacity-75 sm:block">{t("yourSpace")}</span>
         </span>
       </Link>
-      <nav aria-label={t("conversations")} className="flex items-center gap-1.5">
+      <nav aria-label={t("conversations")} className="cottage-hud-pill pointer-events-auto flex items-center gap-1.5 rounded-2xl border p-1.5">
         <button type="button" className="cottage-tool" aria-label="Chats" onClick={() => showPanel("chats")}>
           <MessageCircle className="size-4" aria-hidden="true"/><span className="hidden sm:inline">{t("chats")}</span>
         </button>

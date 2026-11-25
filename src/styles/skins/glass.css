@@ -1,60 +1,76 @@
 /* Sengapp Skin: Warm Liquid Glass
-   Optical translucent surfaces, 1px luminous specular edges, and crisp high-contrast active pills.
-   Zero neumorphism. Automatically degrades cleanly under prefers-reduced-transparency. */
+   Optical translucent surfaces, 1px luminous specular edges, crisp warm-white active pills,
+   and airy floating glass framing over warm interior lamplight gradients.
+   Zero neumorphism. Degrades cleanly under prefers-reduced-transparency. */
 
 :root[data-sengapp-skin="glass"] {
-  --skin-surface: color-mix(in srgb, hsl(var(--card)) var(--sengapp-glass-opacity, 74%), transparent);
-  --skin-surface-elevated: color-mix(in srgb, hsl(var(--card)) 84%, transparent);
-  --skin-header-bg: color-mix(in srgb, hsl(var(--card)) 56%, transparent);
+  --skin-surface: color-mix(in srgb, hsl(var(--card)) var(--sengapp-glass-opacity, 72%), transparent);
+  --skin-surface-elevated: color-mix(in srgb, hsl(var(--card)) 82%, transparent);
+  --skin-header-bg: color-mix(in srgb, hsl(var(--card)) 54%, transparent);
   --skin-border-width: 1px;
   --skin-border-color: hsl(var(--foreground) / 0.14);
-  --skin-specular: rgba(255, 255, 255, 0.58);
+  --skin-specular: rgba(255, 255, 255, 0.65);
   --skin-shadow:
     inset 0 1px 0 var(--skin-specular),
-    0 18px 42px hsl(var(--foreground) / 0.12);
+    0 20px 46px hsl(var(--foreground) / 0.13);
   --skin-shadow-sm:
     inset 0 1px 0 var(--skin-specular),
-    0 6px 18px hsl(var(--foreground) / 0.08);
-  --skin-backdrop: blur(var(--sengapp-glass-blur, 20px)) saturate(145%);
+    0 8px 20px hsl(var(--foreground) / 0.08);
+  --skin-backdrop: blur(var(--sengapp-glass-blur, 20px)) saturate(150%);
   --skin-pill-active-bg: #ffffff;
   --skin-pill-active-fg: hsl(24 28% 14%);
 }
 
 .dark[data-sengapp-skin="glass"] {
-  --skin-surface: color-mix(in srgb, hsl(var(--card)) var(--sengapp-glass-opacity, 72%), transparent);
-  --skin-surface-elevated: color-mix(in srgb, hsl(var(--card)) 80%, transparent);
-  --skin-header-bg: color-mix(in srgb, hsl(var(--card)) 52%, transparent);
-  --skin-border-color: rgba(255, 245, 232, 0.18);
-  --skin-specular: rgba(255, 245, 232, 0.28);
+  --skin-surface: color-mix(in srgb, hsl(var(--card)) var(--sengapp-glass-opacity, 68%), transparent);
+  --skin-surface-elevated: color-mix(in srgb, hsl(var(--card)) 78%, transparent);
+  --skin-header-bg: color-mix(in srgb, hsl(var(--card)) 48%, transparent);
+  --skin-border-color: rgba(255, 245, 232, 0.2);
+  --skin-specular: rgba(255, 248, 238, 0.32);
   --skin-shadow:
     inset 0 1px 0 var(--skin-specular),
-    0 22px 48px rgba(0, 0, 0, 0.44);
+    0 24px 52px rgba(0, 0, 0, 0.48);
   --skin-shadow-sm:
     inset 0 1px 0 var(--skin-specular),
-    0 8px 22px rgba(0, 0, 0, 0.32);
+    0 8px 24px rgba(0, 0, 0, 0.34);
   --skin-pill-active-bg: #fffaf3;
   --skin-pill-active-fg: hsl(24 28% 12%);
 }
 
+/* Warm blurred interior lamplight backdrop */
 :root[data-sengapp-skin="glass"] .sengapp-workspace {
   background-color: hsl(var(--background));
   background-image:
-    radial-gradient(ellipse 68% 54% at 16% 12%, hsl(var(--primary) / 0.22), transparent 62%),
-    radial-gradient(ellipse 60% 52% at 86% 18%, hsl(var(--accent) / 0.52), transparent 58%),
-    radial-gradient(ellipse 55% 48% at 62% 92%, hsl(var(--primary) / 0.16), transparent 60%);
+    radial-gradient(ellipse 68% 54% at 14% 12%, hsl(var(--primary) / 0.26), transparent 62%),
+    radial-gradient(ellipse 60% 52% at 86% 18%, hsl(var(--accent) / 0.6), transparent 58%),
+    radial-gradient(ellipse 58% 48% at 60% 94%, hsl(var(--primary) / 0.2), transparent 60%);
 }
 
 .dark[data-sengapp-skin="glass"] .sengapp-workspace {
+  background-color: hsl(24 24% 8%);
   background-image:
-    radial-gradient(ellipse 65% 50% at 18% 14%, hsl(var(--primary) / 0.24), transparent 62%),
-    radial-gradient(ellipse 58% 48% at 84% 22%, hsl(32 72% 46% / 0.18), transparent 60%),
-    radial-gradient(ellipse 55% 45% at 50% 95%, hsl(var(--accent) / 0.32), transparent 62%);
+    radial-gradient(ellipse 62% 50% at 16% 14%, hsl(var(--primary) / 0.32), transparent 60%),
+    radial-gradient(ellipse 58% 48% at 86% 24%, hsl(32 80% 48% / 0.24), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 50% 96%, hsl(var(--accent) / 0.36), transparent 62%);
 }
 
+/* Floating Liquid Glass Shell Frame */
+:root[data-sengapp-skin="glass"] .sengapp-shell-frame {
+  border: 1px solid var(--skin-border-color);
+  border-radius: 1.75rem;
+  background: color-mix(in srgb, hsl(var(--card)) 42%, transparent);
+  box-shadow: var(--skin-shadow);
+  backdrop-filter: var(--skin-backdrop);
+  -webkit-backdrop-filter: var(--skin-backdrop);
+  overflow: hidden;
+}
+
+/* Liquid Glass Cards */
 :root[data-sengapp-skin="glass"] [data-slot="card"],
 :root[data-sengapp-skin="glass"] .sengapp-skin-frame {
   background: var(--skin-surface);
   border: 1px solid var(--skin-border-color);
+  border-radius: 1.5rem;
   box-shadow: var(--skin-shadow);
   backdrop-filter: var(--skin-backdrop);
   -webkit-backdrop-filter: var(--skin-backdrop);
@@ -68,11 +84,62 @@
   -webkit-backdrop-filter: var(--skin-backdrop);
 }
 
+/* Crisp Luminous White Primary Pills + Sheer Glass Secondary Pills */
+:root[data-sengapp-skin="glass"] [data-slot="button"][data-variant="default"] {
+  border-radius: 9999px;
+  background: var(--skin-pill-active-bg);
+  color: var(--skin-pill-active-fg);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 8px 22px hsl(var(--foreground) / 0.14);
+  font-weight: 700;
+}
+
+:root[data-sengapp-skin="glass"] [data-slot="button"][data-variant="default"]:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px hsl(var(--foreground) / 0.18);
+}
+
+:root[data-sengapp-skin="glass"] [data-slot="button"][data-variant="outline"],
+:root[data-sengapp-skin="glass"] [data-slot="button"][data-variant="secondary"] {
+  border-radius: 9999px;
+  background: color-mix(in srgb, hsl(var(--card)) 58%, transparent);
+  border: 1px solid var(--skin-border-color);
+  box-shadow: var(--skin-shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Sheer Smoked-Glass Inputs & Badges */
+:root[data-sengapp-skin="glass"] [data-slot="input"],
+:root[data-sengapp-skin="glass"] [data-slot="textarea"]:not(.border-0) {
+  border-radius: 1.25rem;
+  background: color-mix(in srgb, hsl(var(--background)) 52%, transparent);
+  border: 1px solid var(--skin-border-color);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+:root[data-sengapp-skin="glass"] [data-slot="badge"] {
+  border-radius: 9999px;
+  backdrop-filter: blur(10px);
+}
+
+/* Luminous White Active Conversation Row */
+:root[data-sengapp-skin="glass"] [data-conversation-active="true"] {
+  background: var(--skin-pill-active-bg);
+  color: var(--skin-pill-active-fg);
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 26px hsl(var(--foreground) / 0.14);
+}
+:root[data-sengapp-skin="glass"] [data-conversation-active="true"] .text-muted-foreground {
+  color: hsl(24 18% 36%);
+}
+
+/* Chat Bubbles */
 :root[data-sengapp-skin="glass"] [data-slot="bubble"][data-message-owner="self"] {
   background: var(--skin-pill-active-bg);
   color: var(--skin-pill-active-fg);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  box-shadow: 0 8px 20px hsl(var(--foreground) / 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 24px hsl(var(--foreground) / 0.14);
 }
 
 :root[data-sengapp-skin="glass"] [data-slot="bubble"][data-message-owner="self"] .text-muted-foreground {
@@ -80,12 +147,12 @@
 }
 
 :root[data-sengapp-skin="glass"] [data-slot="bubble"][data-message-owner="other"] {
-  background: color-mix(in srgb, hsl(var(--card)) 62%, transparent);
+  background: color-mix(in srgb, hsl(var(--card)) 58%, transparent);
   color: hsl(var(--foreground));
   border: 1px solid var(--skin-border-color);
   box-shadow: var(--skin-shadow-sm);
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -100,21 +167,21 @@
 /* Preview widget */
 .appearance-window-preview[data-window-material="glass"] {
   background:
-    radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.35), transparent 55%),
-    radial-gradient(circle at 82% 80%, hsl(var(--accent) / 0.6), transparent 58%),
+    radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.38), transparent 55%),
+    radial-gradient(circle at 82% 80%, hsl(var(--accent) / 0.62), transparent 58%),
     hsl(var(--secondary));
 }
 .appearance-window-preview[data-window-material="glass"] .appearance-window-preview-card {
   background: color-mix(in srgb, hsl(var(--card)) 68%, transparent);
-  border: 1px solid rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.45);
   color: hsl(var(--foreground));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
     0 12px 26px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
 }
 .appearance-window-preview[data-window-material="glass"] .appearance-window-preview-heading {
   background: color-mix(in srgb, hsl(var(--card)) 52%, transparent);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }

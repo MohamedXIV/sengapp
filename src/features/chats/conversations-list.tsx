@@ -14,8 +14,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GroupCreateDialog } from "@/features/chats/group-create-dialog";
 import { GroupInvitations } from "@/features/chats/group-invitations";
 
-export function ConversationsList({ compact = false, onSelect }: {
+export function ConversationsList({
+  compact = false,
+  activeConversationId,
+  onSelect,
+}: {
   compact?: boolean;
+  activeConversationId?: Id<"conversations"> | null;
   onSelect?: (conversationId: Id<"conversations">) => void;
 }) {
   const t = useTranslations("Chats");
@@ -57,17 +62,23 @@ export function ConversationsList({ compact = false, onSelect }: {
           </div>
             : filtered.length === 0 ? <p className="px-4 py-10 text-center text-sm text-muted-foreground">{t("noMatchingConversations")}</p>
               : <ul className={compact ? "min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain" : "space-y-1.5"}>
-                {filtered.map(item => <li key={item.conversationId}>
-                  {onSelect
-                    ? <button type="button" onClick={() => onSelect(item.conversationId)}
-                      className="group flex w-full min-h-[4.25rem] items-center gap-3 rounded-2xl border border-transparent px-3 py-2.5 text-start transition-all hover:border-border/70 hover:bg-accent/55 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:px-3.5">
-                      <ConversationRow item={item} locale={locale} date={date} groupLabel={t("groupConversation")}/>
-                    </button>
-                    : <Link href={`/chats/${item.conversationId}`}
-                    className="group flex min-h-[4.25rem] items-center gap-3 rounded-2xl border border-transparent px-3 py-2.5 transition-all hover:border-border/70 hover:bg-accent/55 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:px-3.5">
-                      <ConversationRow item={item} locale={locale} date={date} groupLabel={t("groupConversation")}/>
-                    </Link>}
-                </li>)}
+                {filtered.map(item => {
+                  const isActive = activeConversationId === item.conversationId;
+                  return <li key={item.conversationId}>
+                    {onSelect
+                      ? <button type="button" onClick={() => onSelect(item.conversationId)}
+                        data-conversation-active={isActive ? "true" : undefined}
+                        className="group flex w-full min-h-[4.25rem] items-center gap-3 rounded-2xl border border-transparent px-3 py-2.5 text-start transition-all hover:border-border/70 hover:bg-accent/55 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:px-3.5">
+                        <ConversationRow item={item} locale={locale} date={date} groupLabel={t("groupConversation")}/>
+                      </button>
+                      : <Link href={`/chats/${item.conversationId}`}
+                        data-conversation-active={isActive ? "true" : undefined}
+                        aria-current={isActive ? "page" : undefined}
+                        className="group flex min-h-[4.25rem] items-center gap-3 rounded-2xl border border-transparent px-3 py-2.5 transition-all hover:border-border/70 hover:bg-accent/55 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:px-3.5">
+                        <ConversationRow item={item} locale={locale} date={date} groupLabel={t("groupConversation")}/>
+                      </Link>}
+                  </li>;
+                })}
               </ul>}
       </CardContent>
     </Card>
