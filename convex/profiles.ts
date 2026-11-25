@@ -200,6 +200,12 @@ export const updateUiShortcuts = mutation({
   },
 });
 
+const windowStyleValidator = v.object({
+  material: v.union(v.literal("retro"), v.literal("glass"), v.literal("paper")),
+  opacity: v.number(),
+  blur: v.number(),
+  atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),
+});
 
 // Appearance and window material are one atomic account preference save.
 // Closed enums and bounded numeric values: no arbitrary CSS or cross-account writes.
@@ -211,12 +217,7 @@ export const updateAppearance = mutation({
     radius: v.union(v.literal("subtle"), v.literal("soft"), v.literal("round")),
     density: v.union(v.literal("comfortable"), v.literal("compact")),
     themePreference: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
-    windowStyle: v.object({
-      material: v.union(v.literal("glass"), v.literal("paper")),
-      opacity: v.number(),
-      blur: v.number(),
-      atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),
-    }),
+    windowStyle: windowStyleValidator,
   },
   handler: async (ctx, { themePreference, windowStyle, ...visualPreferences }) => {
     const profile = await requireAuthorizedProfile(ctx);
@@ -234,7 +235,7 @@ export const updateAppearance = mutation({
 // Server validates all fields and binds ownership to Clerk, never a client ID.
 export const updateWindowStyle = mutation({
   args: {
-    material: v.union(v.literal("glass"), v.literal("paper")),
+    material: v.union(v.literal("retro"), v.literal("glass"), v.literal("paper")),
     opacity: v.number(),
     blur: v.number(),
     atmosphere: v.union(v.literal("none"), v.literal("mist"), v.literal("rain")),

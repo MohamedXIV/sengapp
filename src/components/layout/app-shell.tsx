@@ -24,11 +24,13 @@ import { CozyMark } from "@/components/brand/cozy-mark";
 import { SidebarQuickActions } from "@/components/layout/sidebar-quick-actions";
 import { ExperienceSwitch } from "@/components/experience/experience-switch";
 import type { VisualPreferences } from "@/lib/themes/preferences";
+import type { WindowStyle } from "@/features/cottage/window-style";
 
 interface AppShellProps {
   children: ReactNode;
   profileId: string;
   visualPreferences?: Partial<VisualPreferences>;
+  windowStyle?: Partial<WindowStyle> | null;
   themePreference: "light" | "dark" | "system";
   reducedMotion?: boolean;
   userRole?: "operator" | "member";
@@ -43,7 +45,8 @@ export function AppShell(props: AppShellProps) {
   return (
     <AccountLocaleProvider locale={locale}>
       <PersonalThemeProvider key={props.profileId} profileId={props.profileId}
-        preferences={props.visualPreferences} appearance={props.themePreference} reducedMotion={props.reducedMotion}>
+        preferences={props.visualPreferences} windowStyle={props.windowStyle}
+        appearance={props.themePreference} reducedMotion={props.reducedMotion}>
         <AppShellContent {...props} locale={locale} />
       </PersonalThemeProvider>
     </AccountLocaleProvider>

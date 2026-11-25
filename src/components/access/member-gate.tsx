@@ -13,6 +13,7 @@ import { AccountLocaleProvider } from "@/components/i18n/account-locale-provider
 import { PersonalThemeProvider } from "@/components/themes/personal-theme-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { chooseLocale } from "@/lib/i18n/locale";
+import { normalizeWindowStyle } from "@/features/cottage/window-style";
 
 type Profile = Doc<"profiles">;
 
@@ -152,17 +153,19 @@ function ResolvedMembership({
       </div>
     );
   }
+  const normalizedWindowStyle = profile.windowStyle ? normalizeWindowStyle(profile.windowStyle) : undefined;
   if (embedded) {
     return <AccountLocaleProvider locale={profile.locale}>
       <PersonalThemeProvider key={profile._id} profileId={profile._id}
-        preferences={profile.visualPreferences} appearance={profile.themePreference}
-        reducedMotion={profile.reducedMotion}>
+        preferences={profile.visualPreferences} windowStyle={normalizedWindowStyle}
+        appearance={profile.themePreference} reducedMotion={profile.reducedMotion}>
         {children(profile)}
       </PersonalThemeProvider>
     </AccountLocaleProvider>;
   }
   return (
     <AppShell profileId={profile._id} visualPreferences={profile.visualPreferences}
+      windowStyle={normalizedWindowStyle}
       themePreference={profile.themePreference} reducedMotion={profile.reducedMotion}
       userRole={profile.role} displayName={profile.displayName}
       handle={profile.handle ?? "…"} locale={profile.locale}
@@ -190,4 +193,3 @@ function OperatorBootstrap({ bootstrap }: { bootstrap: () => Promise<unknown> })
     </div>
   );
 }
-
